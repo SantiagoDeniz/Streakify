@@ -1,0 +1,49 @@
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/activity_container"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <!-- Cards will be populated by the home_widget native code reading saved data -->
+        <!-- Example card: -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:layout_marginEnd="6dp"
+            android:background=\"@android:color/white\"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id=\"@+id/widget_title\"
+                android:text=\"🔥 MIS RACHAS\"
+                android:textStyle=\"bold\"
+                android:textSize=\"14sp\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"/>
+
+            <TextView
+                android:id=\"@+id/activity_name_1\"
+                android:text=\"Leer 20 min\"
+                android:textSize=\"13sp\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"/>
+
+            <TextView
+                android:id=\"@+id/activity_streak_1\"
+                android:text=\"🔥 12\"
+                android:textSize=\"13sp\"
+                android:layout_width=\"wrap_content\"
+                android:layout_height=\"wrap_content\"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</HorizontalScrollView>

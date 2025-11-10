@@ -1,0 +1,21 @@
+name: streakify
+description: A habit streak tracker with a home widget (prototype).
+publish_to: 'none'
+version: 0.0.1
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  home_widget: ^0.4.1
+  shared_preferences: ^2.3.0
+  uuid: ^4.4.0
+  intl: ^0.18.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

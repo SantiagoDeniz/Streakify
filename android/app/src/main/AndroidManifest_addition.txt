@@ -1,0 +1,13 @@
+<!-- Add inside <application> element -->
+<receiver android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/glance_widget_provider" />
+</receiver>
+
+<!-- Optional permission -->
+<uses-permission android:name="android.permission.BIND_APPWIDGET" />
