@@ -1,0 +1,24 @@
+name: Codespaces Prebuild
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  prebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run flutter doctor
+        run: flutter doctor
