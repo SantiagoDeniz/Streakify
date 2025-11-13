@@ -1,0 +1,26 @@
+# Configuración de entorno para Streakify
+# Este archivo documenta las rutas y configuraciones necesarias
+
+## Ruta de Flutter
+C:\Flutter\flutter\bin
+
+## Para agregar Flutter al PATH permanente (Windows):
+1. Presiona Win + X → Sistema → Configuración avanzada del sistema
+2. Click en "Variables de entorno"
+3. En "Variables del sistema", selecciona "Path" → "Editar"
+4. Click "Nuevo" → Agrega: C:\Flutter\flutter\bin
+5. Aceptar todo y reiniciar PowerShell
+
+## Verificar instalación
+flutter --version
+flutter doctor
+
+## Comandos iniciales (ya ejecutados):
+✅ flutter pub get (dependencias instaladas)
+✅ Extensiones Dart y Flutter instaladas en VS Code
+
+## Pendiente:
+❌ Instalar Android Studio (https://developer.android.com/studio)
+❌ Ejecutar: flutter doctor --android-licenses
+❌ Conectar celular con depuración USB
+❌ Ejecutar: flutter run
