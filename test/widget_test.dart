@@ -1,29 +1,44 @@
-// This is a basic Flutter widget test.
+// Test básico para Streakify
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Prueba que la aplicación se inicie correctamente y muestre los elementos principales.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:streakify/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Streakify app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const StreakifyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the app title is present
+    expect(find.text('Streakify'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
+    // Verify that the FAB (Floating Action Button) is present
+    expect(find.byIcon(Icons.add), findsOneWidget);
+
+    // Verify that we can tap the FAB to open the dialog
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify the dialog appears
+    expect(find.text('Nueva actividad'), findsOneWidget);
+  });
+
+  testWidgets('Can navigate to statistics screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const StreakifyApp());
+
+    // Find and tap the menu button
+    expect(find.byIcon(Icons.more_vert), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    // Find and tap the statistics option
+    expect(find.text('Estadísticas'), findsOneWidget);
+    await tester.tap(find.text('Estadísticas'));
+    await tester.pumpAndSettle();
+
+    // Verify we're on the statistics screen
+    expect(find.text('Estadísticas'), findsWidgets);
   });
 }

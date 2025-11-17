@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import '../models/activity.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -143,5 +144,91 @@ class NotificationService {
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
+  }
+
+  // ========== NOTIFICACIONES POR ACTIVIDAD ==========
+
+  /// Programa una notificación diaria para una actividad específica
+  /// Usa el ID de la actividad como ID de notificación para evitar conflictos
+  Future<void> scheduleActivityNotification(Activity activity) async {
+    await initialize();
+
+    // Si las notificaciones no están habilitadas, no programar
+    if (!activity.notificationsEnabled) {
+      return;
+    }
+
+    final now = DateTime.now();
+    var scheduledDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      activity.notificationHour,
+      activity.notificationMinute,
+    );
+
+    // Si la hora ya pasó hoy, programar para mañana
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    // Mensaje personalizado o mensaje por defecto
+    final message = activity.customMessage?.isNotEmpty == true
+        ? activity.customMessage!
+        : '¡Es hora de completar "${activity.name}"!';
+
+    await _notifications.zonedSchedule(
+      activity.id.hashCode, // ID único basado en el ID de la actividad
+      '🔥 ${activity.name}',
+      message,
+      tz.TZDateTime.from(scheduledDate, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'activity_reminders',
+          'Recordatorios de Actividades',
+          channelDescription: 'Recordatorios personalizados por actividad',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: activity.id, // Para identificar la actividad al tocar
+    );
+  }
+
+  /// Cancela la notificación de una actividad específica
+  Future<void> cancelActivityNotification(Activity activity) async {
+    await _notifications.cancel(activity.id.hashCode);
+  }
+
+  /// Reprograma todas las notificaciones para una lista de actividades
+  /// Útil al iniciar la app para asegurar que todas las notificaciones estén programadas
+  Future<void> rescheduleAllActivityNotifications(
+      List<Activity> activities) async {
+    await initialize();
+
+    // Cancelar todas las notificaciones de actividades primero
+    for (final activity in activities) {
+      await cancelActivityNotification(activity);
+    }
+
+    // Reprogramar solo las que tienen notificaciones habilitadas
+    for (final activity in activities) {
+      if (activity.notificationsEnabled) {
+        await scheduleActivityNotification(activity);
+      }
+    }
+  }
+
+  /// Actualiza la notificación de una actividad (cancela y reprograma)
+  Future<void> updateActivityNotification(Activity activity) async {
+    await cancelActivityNotification(activity);
+    if (activity.notificationsEnabled) {
+      await scheduleActivityNotification(activity);
+    }
   }
 }

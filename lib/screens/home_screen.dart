@@ -1,14 +1,31 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:confetti/confetti.dart';
 import '../models/activity.dart';
 import '../services/activity_service.dart';
+import '../services/achievement_service.dart';
 import '../services/notification_service.dart';
+import '../services/backup_service.dart';
 import '../widgets/home_widget_service.dart';
+import '../widgets/category_selector.dart';
+import '../widgets/tag_input.dart';
+import '../widgets/shimmer_widgets.dart';
+import '../widgets/animated_widgets.dart';
+import '../widgets/activity_visualizations.dart';
+import '../utils/activity_icons.dart';
+import '../themes/app_themes.dart';
 import 'statistics_screen.dart';
+import 'achievements_screen.dart';
+import 'backup_screen.dart';
+import 'calendar_screen.dart';
+import 'timeline_screen.dart';
+import 'activity_focus_screen.dart';
+import 'achievement_gallery_screen.dart';
+import 'dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(ThemeMode)? onThemeChanged;
+  final Function(AppThemeMode)? onThemeChanged;
 
   const HomeScreen({super.key, this.onThemeChanged});
 
@@ -18,26 +35,92 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ActivityService _service = ActivityService();
+  final AchievementService _achievementService = AchievementService();
   List<Activity> _activities = [];
   String _filterMode = 'all'; // 'all', 'active', 'paused'
   String _sortMode = 'name'; // 'name', 'streak', 'recent'
+  String? _selectedCategoryFilter; // Filtro por categoría
+  String? _selectedTagFilter; // Filtro por tag
+  late ConfettiController _confettiController;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
     _load();
+    _initAchievements();
+    _initNotifications();
+    _checkAutoBackup();
+  }
+
+  Future<void> _initAchievements() async {
+    await _achievementService.loadAchievements();
+  }
+
+  Future<void> _initNotifications() async {
+    // Reprogramar todas las notificaciones de actividades al iniciar la app
+    final notificationService = NotificationService();
+    await notificationService.rescheduleAllActivityNotifications(_activities);
+  }
+
+  Future<void> _checkAutoBackup() async {
+    // Verificar y crear backup automático si es necesario
+    final backupService = BackupService();
+    await backupService.checkAndCreateAutoBackup();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  // Helper para mostrar diálogos con animación
+  Future<T?> _showAnimatedDialog<T>(Widget dialog) {
+    return showGeneralDialog<T>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) => dialog,
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutBack,
+          ),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _load() async {
+    setState(() => _isLoading = true);
     final list = await _service.loadActivities();
-    setState(() => _activities = list);
+    setState(() {
+      _activities = list;
+      _isLoading = false;
+    });
     HomeWidgetService.updateWidget(_activities);
+    // Reprogramar notificaciones después de cargar actividades
+    _initNotifications();
   }
 
   Future<void> _save() async => _service.saveActivities(_activities);
 
-  void _addActivity(String name) {
-    final newAct = Activity(id: const Uuid().v4(), name: name);
+  void _addActivity(String name, {String? categoryId, List<String>? tags}) {
+    final newAct = Activity(
+      id: const Uuid().v4(),
+      name: name,
+      categoryId: categoryId,
+      tags: tags ?? [],
+    );
     setState(() => _activities.add(newAct));
     _save();
     HomeWidgetService.updateWidget(_activities);
@@ -51,35 +134,303 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _editActivity(Activity act) {
     String newName = act.name;
+    String? newCategoryId = act.categoryId;
+    List<String> newTags = List.from(act.tags);
+    String? newCustomIcon = act.customIcon;
+    String? newCustomColor = act.customColor;
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Editar actividad'),
-        content: TextField(
-          controller: TextEditingController(text: act.name),
-          decoration: const InputDecoration(hintText: 'Nombre'),
-          onChanged: (val) => newName = val,
-          autofocus: true,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Editar actividad'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: TextEditingController(text: act.name),
+                  decoration: const InputDecoration(
+                    hintText: 'Nombre',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (val) => newName = val,
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+
+                // Selector de icono
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final selectedIcon =
+                        await _showIconPickerDialog(context, newCustomIcon);
+                    if (selectedIcon != null) {
+                      setDialogState(() {
+                        newCustomIcon = selectedIcon;
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    ActivityIcons.getIcon(newCustomIcon),
+                    color: ActivityColors.getColor(newCustomColor),
+                  ),
+                  label: Text(newCustomIcon == null
+                      ? 'Seleccionar icono'
+                      : 'Cambiar icono'),
+                ),
+                const SizedBox(height: 16),
+
+                // Selector de color
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: ActivityColors.colorsList.map((colorEntry) {
+                    final colorHex =
+                        ActivityColors.colorToHex(colorEntry.value);
+                    final isSelected = newCustomColor == colorHex;
+                    return GestureDetector(
+                      onTap: () {
+                        setDialogState(() {
+                          newCustomColor = colorHex;
+                        });
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: colorEntry.value,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.black
+                                : Colors.grey.shade300,
+                            width: isSelected ? 3 : 1,
+                          ),
+                        ),
+                        child: isSelected
+                            ? const Icon(Icons.check,
+                                color: Colors.white, size: 20)
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+
+                CategorySelector(
+                  selectedCategoryId: newCategoryId,
+                  onCategorySelected: (categoryId) {
+                    newCategoryId = categoryId;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TagInput(
+                  initialTags: newTags,
+                  onTagsChanged: (tags) {
+                    newTags = tags;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (newName.trim().isNotEmpty) {
+                  setState(() {
+                    act.name = newName.trim();
+                    act.categoryId = newCategoryId;
+                    act.tags = newTags;
+                    act.customIcon = newCustomIcon;
+                    act.customColor = newCustomColor;
+                  });
+                  _save();
+                  HomeWidgetService.updateWidget(_activities);
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showActivityNotificationDialog(Activity act) async {
+    bool notificationsEnabled = act.notificationsEnabled;
+    int selectedHour = act.notificationHour;
+    int selectedMinute = act.notificationMinute;
+    String customMessage = act.customMessage ?? '';
+
+    final result = await _showAnimatedDialog<bool>(
+      AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              notificationsEnabled
+                  ? Icons.notifications_active
+                  : Icons.notifications_off,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Notificaciones')),
+          ],
+        ),
+        content: StatefulBuilder(
+          builder: (context, setDialogState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Configurar notificación para:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    act.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Switch de habilitar/deshabilitar
+                  SwitchListTile(
+                    title: const Text('Habilitar notificación'),
+                    subtitle: Text(
+                      notificationsEnabled
+                          ? 'Recibirás recordatorios diarios'
+                          : 'Sin notificaciones',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    value: notificationsEnabled,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        notificationsEnabled = value;
+                      });
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(height: 16),
+                  // Selector de hora
+                  if (notificationsEnabled) ...[
+                    const Text(
+                      'Hora de la notificación:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.access_time),
+                        title: Text(
+                          '${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.edit),
+                        onTap: () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: selectedHour,
+                              minute: selectedMinute,
+                            ),
+                          );
+                          if (picked != null) {
+                            setDialogState(() {
+                              selectedHour = picked.hour;
+                              selectedMinute = picked.minute;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Campo de mensaje personalizado
+                    const Text(
+                      'Mensaje personalizado (opcional):',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: TextEditingController(text: customMessage)
+                        ..selection = TextSelection.fromPosition(
+                          TextPosition(offset: customMessage.length),
+                        ),
+                      decoration: InputDecoration(
+                        hintText: '¡Es hora de completar "${act.name}"!',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.message),
+                        helperText:
+                            'Deja vacío para usar el mensaje predeterminado',
+                        helperMaxLines: 2,
+                      ),
+                      maxLines: 2,
+                      onChanged: (val) => customMessage = val,
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (newName.trim().isNotEmpty && newName.trim() != act.name) {
-                setState(() => act.name = newName.trim());
-                _save();
-                HomeWidgetService.updateWidget(_activities);
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('Guardar'),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.save),
+            label: const Text('Guardar'),
           ),
         ],
       ),
     );
+
+    if (result == true) {
+      // Actualizar la actividad con la nueva configuración
+      setState(() {
+        act.notificationsEnabled = notificationsEnabled;
+        act.notificationHour = selectedHour;
+        act.notificationMinute = selectedMinute;
+        act.customMessage =
+            customMessage.trim().isEmpty ? null : customMessage.trim();
+      });
+
+      await _save();
+
+      // Actualizar la notificación programada
+      final notificationService = NotificationService();
+      await notificationService.updateActivityNotification(act);
+
+      // Mostrar mensaje de confirmación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              notificationsEnabled
+                  ? '✅ Notificación configurada para ${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}'
+                  : '🔕 Notificación desactivada',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   void _toggleActive(Activity act) {
@@ -151,6 +502,12 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeWidgetService.updateWidget(_activities);
     setState(() {});
 
+    // Verificar logros desbloqueados
+    _checkAchievements();
+
+    // Lanzar confetti
+    _confettiController.play();
+
     // Mostrar celebración si alcanza hito
     if (act.streak % 7 == 0 && act.streak > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,6 +524,54 @@ class _HomeScreenState extends State<HomeScreen> {
           duration: const Duration(seconds: 2),
         ),
       );
+    }
+  }
+
+  Future<void> _checkAchievements() async {
+    final newAchievements =
+        await _achievementService.checkAndUnlockAchievements(_activities);
+
+    if (newAchievements.isNotEmpty && mounted) {
+      for (var achievement in newAchievements) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(achievement.icon, color: achievement.color),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '🏆 ¡Logro desbloqueado!',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(achievement.title),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 4),
+            backgroundColor: achievement.color,
+            action: SnackBarAction(
+              label: 'Ver',
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AchievementsScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
     }
   }
 
@@ -262,74 +667,87 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showAddDialog() {
     String name = '';
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
+    String? selectedCategoryId;
+    List<String> selectedTags = [];
+
+    _showAnimatedDialog(
+      AlertDialog(
         title: const Text('Nueva actividad'),
-        content: TextField(
-          decoration: const InputDecoration(hintText: 'Nombre'),
-          onChanged: (val) => name = val,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (val) => name = val,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              CategorySelector(
+                selectedCategoryId: selectedCategoryId,
+                onCategorySelected: (categoryId) {
+                  selectedCategoryId = categoryId;
+                },
+              ),
+              const SizedBox(height: 16),
+              TagInput(
+                initialTags: selectedTags,
+                onTagsChanged: (tags) {
+                  selectedTags = tags;
+                },
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
-              onPressed: () {
-                if (name.trim().isNotEmpty) _addActivity(name.trim());
-                Navigator.pop(context);
-              },
-              child: const Text('Guardar')),
+            onPressed: () {
+              if (name.trim().isNotEmpty) {
+                _addActivity(
+                  name.trim(),
+                  categoryId: selectedCategoryId,
+                  tags: selectedTags,
+                );
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
   }
 
   void _showThemeDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
+    _showAnimatedDialog(
+      AlertDialog(
         title: const Text('Elegir tema'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<ThemeMode>(
-              title: const Text('Claro'),
-              value: ThemeMode.light,
-              groupValue: Theme.of(context).brightness == Brightness.light
-                  ? ThemeMode.light
-                  : ThemeMode.dark,
-              onChanged: (value) {
-                if (value != null && widget.onThemeChanged != null) {
-                  widget.onThemeChanged!(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: const Text('Oscuro'),
-              value: ThemeMode.dark,
-              groupValue: Theme.of(context).brightness == Brightness.dark
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-              onChanged: (value) {
-                if (value != null && widget.onThemeChanged != null) {
-                  widget.onThemeChanged!(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: const Text('Automático (sistema)'),
-              value: ThemeMode.system,
-              groupValue: ThemeMode.system,
-              onChanged: (value) {
-                if (value != null && widget.onThemeChanged != null) {
-                  widget.onThemeChanged!(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
+            ...AppThemeMode.values.map((mode) {
+              return ListTile(
+                leading: Icon(
+                  AppThemes.getThemeIcon(mode),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(AppThemes.getThemeName(mode)),
+                onTap: () {
+                  if (widget.onThemeChanged != null) {
+                    widget.onThemeChanged!(mode);
+                    Navigator.pop(context);
+                  }
+                },
+              );
+            }).toList(),
           ],
         ),
       ),
@@ -339,11 +757,24 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Activity> _getFilteredAndSortedActivities() {
     var filtered = _activities;
 
-    // Aplicar filtro
+    // Aplicar filtro de estado (activo/pausado)
     if (_filterMode == 'active') {
       filtered = filtered.where((a) => a.active).toList();
     } else if (_filterMode == 'paused') {
       filtered = filtered.where((a) => !a.active).toList();
+    }
+
+    // Aplicar filtro por categoría
+    if (_selectedCategoryFilter != null) {
+      filtered = filtered
+          .where((a) => a.categoryId == _selectedCategoryFilter)
+          .toList();
+    }
+
+    // Aplicar filtro por tag
+    if (_selectedTagFilter != null) {
+      filtered =
+          filtered.where((a) => a.tags.contains(_selectedTagFilter)).toList();
     }
 
     // Aplicar ordenamiento
@@ -400,6 +831,87 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showCategoryFilterDialog() async {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Filtrar por categoría'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CategorySelector(
+                selectedCategoryId: _selectedCategoryFilter,
+                onCategorySelected: (categoryId) {
+                  setState(() {
+                    _selectedCategoryFilter = categoryId;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          if (_selectedCategoryFilter != null)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _selectedCategoryFilter = null;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Limpiar filtro'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showTagFilterDialog() async {
+    final allTags = await _service.getAllTags();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Filtrar por tag'),
+        content: SingleChildScrollView(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // Opción para limpiar filtro
+              if (_selectedTagFilter != null)
+                FilterChip(
+                  label: const Text('Sin filtro'),
+                  selected: false,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedTagFilter = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              // Tags disponibles
+              ...allTags.map((tag) => FilterChip(
+                    label: Text(tag),
+                    selected: _selectedTagFilter == tag,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedTagFilter = tag;
+                      });
+                      Navigator.pop(context);
+                    },
+                  )),
+            ],
+          ),
         ),
       ),
     );
@@ -571,6 +1083,62 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Muestra un diálogo para seleccionar un icono personalizado
+  Future<String?> _showIconPickerDialog(
+      BuildContext context, String? currentIcon) async {
+    return await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Seleccionar icono'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 400,
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            itemCount: ActivityIcons.iconsList.length,
+            itemBuilder: (context, index) {
+              final iconEntry = ActivityIcons.iconsList[index];
+              final iconName = iconEntry.key;
+              final iconData = iconEntry.value;
+              final isSelected = currentIcon == iconName;
+
+              return InkWell(
+                onTap: () {
+                  Navigator.pop(context, iconName);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.blue.withOpacity(0.2) : null,
+                    border: Border.all(
+                      color: isSelected ? Colors.blue : Colors.grey.shade300,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    iconData,
+                    size: 32,
+                    color: isSelected ? Colors.blue : Colors.grey.shade700,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDailySummary(List<Activity> activities) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -598,117 +1166,139 @@ class _HomeScreenState extends State<HomeScreen> {
     final double progress =
         activeActivities.isEmpty ? 0 : completedToday / activeActivities.length;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.7),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withOpacity(0.7),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Resumen de hoy',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                DateTime.now().day.toString().padLeft(2, '0') +
-                    '/' +
-                    DateTime.now().month.toString().padLeft(2, '0'),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  icon: Icons.check_circle,
-                  label: 'Completadas',
-                  value: completedToday.toString(),
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildSummaryCard(
-                  icon: Icons.pending_outlined,
-                  label: 'Pendientes',
-                  value: pending.toString(),
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildSummaryCard(
-                  icon: Icons.warning_amber,
-                  label: 'En riesgo',
-                  value: atRisk.toString(),
-                  color: Colors.red,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Progreso del día',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Resumen de hoy',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    '${(progress * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.white.withOpacity(0.3),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                  minHeight: 8,
                 ),
-              ),
-            ],
-          ),
-        ],
+                Text(
+                  DateTime.now().day.toString().padLeft(2, '0') +
+                      '/' +
+                      DateTime.now().month.toString().padLeft(2, '0'),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    icon: Icons.check_circle,
+                    label: 'Completadas',
+                    value: completedToday.toString(),
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildSummaryCard(
+                    icon: Icons.pending_outlined,
+                    label: 'Pendientes',
+                    value: pending.toString(),
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildSummaryCard(
+                    icon: Icons.warning_amber,
+                    label: 'En riesgo',
+                    value: atRisk.toString(),
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Progreso del día',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${(progress * 100).toStringAsFixed(0)}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: progress),
+                    duration: const Duration(milliseconds: 1200),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return LinearProgressIndicator(
+                        value: value,
+                        backgroundColor: Colors.white.withOpacity(0.3),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.white),
+                        minHeight: 8,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -758,170 +1348,453 @@ class _HomeScreenState extends State<HomeScreen> {
     final filterActive = _filterMode != 'all';
     final sortActive = _sortMode != 'name';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Streakify'),
-            if (filterActive || sortActive)
-              Text(
-                '${filterActive ? "Filtrado" : ""}${filterActive && sortActive ? " • " : ""}${sortActive ? "Ordenado" : ""}',
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.normal),
-              ),
-          ],
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'stats') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        StatisticsScreen(activities: _activities),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Streakify'),
+                if (filterActive || sortActive)
+                  Text(
+                    '${filterActive ? "Filtrado" : ""}${filterActive && sortActive ? " • " : ""}${sortActive ? "Ordenado" : ""}',
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.normal),
                   ),
-                );
-              } else if (value == 'theme') {
-                _showThemeDialog();
-              } else if (value == 'filter') {
-                _showFilterDialog();
-              } else if (value == 'sort') {
-                _showSortDialog();
-              } else if (value == 'notifications') {
-                _showNotificationSettings();
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'stats',
-                child: Row(
-                  children: [
-                    Icon(Icons.bar_chart),
-                    SizedBox(width: 8),
-                    Text('Estadísticas'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'filter',
-                child: Row(
-                  children: [
-                    Icon(Icons.filter_list),
-                    SizedBox(width: 8),
-                    Text('Filtrar'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'sort',
-                child: Row(
-                  children: [
-                    Icon(Icons.sort),
-                    SizedBox(width: 8),
-                    Text('Ordenar'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'theme',
-                child: Row(
-                  children: [
-                    Icon(Icons.palette),
-                    SizedBox(width: 8),
-                    Text('Cambiar tema'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'notifications',
-                child: Row(
-                  children: [
-                    Icon(Icons.notifications),
-                    SizedBox(width: 8),
-                    Text('Notificaciones'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: filteredActivities.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _activities.isEmpty
-                          ? Icons.inbox_outlined
-                          : Icons.filter_alt_off,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _activities.isEmpty
-                          ? 'No hay actividades'
-                          : 'No hay actividades con este filtro',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+              ],
+            ),
+            actions: [
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                onSelected: (value) {
+                  if (value == 'stats') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            StatisticsScreen(activities: _activities),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _activities.isEmpty
-                          ? 'Presiona el botón + para agregar tu primera actividad'
-                          : 'Intenta cambiar los filtros o agregar nuevas actividades',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                    );
+                  } else if (value == 'achievements') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const AchievementsScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
                       ),
-                    ),
-                    if (!_activities.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _filterMode = 'all';
-                              _sortMode = 'name';
-                            });
-                          },
-                          icon: const Icon(Icons.clear_all),
-                          label: const Text('Limpiar filtros'),
-                        ),
+                    );
+                  } else if (value == 'gallery') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const AchievementGalleryScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, -1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
                       ),
-                  ],
-                ),
-              )
-            : Column(
-                children: [
-                  // Banner de resumen diario
-                  _buildDailySummary(filteredActivities),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: StreakWidgetView(
-                      activities: filteredActivities,
-                      onComplete: _markCompleted,
-                      onUseProtector: _manualUseProtector,
-                      onDelete: _delete,
-                      onEdit: _editActivity,
-                      onToggleActive: _toggleActive,
+                    );
+                  } else if (value == 'theme') {
+                    _showThemeDialog();
+                  } else if (value == 'filter') {
+                    _showFilterDialog();
+                  } else if (value == 'filter_category') {
+                    _showCategoryFilterDialog();
+                  } else if (value == 'filter_tag') {
+                    _showTagFilterDialog();
+                  } else if (value == 'sort') {
+                    _showSortDialog();
+                  } else if (value == 'notifications') {
+                    _showNotificationSettings();
+                  } else if (value == 'backup') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BackupScreen(),
+                      ),
+                    ).then((_) => _load());
+                  } else if (value == 'calendar') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const CalendarScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.0, 1.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  } else if (value == 'timeline') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            TimelineScreen(activities: _activities),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(-1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  } else if (value == 'dashboard') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const DashboardScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'stats',
+                    child: Row(
+                      children: [
+                        Icon(Icons.bar_chart),
+                        SizedBox(width: 8),
+                        Text('Estadísticas'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'dashboard',
+                    child: Row(
+                      children: [
+                        Icon(Icons.dashboard),
+                        SizedBox(width: 8),
+                        Text('Dashboard'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'achievements',
+                    child: Row(
+                      children: [
+                        Icon(Icons.emoji_events),
+                        SizedBox(width: 8),
+                        Text('Logros'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'gallery',
+                    child: Row(
+                      children: [
+                        Icon(Icons.photo_library),
+                        SizedBox(width: 8),
+                        Text('Galería de Logros'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'calendar',
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_month),
+                        SizedBox(width: 8),
+                        Text('Calendario'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'timeline',
+                    child: Row(
+                      children: [
+                        Icon(Icons.timeline),
+                        SizedBox(width: 8),
+                        Text('Timeline del Día'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'filter',
+                    child: Row(
+                      children: [
+                        Icon(Icons.filter_list),
+                        SizedBox(width: 8),
+                        Text('Filtrar estado'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'filter_category',
+                    child: Row(
+                      children: [
+                        Icon(Icons.category),
+                        SizedBox(width: 8),
+                        Text('Filtrar por categoría'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'filter_tag',
+                    child: Row(
+                      children: [
+                        Icon(Icons.label),
+                        SizedBox(width: 8),
+                        Text('Filtrar por tag'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'sort',
+                    child: Row(
+                      children: [
+                        Icon(Icons.sort),
+                        SizedBox(width: 8),
+                        Text('Ordenar'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'theme',
+                    child: Row(
+                      children: [
+                        Icon(Icons.palette),
+                        SizedBox(width: 8),
+                        Text('Cambiar tema'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'notifications',
+                    child: Row(
+                      children: [
+                        Icon(Icons.notifications),
+                        SizedBox(width: 8),
+                        Text('Notificaciones'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'backup',
+                    child: Row(
+                      children: [
+                        Icon(Icons.backup),
+                        SizedBox(width: 8),
+                        Text('Backup y Restauración'),
+                      ],
                     ),
                   ),
                 ],
               ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: _showAddDialog, child: const Icon(Icons.add)),
+            ],
+          ),
+          body: Column(
+            children: [
+              // Chips de filtros activos
+              if (_selectedCategoryFilter != null || _selectedTagFilter != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (_selectedCategoryFilter != null)
+                        Chip(
+                          avatar: const Icon(Icons.category, size: 18),
+                          label: const Text('Categoría'),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () {
+                            setState(() {
+                              _selectedCategoryFilter = null;
+                            });
+                          },
+                        ),
+                      if (_selectedTagFilter != null)
+                        Chip(
+                          avatar: const Icon(Icons.label, size: 18),
+                          label: Text(_selectedTagFilter!),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () {
+                            setState(() {
+                              _selectedTagFilter = null;
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              // Lista de actividades
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: filteredActivities.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _activities.isEmpty
+                                    ? Icons.inbox_outlined
+                                    : Icons.filter_alt_off,
+                                size: 64,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _activities.isEmpty
+                                    ? 'No hay actividades'
+                                    : 'No hay actividades con este filtro',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _activities.isEmpty
+                                    ? 'Presiona el botón + para agregar tu primera actividad'
+                                    : 'Intenta cambiar los filtros o agregar nuevas actividades',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              if (!_activities.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _filterMode = 'all';
+                                        _sortMode = 'name';
+                                      });
+                                    },
+                                    icon: const Icon(Icons.clear_all),
+                                    label: const Text('Limpiar filtros'),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        )
+                      : _isLoading
+                          ? const Expanded(
+                              child: ActivityListSkeleton(itemCount: 5),
+                            )
+                          : Column(
+                              children: [
+                                // Banner de resumen diario
+                                _buildDailySummary(filteredActivities),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: StreakWidgetView(
+                                    activities: filteredActivities,
+                                    onComplete: _markCompleted,
+                                    onUseProtector: _manualUseProtector,
+                                    onDelete: _delete,
+                                    onEdit: _editActivity,
+                                    onToggleActive: _toggleActive,
+                                    onConfigureNotifications:
+                                        _showActivityNotificationDialog,
+                                  ),
+                                ),
+                              ],
+                            ),
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+              onPressed: _showAddDialog, child: const Icon(Icons.add)),
+        ),
+        // Widget de confetti
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            particleDrag: 0.05,
+            emissionFrequency: 0.05,
+            numberOfParticles: 30,
+            gravity: 0.2,
+            shouldLoop: false,
+            colors: const [
+              Colors.green,
+              Colors.blue,
+              Colors.pink,
+              Colors.orange,
+              Colors.purple,
+              Colors.yellow,
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -933,6 +1806,7 @@ class StreakWidgetView extends StatefulWidget {
   final Function(Activity) onDelete;
   final Function(Activity) onEdit;
   final Function(Activity) onToggleActive;
+  final Function(Activity) onConfigureNotifications;
 
   const StreakWidgetView({
     super.key,
@@ -942,6 +1816,7 @@ class StreakWidgetView extends StatefulWidget {
     required this.onDelete,
     required this.onEdit,
     required this.onToggleActive,
+    required this.onConfigureNotifications,
   });
 
   @override
@@ -949,13 +1824,100 @@ class StreakWidgetView extends StatefulWidget {
 }
 
 class _StreakWidgetViewState extends State<StreakWidgetView> {
+  final Set<String> _expandedCards = {};
+
+  void _toggleExpanded(String activityId) {
+    setState(() {
+      if (_expandedCards.contains(activityId)) {
+        _expandedCards.remove(activityId);
+      } else {
+        _expandedCards.add(activityId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: widget.activities
-          .map((activity) => _buildActivityCard(context, activity))
-          .toList(),
+    // Ordenar actividades por displayOrder
+    final sortedActivities = List<Activity>.from(widget.activities)
+      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+
+    return ReorderableListView.builder(
+      itemCount: sortedActivities.length,
+      onReorder: (oldIndex, newIndex) {
+        // Si movemos hacia abajo, el índice disminuye en 1
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+
+        // Reordenar la lista
+        final activity = sortedActivities.removeAt(oldIndex);
+        sortedActivities.insert(newIndex, activity);
+
+        // Actualizar displayOrder de todas las actividades
+        for (int i = 0; i < sortedActivities.length; i++) {
+          sortedActivities[i].displayOrder = i;
+        }
+
+        // Guardar cambios
+        widget.onEdit(activity); // Esto disparará el guardado
+      },
+      itemBuilder: (context, index) {
+        final activity = sortedActivities[index];
+        return TweenAnimationBuilder<double>(
+          key: ValueKey(activity.id),
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: Duration(milliseconds: 300 + (index * 50)),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: Offset(0, 20 * (1 - value)),
+              child: Opacity(
+                opacity: value,
+                child: child,
+              ),
+            );
+          },
+          child: _buildActivityCard(context, activity),
+        );
+      },
     );
+  }
+
+  // Calcula los últimos 7 días de completado para una actividad
+  Future<List<bool>> _calculateLast7Days(Activity activity) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    List<bool> last7Days = [];
+
+    // Si no tiene lastCompleted, todos son false
+    if (activity.lastCompleted == null) {
+      return List.filled(7, false);
+    }
+
+    final lastCompletedDate = DateTime(
+      activity.lastCompleted!.year,
+      activity.lastCompleted!.month,
+      activity.lastCompleted!.day,
+    );
+
+    // Calcular los últimos 7 días basado en la racha
+    for (int i = 6; i >= 0; i--) {
+      final checkDate = today.subtract(Duration(days: i));
+
+      // Si es hoy y fue completado hoy
+      if (i == 0) {
+        last7Days.add(checkDate == lastCompletedDate);
+      } else {
+        // Para días anteriores, marcamos como completado si está dentro de la racha
+        final daysDiff = today.difference(checkDate).inDays;
+        final wasCompleted =
+            daysDiff <= activity.streak && lastCompletedDate == today;
+        last7Days.add(wasCompleted);
+      }
+    }
+
+    return last7Days;
   }
 
   Widget _buildActivityCard(BuildContext context, Activity activity) {
@@ -994,85 +1956,208 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
       borderColor = Colors.orange;
     }
 
-    return Opacity(
-      opacity: activity.active ? 1.0 : 0.5,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: completedToday
-              ? (Theme.of(context).brightness == Brightness.dark
-                  ? Colors.green[900]?.withOpacity(0.3)
-                  : Colors.green[50])
-              : (Theme.of(context).brightness == Brightness.dark
-                  ? Colors.grey[900]
-                  : Colors.white),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: Theme.of(context).brightness == Brightness.dark
-              ? []
-              : [
-                  BoxShadow(
-                      color: completedToday
-                          ? Colors.green.withOpacity(0.3)
-                          : Colors.black26,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2))
-                ],
-          border: Border.all(
-            color: borderColor ?? Colors.transparent,
-            width: borderColor != null ? 2 : 0,
-          ),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Icono de estado
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: completedToday
-                        ? Colors.green.withOpacity(0.2)
-                        : (isAtRisk
-                            ? Colors.orange.withOpacity(0.2)
-                            : Colors.blue.withOpacity(0.2)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    completedToday
-                        ? Icons.check_circle
-                        : (isAtRisk
-                            ? Icons.warning_amber
-                            : Icons.local_fire_department),
-                    color: completedToday
-                        ? Colors.green
-                        : (isAtRisk ? Colors.orange : Colors.blue),
-                    size: 28,
-                  ),
+    return Dismissible(
+      key: Key(activity.id),
+      background: _buildSwipeBackground(
+        alignment: Alignment.centerLeft,
+        color: Colors.blue,
+        icon: Icons.edit,
+        text: 'Editar',
+      ),
+      secondaryBackground: _buildSwipeBackground(
+        alignment: Alignment.centerRight,
+        color: Colors.red,
+        icon: Icons.delete,
+        text: 'Eliminar',
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.endToStart) {
+          // Deslizar hacia la izquierda - Eliminar
+          return await _showConfirmDialog(
+            context: context,
+            title: 'Eliminar actividad',
+            content: '¿Estás seguro de eliminar "${activity.name}"?',
+            confirmText: 'Eliminar',
+            confirmColor: Colors.red,
+            onConfirm: () => widget.onDelete(activity),
+          );
+        } else if (direction == DismissDirection.startToEnd) {
+          // Deslizar hacia la derecha - Editar
+          await _showConfirmDialog(
+            context: context,
+            title: 'Editar actividad',
+            content: '¿Deseas editar "${activity.name}"?',
+            confirmText: 'Editar',
+            confirmColor: Colors.blue,
+            onConfirm: () => widget.onEdit(activity),
+          );
+          return false; // No dismissar la tarjeta al editar
+        }
+        return false;
+      },
+      child: Opacity(
+        opacity: activity.active ? 1.0 : 0.5,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ActivityFocusScreen(
+                  activity: activity,
+                  onComplete: () => widget.onComplete(activity),
+                  onEdit: () => widget.onEdit(activity),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: completedToday
+                  ? (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.green[900]?.withOpacity(0.3)
+                      : Colors.green[50])
+                  : (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey[900]
+                      : Colors.white),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: Theme.of(context).brightness == Brightness.dark
+                  ? []
+                  : [
+                      BoxShadow(
+                          color: completedToday
+                              ? Colors.green.withOpacity(0.3)
+                              : Colors.black26,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2))
+                    ],
+              border: Border.all(
+                color: borderColor ?? Colors.transparent,
+                width: borderColor != null ? 2 : 0,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Icono personalizado o de estado
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: activity.customColor != null
+                            ? ActivityColors.getColor(activity.customColor)
+                                .withOpacity(0.2)
+                            : (completedToday
+                                ? Colors.green.withOpacity(0.2)
+                                : (isAtRisk
+                                    ? Colors.orange.withOpacity(0.2)
+                                    : Colors.blue.withOpacity(0.2))),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        activity.customIcon != null
+                            ? ActivityIcons.getIcon(activity.customIcon)
+                            : (completedToday
+                                ? Icons.check_circle
+                                : (isAtRisk
+                                    ? Icons.warning_amber
+                                    : Icons.local_fire_department)),
+                        color: activity.customColor != null
+                            ? ActivityColors.getColor(activity.customColor)
+                            : (completedToday
+                                ? Colors.green
+                                : (isAtRisk ? Colors.orange : Colors.blue)),
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              activity.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.white
-                                    : Colors.black,
-                                decoration: activity.active
-                                    ? null
-                                    : TextDecoration.lineThrough,
-                              ),
+                          // Nombre de la actividad
+                          Text(
+                            activity.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                              decoration: activity.active
+                                  ? null
+                                  : TextDecoration.lineThrough,
                             ),
                           ),
+                          const SizedBox(height: 6),
+                          // Racha actual
+                          Row(
+                            children: [
+                              const Icon(Icons.local_fire_department,
+                                  size: 16, color: Colors.orange),
+                              const SizedBox(width: 4),
+                              BouncingCounter(
+                                value: activity.streak,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.orange[300]
+                                      : Colors.orange[700],
+                                ),
+                              ),
+                              Text(
+                                ' ${activity.streak == 1 ? "día" : "días"} de racha',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.orange[300]
+                                      : Colors.orange[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          // Última vez completada
+                          Text(
+                            lastCompletedText,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 4),
+                          // Estado del protector
+                          Row(
+                            children: [
+                              Icon(
+                                hasProtectorAvailable
+                                    ? Icons.shield
+                                    : Icons.shield_outlined,
+                                size: 14,
+                                color: hasProtectorAvailable
+                                    ? Colors.blue
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  protectorText,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: hasProtectorAvailable
+                                        ? Colors.blue
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
                           // Badge de estado
                           if (completedToday)
                             Container(
@@ -1128,77 +2213,13 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      // Racha actual
-                      Row(
-                        children: [
-                          const Icon(Icons.local_fire_department,
-                              size: 16, color: Colors.orange),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${activity.streak} ${activity.streak == 1 ? "día" : "días"} de racha',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.orange[300]
-                                  : Colors.orange[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      // Última vez completada
-                      Text(
-                        lastCompletedText,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 2),
-                      // Estado del protector
-                      Row(
-                        children: [
-                          Icon(
-                            hasProtectorAvailable
-                                ? Icons.shield
-                                : Icons.shield_outlined,
-                            size: 14,
-                            color: hasProtectorAvailable
-                                ? Colors.blue
-                                : Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              protectorText,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: hasProtectorAvailable
-                                    ? Colors.blue
-                                    : Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Botón principal (completar o info)
-                Column(
-                  children: [
-                    if (!completedToday)
-                      IconButton(
-                        onPressed: activity.active
-                            ? () => widget.onComplete(activity)
-                            : null,
-                        icon: const Icon(Icons.check_circle_outline),
-                        tooltip: 'Marcar completado',
-                        color: activity.active ? Colors.green : Colors.grey,
-                        iconSize: 32,
+                    ),
+                    // Botón de completar
+                    if (!completedToday && activity.active)
+                      _PulsingButton(
+                        onPressed: () => widget.onComplete(activity),
                       )
-                    else
+                    else if (completedToday)
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -1211,57 +2232,255 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                           size: 32,
                         ),
                       ),
+                    // Menú de opciones (3 puntos)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      tooltip: 'Opciones',
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'edit':
+                            widget.onEdit(activity);
+                            break;
+                          case 'toggle':
+                            widget.onToggleActive(activity);
+                            break;
+                          case 'protector':
+                            widget.onUseProtector(activity);
+                            break;
+                          case 'notifications':
+                            widget.onConfigureNotifications(activity);
+                            break;
+                          case 'delete':
+                            _confirmDelete(context, activity);
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 20),
+                              SizedBox(width: 8),
+                              Text('Editar'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'toggle',
+                          child: Row(
+                            children: [
+                              Icon(
+                                  activity.active
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  size: 20),
+                              const SizedBox(width: 8),
+                              Text(activity.active ? 'Pausar' : 'Activar'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'notifications',
+                          child: Row(
+                            children: [
+                              Icon(
+                                activity.notificationsEnabled
+                                    ? Icons.notifications_active
+                                    : Icons.notifications_off,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('Notificaciones'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'protector',
+                          enabled: hasProtectorAvailable,
+                          child: Row(
+                            children: [
+                              Icon(
+                                hasProtectorAvailable
+                                    ? Icons.shield
+                                    : Icons.shield_outlined,
+                                size: 20,
+                                color:
+                                    hasProtectorAvailable ? null : Colors.grey,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Usar Protector',
+                                style: TextStyle(
+                                  color: hasProtectorAvailable
+                                      ? null
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Eliminar',
+                                  style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
+                ), // Fin del Row principal
+
+                // Contenido expandible
+                if (_expandedCards.contains(activity.id)) ...[
+                  const Divider(height: 24, thickness: 1),
+
+                  // Tags
+                  if (activity.tags.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: activity.tags
+                            .map((tag) => Chip(
+                                  label: Text('#$tag'),
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+
+                  // Tiempo hasta medianoche
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: TimeUntilMidnightIndicator(),
+                  ),
+
+                  // Progreso semanal
+                  FutureBuilder<List<bool>>(
+                    future: _calculateLast7Days(activity),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return WeeklyProgressBar(
+                          last7Days: snapshot.data!,
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+
+                // Botón expandir/colapsar
+                InkWell(
+                  onTap: () => _toggleExpanded(activity.id),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _expandedCards.contains(activity.id)
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _expandedCards.contains(activity.id)
+                              ? 'Ver menos'
+                              : 'Ver más',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
+              ], // Fin children del Column
+            ), // Fin del Column
+          ), // Fin del Container
+        ), // Fin del GestureDetector
+      ), // Fin del Opacity
+    ); // Fin del Dismissible
+  }
+
+  Widget _buildSwipeBackground({
+    required Alignment alignment,
+    required Color color,
+    required IconData icon,
+    required String text,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: alignment,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 32),
+          const SizedBox(height: 4),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
-            const Divider(height: 16, thickness: 1),
-            Wrap(
-              alignment: WrapAlignment.spaceEvenly,
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                TextButton.icon(
-                  onPressed: () => widget.onEdit(activity),
-                  icon: const Icon(Icons.edit, size: 16),
-                  label: const Text('Editar', style: TextStyle(fontSize: 11)),
-                ),
-                TextButton.icon(
-                  onPressed: () => widget.onToggleActive(activity),
-                  icon: Icon(activity.active ? Icons.pause : Icons.play_arrow,
-                      size: 16),
-                  label: Text(
-                    activity.active ? 'Pausar' : 'Activar',
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => widget.onUseProtector(activity),
-                  icon: Icon(
-                    hasProtectorAvailable
-                        ? Icons.shield
-                        : Icons.shield_outlined,
-                    size: 16,
-                  ),
-                  label:
-                      const Text('Protector', style: TextStyle(fontSize: 11)),
-                  style: TextButton.styleFrom(
-                    foregroundColor:
-                        hasProtectorAvailable ? Colors.blue : Colors.grey,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _confirmDelete(context, activity),
-                  icon: const Icon(Icons.delete_outline, size: 16),
-                  label: const Text('Eliminar', style: TextStyle(fontSize: 11)),
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<bool> _showConfirmDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required String confirmText,
+    required Color confirmColor,
+    required VoidCallback onConfirm,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onConfirm();
+              Navigator.pop(context, true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: confirmColor,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(confirmText),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   void _confirmDelete(BuildContext context, Activity activity) {
@@ -1284,6 +2503,59 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
             child: const Text('Eliminar'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Widget de botón pulsante animado
+class _PulsingButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const _PulsingButton({required this.onPressed});
+
+  @override
+  State<_PulsingButton> createState() => _PulsingButtonState();
+}
+
+class _PulsingButtonState extends State<_PulsingButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: BounceButton(
+        onPressed: widget.onPressed,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          child: const Icon(
+            Icons.check_circle_outline,
+            color: Colors.green,
+            size: 32,
+          ),
+        ),
       ),
     );
   }
