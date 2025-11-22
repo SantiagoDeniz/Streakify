@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/activity.dart';
 import '../models/category.dart';
+import '../models/completion_history.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -23,7 +24,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4, // Incrementamos para personalización visual
+      version: 8, // Rachas parciales, múltiples completaciones y freeze
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -59,9 +60,38 @@ class DatabaseHelper {
         customIcon TEXT,
         customColor TEXT,
         displayOrder INTEGER NOT NULL DEFAULT 0,
+        recurrenceType TEXT NOT NULL DEFAULT 'daily',
+        recurrenceInterval INTEGER NOT NULL DEFAULT 1,
+        recurrenceDays TEXT,
+        startDate TEXT,
+        targetDays INTEGER,
+        isArchived INTEGER NOT NULL DEFAULT 0,
+        allowedFailures INTEGER NOT NULL DEFAULT 0,
+        weeklyFailureCount INTEGER NOT NULL DEFAULT 0,
+        freeDays TEXT,
+        partialGoalRequired INTEGER,
+        partialGoalTotal INTEGER,
+        weeklyCompletionCount INTEGER NOT NULL DEFAULT 0,
+        dailyCompletionCount INTEGER NOT NULL DEFAULT 0,
+        dailyGoal INTEGER NOT NULL DEFAULT 1,
+        isFrozen INTEGER NOT NULL DEFAULT 0,
+        frozenUntil TEXT,
+        freezeReason TEXT,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
         FOREIGN KEY (categoryId) REFERENCES categories(id)
+      )
+    ''');
+
+    // Tabla de historial de completaciones
+    await db.execute('''
+      CREATE TABLE completion_history (
+        id TEXT PRIMARY KEY,
+        activityId TEXT NOT NULL,
+        completedAt TEXT NOT NULL,
+        notes TEXT,
+        protectorUsed INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
       )
     ''');
 
@@ -74,6 +104,10 @@ class DatabaseHelper {
         'CREATE INDEX idx_activities_updated ON activities(updatedAt DESC)');
     await db.execute(
         'CREATE INDEX idx_activities_category ON activities(categoryId)');
+    await db.execute(
+        'CREATE INDEX idx_completion_activity ON completion_history(activityId)');
+    await db.execute(
+        'CREATE INDEX idx_completion_date ON completion_history(completedAt DESC)');
 
     // Insertar categorías predefinidas
     await _insertDefaultCategories(db);
@@ -120,6 +154,66 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE activities ADD COLUMN customColor TEXT');
       await db.execute(
           'ALTER TABLE activities ADD COLUMN displayOrder INTEGER NOT NULL DEFAULT 0');
+    }
+
+    if (oldVersion < 5) {
+      // Crear tabla de historial de completaciones
+      await db.execute('''
+        CREATE TABLE completion_history (
+          id TEXT PRIMARY KEY,
+          activityId TEXT NOT NULL,
+          completedAt TEXT NOT NULL,
+          notes TEXT,
+          protectorUsed INTEGER NOT NULL DEFAULT 0,
+          FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // Crear índices para el historial
+      await db.execute(
+          'CREATE INDEX idx_completion_activity ON completion_history(activityId)');
+      await db.execute(
+          'CREATE INDEX idx_completion_date ON completion_history(completedAt DESC)');
+    }
+
+    if (oldVersion < 6) {
+      // Agregar columnas de recurrencia
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN recurrenceType TEXT NOT NULL DEFAULT \'daily\'');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN recurrenceInterval INTEGER NOT NULL DEFAULT 1');
+      await db.execute('ALTER TABLE activities ADD COLUMN recurrenceDays TEXT');
+      await db.execute('ALTER TABLE activities ADD COLUMN startDate TEXT');
+    }
+
+    if (oldVersion < 7) {
+      // Agregar columnas para metas, archivado y rachas flexibles
+      await db.execute('ALTER TABLE activities ADD COLUMN targetDays INTEGER');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN isArchived INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN allowedFailures INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN weeklyFailureCount INTEGER NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE activities ADD COLUMN freeDays TEXT');
+    }
+
+    if (oldVersion < 8) {
+      // Agregar columnas para rachas parciales, múltiples completaciones y freeze
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN partialGoalRequired INTEGER');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN partialGoalTotal INTEGER');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN weeklyCompletionCount INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN dailyCompletionCount INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN dailyGoal INTEGER NOT NULL DEFAULT 1');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN isFrozen INTEGER NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE activities ADD COLUMN frozenUntil TEXT');
+      await db.execute('ALTER TABLE activities ADD COLUMN freezeReason TEXT');
     }
   }
 
@@ -351,6 +445,90 @@ class DatabaseHelper {
       'categories',
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  // CRUD Operations - Completion History
+
+  /// Insertar una completación en el historial
+  Future<int> insertCompletion(CompletionHistory completion) async {
+    final db = await database;
+    return await db.insert(
+      'completion_history',
+      completion.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Actualizar nota de una completación
+  Future<int> updateCompletionNote(String completionId, String note) async {
+    final db = await database;
+    return await db.update(
+      'completion_history',
+      {'notes': note},
+      where: 'id = ?',
+      whereArgs: [completionId],
+    );
+  }
+
+  /// Obtener historial de completaciones de una actividad
+  Future<List<CompletionHistory>> getCompletionHistory(
+      String activityId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'completion_history',
+      where: 'activityId = ?',
+      whereArgs: [activityId],
+      orderBy: 'completedAt DESC',
+    );
+    return List.generate(
+        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
+  }
+
+  /// Obtener todas las completaciones (para estadísticas globales)
+  Future<List<CompletionHistory>> getAllCompletions() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'completion_history',
+      orderBy: 'completedAt DESC',
+    );
+    return List.generate(
+        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
+  }
+
+  /// Obtener completaciones en un rango de fechas
+  Future<List<CompletionHistory>> getCompletionsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'completion_history',
+      where: 'completedAt >= ? AND completedAt <= ?',
+      whereArgs: [start.toIso8601String(), end.toIso8601String()],
+      orderBy: 'completedAt DESC',
+    );
+    return List.generate(
+        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
+  }
+
+  /// Eliminar completación
+  Future<int> deleteCompletion(String id) async {
+    final db = await database;
+    return await db.delete(
+      'completion_history',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Eliminar todas las completaciones de una actividad
+  Future<int> deleteCompletionsByActivity(String activityId) async {
+    final db = await database;
+    return await db.delete(
+      'completion_history',
+      where: 'activityId = ?',
+      whereArgs: [activityId],
     );
   }
 

@@ -3,16 +3,22 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import '../models/activity.dart';
+import '../models/completion_history.dart';
 import '../services/activity_service.dart';
 import '../services/achievement_service.dart';
 import '../services/notification_service.dart';
 import '../services/backup_service.dart';
+import '../services/database_helper.dart';
 import '../widgets/home_widget_service.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/tag_input.dart';
+import '../widgets/recurrence_selector.dart';
+import '../widgets/streak_config_widget.dart';
+import '../widgets/template_selector.dart';
 import '../widgets/shimmer_widgets.dart';
 import '../widgets/animated_widgets.dart';
 import '../widgets/activity_visualizations.dart';
+import '../models/activity_template.dart';
 import '../utils/activity_icons.dart';
 import '../themes/app_themes.dart';
 import 'statistics_screen.dart';
@@ -23,6 +29,8 @@ import 'timeline_screen.dart';
 import 'activity_focus_screen.dart';
 import 'achievement_gallery_screen.dart';
 import 'dashboard_screen.dart';
+import 'gamification_screen.dart';
+import '../services/gamification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(AppThemeMode)? onThemeChanged;
@@ -36,6 +44,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ActivityService _service = ActivityService();
   final AchievementService _achievementService = AchievementService();
+  final GamificationService _gamification = GamificationService();
   List<Activity> _activities = [];
   String _filterMode = 'all'; // 'all', 'active', 'paused'
   String _sortMode = 'name'; // 'name', 'streak', 'recent'
@@ -114,12 +123,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _save() async => _service.saveActivities(_activities);
 
-  void _addActivity(String name, {String? categoryId, List<String>? tags}) {
+  void _addActivity(
+    String name, {
+    String? categoryId,
+    List<String>? tags,
+    RecurrenceType recurrenceType = RecurrenceType.daily,
+    int recurrenceInterval = 1,
+    List<int> recurrenceDays = const [],
+    int? targetDays,
+    int allowedFailures = 0,
+    List<int> freeDays = const [],
+    int? partialGoalRequired,
+    int? partialGoalTotal,
+    int dailyGoal = 1,
+    String? customIcon,
+    String? customColor,
+  }) {
     final newAct = Activity(
       id: const Uuid().v4(),
       name: name,
       categoryId: categoryId,
       tags: tags ?? [],
+      recurrenceType: recurrenceType,
+      recurrenceInterval: recurrenceInterval,
+      recurrenceDays: recurrenceDays.toList(),
+      startDate: DateTime.now(), // Fecha de inicio es hoy
+      targetDays: targetDays,
+      allowedFailures: allowedFailures,
+      freeDays: freeDays.toList(),
+      partialGoalRequired: partialGoalRequired,
+      partialGoalTotal: partialGoalTotal,
+      dailyGoal: dailyGoal,
+      customIcon: customIcon,
+      customColor: customColor,
     );
     setState(() => _activities.add(newAct));
     _save();
@@ -138,6 +174,15 @@ class _HomeScreenState extends State<HomeScreen> {
     List<String> newTags = List.from(act.tags);
     String? newCustomIcon = act.customIcon;
     String? newCustomColor = act.customColor;
+    RecurrenceType newRecurrenceType = act.recurrenceType;
+    int newRecurrenceInterval = act.recurrenceInterval;
+    List<int> newRecurrenceDays = List.from(act.recurrenceDays);
+    int? newTargetDays = act.targetDays;
+    int newAllowedFailures = act.allowedFailures;
+    List<int> newFreeDays = List.from(act.freeDays);
+    int? newPartialGoalRequired = act.partialGoalRequired;
+    int? newPartialGoalTotal = act.partialGoalTotal;
+    int newDailyGoal = act.dailyGoal;
 
     showDialog(
       context: context,
@@ -231,6 +276,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     newTags = tags;
                   },
                 ),
+                const SizedBox(height: 16),
+                RecurrenceSelector(
+                  selectedType: newRecurrenceType,
+                  interval: newRecurrenceInterval,
+                  selectedDays: newRecurrenceDays,
+                  onRecurrenceChanged: (type, interval, days) {
+                    newRecurrenceType = type;
+                    newRecurrenceInterval = interval;
+                    newRecurrenceDays = days;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: TextEditingController(
+                      text: newTargetDays?.toString() ?? ''),
+                  decoration: const InputDecoration(
+                    labelText: 'Meta de días (opcional)',
+                    hintText: 'Ej: 30, 100, 365',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.flag),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    final parsed = int.tryParse(val);
+                    newTargetDays =
+                        parsed != null && parsed > 0 ? parsed : null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 8),
+                StreakConfigWidget(
+                  allowedFailures: newAllowedFailures,
+                  freeDays: newFreeDays,
+                  partialGoalRequired: newPartialGoalRequired,
+                  partialGoalTotal: newPartialGoalTotal,
+                  dailyGoal: newDailyGoal,
+                  onChanged: (failures, days, partialReq, partialTotal, daily) {
+                    newAllowedFailures = failures;
+                    newFreeDays = days;
+                    newPartialGoalRequired = partialReq;
+                    newPartialGoalTotal = partialTotal;
+                    newDailyGoal = daily;
+                  },
+                ),
               ],
             ),
           ),
@@ -248,6 +338,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     act.tags = newTags;
                     act.customIcon = newCustomIcon;
                     act.customColor = newCustomColor;
+                    act.recurrenceType = newRecurrenceType;
+                    act.recurrenceInterval = newRecurrenceInterval;
+                    act.recurrenceDays = newRecurrenceDays;
+                    act.targetDays = newTargetDays;
+                    act.allowedFailures = newAllowedFailures;
+                    act.freeDays = newFreeDays;
                   });
                   _save();
                   HomeWidgetService.updateWidget(_activities);
@@ -446,12 +542,25 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _markCompleted(Activity act) {
+  Future<void> _markCompleted(Activity act) async {
     if (!act.active) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Esta actividad está pausada. Actívala primero.'),
           duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Skip if frozen
+    if (act.isCurrentlyFrozen()) {
+      final daysRemaining = act.daysRemainingFrozen();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '❄️ Actividad congelada. ${daysRemaining > 0 ? "Quedan $daysRemaining días" : "Termina hoy"}'),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -464,15 +573,61 @@ class _HomeScreenState extends State<HomeScreen> {
         : null;
     final nowDay = DateTime(today.year, today.month, today.day);
 
+    // Check if we can still complete today (multiple completions)
     if (last == nowDay) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ya completaste esta actividad hoy!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
+      if (act.allowsMultipleCompletions() && !act.hasCompletedDailyGoal()) {
+        // Increment daily completion count
+        act.dailyCompletionCount += 1;
+
+        final completion = CompletionHistory(
+          id: const Uuid().v4(),
+          activityId: act.id,
+          completedAt: DateTime.now(),
+          protectorUsed: false,
+        );
+        await DatabaseHelper().insertCompletion(completion);
+
+        _save();
+        HomeWidgetService.updateWidget(_activities);
+        setState(() {});
+
+        final remaining = act.remainingDailyCompletions();
+        if (remaining == 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  '🎯 ¡Meta diaria completada! (${act.dailyGoal}/${act.dailyGoal})'),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _confettiController.play();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  '✓ Completado ${act.dailyCompletionCount}/${act.dailyGoal}. Faltan $remaining más'),
+              duration: const Duration(seconds: 2),
+              action: SnackBarAction(
+                label: 'Agregar nota',
+                onPressed: () => _showAddNoteDialog(completion.id, act.name),
+              ),
+            ),
+          );
+        }
+        return;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ya completaste esta actividad hoy!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
     }
+
+    bool usedProtector = false;
 
     // Verificar si se rompió la racha (pasó más de 1 día desde la última vez)
     if (last != null && nowDay.difference(last).inDays > 1) {
@@ -487,6 +642,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // No tiene protector disponible, se reinicia la racha
         act.streak = 1;
         act.lastCompleted = nowDay;
+        act.weeklyCompletionCount = 0; // Reset weekly counter
       }
     } else if (last != null && nowDay.difference(last).inDays == 1) {
       // Racha continua (completó ayer)
@@ -498,6 +654,36 @@ class _HomeScreenState extends State<HomeScreen> {
       act.lastCompleted = nowDay;
     }
 
+    // Update daily completion count (reset to 1 for new day)
+    act.dailyCompletionCount = 1;
+
+    // Update weekly completion count for partial goals
+    if (act.hasPartialGoal()) {
+      // Check if we're in a new week (Monday = start of week)
+      final lastWeekNumber = last != null
+          ? ((last.difference(DateTime(last.year, 1, 1)).inDays) / 7).floor()
+          : -1;
+      final currentWeekNumber =
+          ((nowDay.difference(DateTime(nowDay.year, 1, 1)).inDays) / 7).floor();
+
+      if (lastWeekNumber != currentWeekNumber) {
+        // New week started - reset counter
+        act.weeklyCompletionCount = 1;
+      } else {
+        // Same week - increment
+        act.weeklyCompletionCount += 1;
+      }
+    }
+
+    // Guardar completación en el historial
+    final completion = CompletionHistory(
+      id: const Uuid().v4(),
+      activityId: act.id,
+      completedAt: DateTime.now(),
+      protectorUsed: usedProtector,
+    );
+    await DatabaseHelper().insertCompletion(completion);
+
     _save();
     HomeWidgetService.updateWidget(_activities);
     setState(() {});
@@ -508,7 +694,18 @@ class _HomeScreenState extends State<HomeScreen> {
     // Lanzar confetti
     _confettiController.play();
 
-    // Mostrar celebración si alcanza hito
+    // Mostrar celebración si alcanza hito o meta parcial
+    String message = '✓ Completado! Racha: ${act.streak} días';
+
+    if (act.hasPartialGoal() && act.hasMetPartialGoal()) {
+      message =
+          '🎯 ¡Meta semanal alcanzada! ${act.weeklyCompletionCount}/${act.partialGoalRequired} días';
+    } else if (act.hasPartialGoal()) {
+      final remaining = act.daysRemainingForPartialGoal();
+      message =
+          '✓ Completado! Progreso semanal: ${act.weeklyCompletionCount}/${act.partialGoalRequired} (faltan $remaining)';
+    }
+
     if (act.streak % 7 == 0 && act.streak > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -520,8 +717,12 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✓ Completado! Racha: ${act.streak} días'),
+          content: Text(message),
           duration: const Duration(seconds: 2),
+          action: SnackBarAction(
+            label: 'Agregar nota',
+            onPressed: () => _showAddNoteDialog(completion.id, act.name),
+          ),
         ),
       );
     }
@@ -533,6 +734,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (newAchievements.isNotEmpty && mounted) {
       for (var achievement in newAchievements) {
+        // Award medal for the achievement based on its required value
+        final medal = await _gamification.awardStreakMedal(
+          achievement.requiredValue,
+          achievement.id,
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -549,6 +756,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(achievement.title),
+                      if (medal != null)
+                        Text(
+                          '🎖️ Medalla ${medal.tier.name} (+${medal.tier.points} pts)',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                     ],
                   ),
                 ),
@@ -573,6 +785,43 @@ class _HomeScreenState extends State<HomeScreen> {
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
+
+    // Check for consistency rewards (after any achievement check)
+    final newRewards = await _gamification.checkConsistencyRewards(_activities);
+    if (newRewards.isNotEmpty && mounted) {
+      for (var reward in newRewards) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.stars, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '⭐ ¡Recompensa de Consistencia!',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                          '${reward.daysRequired} días consecutivos (+${reward.daysRequired * 2} pts)'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.deepPurple,
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 400));
+      }
+    }
+
+    // Update weekly challenge progress
+    await _gamification.updateChallengeProgress(_activities);
   }
 
   void _showProtectorDialog(Activity act, DateTime nowDay) {
@@ -604,7 +853,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text('No usar'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               // Usar protector - mantener racha pero NO completar hoy automáticamente
               setState(() {
                 act.protectorUsed = true;
@@ -614,6 +863,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 act.lastCompleted = nowDay.subtract(const Duration(days: 1));
                 // La racha se mantiene sin cambios
               });
+
+              // Registrar uso de protector en el historial (día faltante)
+              final protectorCompletion = CompletionHistory(
+                id: const Uuid().v4(),
+                activityId: act.id,
+                completedAt: nowDay.subtract(const Duration(days: 1)),
+                protectorUsed: true,
+              );
+              await DatabaseHelper().insertCompletion(protectorCompletion);
+
               _save();
               HomeWidgetService.updateWidget(_activities);
               Navigator.pop(context);
@@ -665,14 +924,92 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showAddNoteDialog(String completionId, String activityName) {
+    final TextEditingController noteController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Nota para $activityName'),
+        content: TextField(
+          controller: noteController,
+          decoration: const InputDecoration(
+            hintText: '¿Cómo te fue hoy?',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+          maxLength: 500,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (noteController.text.trim().isNotEmpty) {
+                // Actualizar la completación con la nota
+                await DatabaseHelper().updateCompletionNote(
+                  completionId,
+                  noteController.text.trim(),
+                );
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('📝 Nota guardada'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAddDialog() {
     String name = '';
     String? selectedCategoryId;
     List<String> selectedTags = [];
+    RecurrenceType recurrenceType = RecurrenceType.daily;
+    int recurrenceInterval = 1;
+    List<int> recurrenceDays = [];
+    int? targetDays;
+    int allowedFailures = 0;
+    List<int> freeDays = [];
+    int? partialGoalRequired;
+    int? partialGoalTotal;
+    int dailyGoal = 1;
+    String? customIcon;
+    String? customColor;
 
     _showAnimatedDialog(
       AlertDialog(
-        title: const Text('Nueva actividad'),
+        title: Row(
+          children: [
+            const Text('Nueva actividad'),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _showTemplateDialog((template) {
+                  // Aplicar plantilla y reabrir dialog con datos prellenados
+                  _showAddDialogWithTemplate(template);
+                });
+              },
+              icon: const Icon(Icons.view_module, size: 18),
+              label: const Text('Plantillas'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              ),
+            ),
+          ],
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -700,6 +1037,48 @@ class _HomeScreenState extends State<HomeScreen> {
                   selectedTags = tags;
                 },
               ),
+              const SizedBox(height: 16),
+              RecurrenceSelector(
+                selectedType: recurrenceType,
+                interval: recurrenceInterval,
+                selectedDays: recurrenceDays,
+                onRecurrenceChanged: (type, interval, days) {
+                  recurrenceType = type;
+                  recurrenceInterval = interval;
+                  recurrenceDays = days;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Meta de días (opcional)',
+                  hintText: 'Ej: 30, 100, 365',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.flag),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (val) {
+                  final parsed = int.tryParse(val);
+                  targetDays = parsed != null && parsed > 0 ? parsed : null;
+                },
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              StreakConfigWidget(
+                allowedFailures: allowedFailures,
+                freeDays: freeDays,
+                partialGoalRequired: partialGoalRequired,
+                partialGoalTotal: partialGoalTotal,
+                dailyGoal: dailyGoal,
+                onChanged: (failures, days, partialReq, partialTotal, daily) {
+                  allowedFailures = failures;
+                  freeDays = days;
+                  partialGoalRequired = partialReq;
+                  partialGoalTotal = partialTotal;
+                  dailyGoal = daily;
+                },
+              ),
             ],
           ),
         ),
@@ -715,6 +1094,161 @@ class _HomeScreenState extends State<HomeScreen> {
                   name.trim(),
                   categoryId: selectedCategoryId,
                   tags: selectedTags,
+                  recurrenceType: recurrenceType,
+                  recurrenceInterval: recurrenceInterval,
+                  recurrenceDays: recurrenceDays,
+                  targetDays: targetDays,
+                  allowedFailures: allowedFailures,
+                  freeDays: freeDays,
+                  partialGoalRequired: partialGoalRequired,
+                  partialGoalTotal: partialGoalTotal,
+                  dailyGoal: dailyGoal,
+                  customIcon: customIcon,
+                  customColor: customColor,
+                );
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTemplateDialog(Function(ActivityTemplate) onTemplateSelected) {
+    _showAnimatedDialog(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: TemplateSelector(
+            onTemplateSelected: (template) {
+              Navigator.pop(context);
+              onTemplateSelected(template);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAddDialogWithTemplate(ActivityTemplate template) {
+    String name = template.name;
+    String? selectedCategoryId = template.categoryId;
+    List<String> selectedTags = List.from(template.suggestedTags);
+    RecurrenceType recurrenceType = template.defaultRecurrence;
+    int recurrenceInterval = 1;
+    List<int> recurrenceDays = [];
+    int? targetDays = template.defaultTargetDays;
+    int allowedFailures = 0;
+    List<int> freeDays = [];
+    int? partialGoalRequired;
+    int? partialGoalTotal;
+    int dailyGoal = 1;
+    String? customIcon = template.iconName;
+    String? customColor = template.colorHex;
+
+    _showAnimatedDialog(
+      AlertDialog(
+        title: const Text('Nueva actividad (desde plantilla)'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: TextEditingController(text: name),
+                decoration: const InputDecoration(
+                  hintText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (val) => name = val,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              CategorySelector(
+                selectedCategoryId: selectedCategoryId,
+                onCategorySelected: (categoryId) {
+                  selectedCategoryId = categoryId;
+                },
+              ),
+              const SizedBox(height: 16),
+              TagInput(
+                initialTags: selectedTags,
+                onTagsChanged: (tags) {
+                  selectedTags = tags;
+                },
+              ),
+              const SizedBox(height: 16),
+              RecurrenceSelector(
+                selectedType: recurrenceType,
+                interval: recurrenceInterval,
+                selectedDays: recurrenceDays,
+                onRecurrenceChanged: (type, interval, days) {
+                  recurrenceType = type;
+                  recurrenceInterval = interval;
+                  recurrenceDays = days;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller:
+                    TextEditingController(text: targetDays?.toString() ?? ''),
+                decoration: const InputDecoration(
+                  labelText: 'Meta de días (opcional)',
+                  hintText: 'Ej: 30, 100, 365',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.flag),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (val) {
+                  final parsed = int.tryParse(val);
+                  targetDays = parsed != null && parsed > 0 ? parsed : null;
+                },
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              StreakConfigWidget(
+                allowedFailures: allowedFailures,
+                freeDays: freeDays,
+                partialGoalRequired: partialGoalRequired,
+                partialGoalTotal: partialGoalTotal,
+                dailyGoal: dailyGoal,
+                onChanged: (failures, days, partialReq, partialTotal, daily) {
+                  allowedFailures = failures;
+                  freeDays = days;
+                  partialGoalRequired = partialReq;
+                  partialGoalTotal = partialTotal;
+                  dailyGoal = daily;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (name.trim().isNotEmpty) {
+                _addActivity(
+                  name.trim(),
+                  categoryId: selectedCategoryId,
+                  tags: selectedTags,
+                  recurrenceType: recurrenceType,
+                  recurrenceInterval: recurrenceInterval,
+                  recurrenceDays: recurrenceDays,
+                  targetDays: targetDays,
+                  allowedFailures: allowedFailures,
+                  freeDays: freeDays,
+                  partialGoalRequired: partialGoalRequired,
+                  partialGoalTotal: partialGoalTotal,
+                  dailyGoal: dailyGoal,
+                  customIcon: customIcon,
+                  customColor: customColor,
                 );
               }
               Navigator.pop(context);
@@ -756,6 +1290,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Activity> _getFilteredAndSortedActivities() {
     var filtered = _activities;
+
+    // Excluir actividades archivadas
+    filtered = filtered.where((a) => !a.isArchived).toList();
+
+    // Aplicar filtro de recurrencia: mostrar solo actividades que deben completarse hoy
+    filtered = filtered.where((a) => a.shouldCompleteToday()).toList();
 
     // Aplicar filtro de estado (activo/pausado)
     if (_filterMode == 'active') {
@@ -1513,6 +2053,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     );
+                  } else if (value == 'gamification') {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const GamificationScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
                   }
                 },
                 itemBuilder: (context) => [
@@ -1533,6 +2094,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(Icons.dashboard),
                         SizedBox(width: 8),
                         Text('Dashboard'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'gamification',
+                    child: Row(
+                      children: [
+                        Icon(Icons.stars),
+                        SizedBox(width: 8),
+                        Text('Gamificación'),
                       ],
                     ),
                   ),
@@ -2124,6 +2695,100 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                             ],
                           ),
                           const SizedBox(height: 4),
+                          // Indicador de múltiples completaciones diarias
+                          if (activity.allowsMultipleCompletions() &&
+                              completedToday)
+                            Row(
+                              children: [
+                                Icon(
+                                  activity.hasCompletedDailyGoal()
+                                      ? Icons.check_circle
+                                      : Icons.repeat,
+                                  size: 14,
+                                  color: activity.hasCompletedDailyGoal()
+                                      ? Colors.green
+                                      : Colors.blue,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${activity.dailyCompletionCount}/${activity.dailyGoal} hoy',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: activity.hasCompletedDailyGoal()
+                                        ? Colors.green
+                                        : Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (!activity.hasCompletedDailyGoal()) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Faltan ${activity.remainingDailyCompletions()}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          if (activity.allowsMultipleCompletions() &&
+                              completedToday)
+                            const SizedBox(height: 4),
+                          // Indicador de rachas parciales
+                          if (activity.hasPartialGoal())
+                            Row(
+                              children: [
+                                Icon(
+                                  activity.hasMetPartialGoal()
+                                      ? Icons.stars
+                                      : Icons.calendar_today,
+                                  size: 14,
+                                  color: activity.hasMetPartialGoal()
+                                      ? Colors.amber
+                                      : Colors.purple,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Esta semana: ${activity.weeklyCompletionCount}/${activity.partialGoalRequired} días',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: activity.hasMetPartialGoal()
+                                        ? Colors.amber
+                                        : Colors.purple,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (!activity.hasMetPartialGoal()) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.purple.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Faltan ${activity.daysRemainingForPartialGoal()}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.purple,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          if (activity.hasPartialGoal())
+                            const SizedBox(height: 4),
                           // Última vez completada
                           Text(
                             lastCompletedText,
@@ -2191,6 +2856,28 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 10)),
                             )
+                          else if (activity.isCurrentlyFrozen())
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.cyan,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.ac_unit,
+                                      color: Colors.white, size: 12),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Congelada (${activity.daysRemainingFrozen()} ${activity.daysRemainingFrozen() == 1 ? "día" : "días"})',
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 10),
+                                  ),
+                                ],
+                              ),
+                            )
                           else if (isAtRisk)
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -2211,6 +2898,56 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                                 ],
                               ),
                             ),
+                          // Indicador de progreso hacia la meta
+                          if (activity.targetDays != null) ...[
+                            const SizedBox(height: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.flag,
+                                        size: 12, color: Colors.purple),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Meta: ${activity.targetDays} días',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.purple,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      activity.hasReachedGoal()
+                                          ? '¡Completado! 🎉'
+                                          : '${activity.daysRemainingToGoal()} días restantes',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: activity.hasReachedGoal()
+                                            ? Colors.green
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: activity.getGoalProgress(),
+                                    backgroundColor: Colors.grey[300],
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      activity.hasReachedGoal()
+                                          ? Colors.green
+                                          : Colors.purple,
+                                    ),
+                                    minHeight: 6,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -2249,6 +2986,38 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                             break;
                           case 'notifications':
                             widget.onConfigureNotifications(activity);
+                            break;
+                          case 'archive':
+                            // Toggle archive and trigger save through edit callback
+                            activity.isArchived = !activity.isArchived;
+                            widget.onEdit(activity);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(activity.isArchived
+                                    ? '${activity.name} archivada'
+                                    : '${activity.name} restaurada'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                            break;
+                          case 'freeze':
+                            if (activity.isCurrentlyFrozen()) {
+                              // Unfreeze
+                              activity.isFrozen = false;
+                              activity.frozenUntil = null;
+                              activity.freezeReason = null;
+                              widget.onEdit(activity);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('${activity.name} descongelada'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            } else {
+                              // Show freeze dialog
+                              _showFreezeDialog(activity);
+                            }
                             break;
                           case 'delete':
                             _confirmDelete(context, activity);
@@ -2321,6 +3090,48 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
                           ),
                         ),
                         const PopupMenuDivider(),
+                        PopupMenuItem(
+                          value: 'archive',
+                          child: Row(
+                            children: [
+                              Icon(
+                                activity.isArchived
+                                    ? Icons.unarchive
+                                    : Icons.archive,
+                                size: 20,
+                                color: Colors.orange,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                activity.isArchived
+                                    ? 'Desarchivar'
+                                    : 'Archivar',
+                                style: const TextStyle(color: Colors.orange),
+                              ),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'freeze',
+                          child: Row(
+                            children: [
+                              Icon(
+                                activity.isCurrentlyFrozen()
+                                    ? Icons.ac_unit
+                                    : Icons.ac_unit_outlined,
+                                size: 20,
+                                color: Colors.cyan,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                activity.isCurrentlyFrozen()
+                                    ? 'Descongelar'
+                                    : 'Congelar racha',
+                                style: const TextStyle(color: Colors.cyan),
+                              ),
+                            ],
+                          ),
+                        ),
                         const PopupMenuItem(
                           value: 'delete',
                           child: Row(
@@ -2481,6 +3292,94 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
       ),
     );
     return result ?? false;
+  }
+
+  void _showFreezeDialog(Activity activity) {
+    int selectedDays = 7;
+    String reason = '';
+
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.ac_unit, color: Colors.cyan),
+              SizedBox(width: 8),
+              Text('Congelar racha'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'La racha se congelará y no perderás progreso durante este período.',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Duración:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [1, 3, 7, 14, 30].map((days) {
+                  return ChoiceChip(
+                    label: Text('$days ${days == 1 ? "día" : "días"}'),
+                    selected: selectedDays == days,
+                    onSelected: (selected) {
+                      setState(() {
+                        selectedDays = days;
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Razón (opcional)',
+                  hintText: 'Vacaciones, enfermedad, etc.',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+                onChanged: (value) => reason = value,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                activity.isFrozen = true;
+                activity.frozenUntil =
+                    DateTime.now().add(Duration(days: selectedDays));
+                activity.freezeReason =
+                    reason.trim().isEmpty ? null : reason.trim();
+                widget.onEdit(activity);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        '❄️ ${activity.name} congelada por $selectedDays ${selectedDays == 1 ? "día" : "días"}'),
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.cyan,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+              child: const Text('Congelar'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _confirmDelete(BuildContext context, Activity activity) {

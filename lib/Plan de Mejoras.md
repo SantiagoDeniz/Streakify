@@ -32,50 +32,50 @@
 ## 📊 **2. ESTADÍSTICAS Y ANALÍTICAS**
 
 ### 2.1 Métricas Avanzadas
-- [ ] **Tasa de éxito histórica** (% de días completados vs total)
-- [ ] **Mejor racha histórica** (récord personal)
-- [ ] **Promedio de racha** por actividad
-- [ ] **Días consecutivos totales** (todas las actividades)
-- [ ] **Heatmap de actividad** estilo GitHub (calendario anual)
-- [ ] **Tendencias semanales/mensuales** (gráficas de línea)
-- [ ] **Comparativa mes a mes** (mejora/declive)
-- [ ] **Predicción de rachas** (ML básico basado en patrones)
+- [x] **Tasa de éxito histórica** (% de días completados vs total)
+- [x] **Mejor racha histórica** (récord personal)
+- [x] **Promedio de racha** por actividad
+- [x] **Días consecutivos totales** (todas las actividades)
+- [x] **Heatmap de actividad** estilo GitHub (calendario anual)
+- [x] **Tendencias semanales/mensuales** (gráficas de línea)
+- [x] **Comparativa mes a mes** (mejora/declive)
+- [x] **Predicción de rachas** (ML básico basado en patrones)
 
 ### 2.2 Gráficas Visuales
-- [ ] **Gráfica de barras** por actividad
-- [ ] **Gráfica de dona** (distribución de tiempo)
-- [ ] **Gráfica de área** (progreso en el tiempo)
-- [ ] **Timeline interactivo** con zoom
-- [ ] **Exportar estadísticas** como imagen o PDF
+- [x] **Gráfica de barras** por actividad
+- [x] **Gráfica de dona** (distribución de tiempo)
+- [x] **Gráfica de área** (progreso en el tiempo)
+- [x] **Timeline interactivo** con zoom
+- [x] **Exportar estadísticas** como imagen o PDF
 
 ### 2.3 Logros y Gamificación
-- [ ] **Sistema de medallas** (bronce, plata, oro, platino)
-- [ ] **Logros desbloqueables** (7 días, 30 días, 100 días, etc.)
-- [ ] **Niveles de usuario** (basado en rachas totales)
-- [ ] **Recompensas por consistencia** (bonus por semanas perfectas)
-- [ ] **Desafíos semanales** automáticos
+- [x] **Sistema de medallas** (bronce, plata, oro, platino)
+- [x] **Logros desbloqueables** (7 días, 30 días, 100 días, etc.)
+- [x] **Niveles de usuario** (basado en rachas totales)
+- [x] **Recompensas por consistencia** (bonus por semanas perfectas)
+- [x] **Desafíos semanales** automáticos
 
 ---
 
 ## ⚙️ **3. FUNCIONALIDADES PRINCIPALES**
 
 ### 3.1 Gestión de Actividades
-- [ ] **Categorías** (salud, productividad, social, etc.)
-- [ ] **Tags personalizados** (#importante, #difícil, etc.)
-- [ ] **Notas por actividad** (diario/journal)
-- [ ] **Recordatorio de notas** al completar
-- [ ] **Actividades recurrentes personalizadas** (cada N días, días específicos)
-- [ ] **Meta de días** por actividad (objetivo final)
-- [ ] **Archivado de actividades** (historial sin eliminar)
-- [ ] **Plantillas de actividades** predefinidas
+- [x] **Categorías** (salud, productividad, social, etc.)
+- [x] **Tags personalizados** (#importante, #difícil, etc.)
+- [x] **Notas por actividad** (diario/journal)
+- [x] **Recordatorio de notas** al completar
+- [x] **Actividades recurrentes personalizadas** (cada N días, días específicos)
+- [x] **Meta de días** por actividad (objetivo final)
+- [x] **Archivado de actividades** (historial sin eliminar)
+- [x] **Plantillas de actividades** predefinidas
 
 ### 3.2 Sistema de Rachas Mejorado
-- [ ] **Rachas flexibles** (permitir X fallos por semana)
-- [ ] **Modo "días libres"** (domingos no cuentan, por ejemplo)
-- [ ] **Rachas parciales** (completar 5 de 7 días)
+- [x] **Rachas flexibles** (permitir X fallos por semana)
+- [x] **Modo "días libres"** (domingos no cuentan, por ejemplo)
+- [x] **Rachas parciales** (completar 5 de 7 días)
 - [ ] **Recuperación de racha** (con penalización)
-- [ ] **Múltiples completaciones diarias** (con contador)
-- [ ] **Sistema de "freeze"** (congelar racha por vacaciones)
+- [x] **Múltiples completaciones diarias** (con contador)
+- [x] **Sistema de "freeze"** (congelar racha por vacaciones)
 
 ### 3.3 Protectores Avanzados
 - [ ] **Múltiples tipos de protectores** (1 día, 3 días, semanal)

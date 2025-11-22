@@ -122,6 +122,10 @@ class ActivityIcons {
     return icons[iconName] ?? Icons.check_circle_outline;
   }
 
+  static IconData getIconByName(String iconName) {
+    return icons[iconName] ?? Icons.check_circle_outline;
+  }
+
   static List<MapEntry<String, IconData>> get iconsList =>
       icons.entries.toList();
 }
@@ -155,14 +159,21 @@ class ActivityColors {
 
     // Si es un color hex
     if (colorName.startsWith('#')) {
-      try {
-        return Color(int.parse(colorName.substring(1), radix: 16) + 0xFF000000);
-      } catch (e) {
-        return Colors.blue;
-      }
+      return hexToColor(colorName);
     }
 
     return colors[colorName] ?? Colors.blue;
+  }
+
+  static Color hexToColor(String hexString) {
+    try {
+      final buffer = StringBuffer();
+      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+      buffer.write(hexString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return Colors.blue;
+    }
   }
 
   static String colorToHex(Color color) {

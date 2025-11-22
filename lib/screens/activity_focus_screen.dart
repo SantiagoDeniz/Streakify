@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/activity.dart';
+import '../models/completion_history.dart';
+import '../services/database_helper.dart';
 import '../utils/activity_icons.dart';
 import '../widgets/activity_visualizations.dart';
 
@@ -27,7 +29,7 @@ class _ActivityFocusScreenState extends State<ActivityFocusScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -168,9 +170,11 @@ class _ActivityFocusScreenState extends State<ActivityFocusScreen>
                     labelColor: Theme.of(context).primaryColor,
                     unselectedLabelColor: Colors.grey,
                     indicatorSize: TabBarIndicatorSize.label,
+                    isScrollable: true,
                     tabs: const [
                       Tab(text: 'Estadísticas', icon: Icon(Icons.bar_chart)),
                       Tab(text: 'Progreso', icon: Icon(Icons.trending_up)),
+                      Tab(text: 'Historial', icon: Icon(Icons.history)),
                       Tab(text: 'Detalles', icon: Icon(Icons.info)),
                     ],
                   ),
@@ -184,6 +188,7 @@ class _ActivityFocusScreenState extends State<ActivityFocusScreen>
                     children: [
                       _buildStatsTab(),
                       _buildProgressTab(),
+                      _buildHistoryTab(),
                       _buildDetailsTab(),
                     ],
                   ),
@@ -356,6 +361,176 @@ class _ActivityFocusScreenState extends State<ActivityFocusScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildHistoryTab() {
+    return FutureBuilder<List<CompletionHistory>>(
+      future: DatabaseHelper().getCompletionHistory(widget.activity.id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.history, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'Sin historial aún',
+                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Completa esta actividad para ver tu progreso',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
+        final completions = snapshot.data!;
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: completions.length,
+          itemBuilder: (context, index) {
+            final completion = completions[index];
+            final date =
+                DateFormat('dd MMM yyyy').format(completion.completedAt);
+            final time = DateFormat('HH:mm').format(completion.completedAt);
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: completion.protectorUsed
+                        ? Colors.blue.withOpacity(0.2)
+                        : Colors.green.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    completion.protectorUsed
+                        ? Icons.shield
+                        : Icons.check_circle,
+                    color:
+                        completion.protectorUsed ? Colors.blue : Colors.green,
+                  ),
+                ),
+                title: Text(
+                  date,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Hora: $time'),
+                    if (completion.notes != null &&
+                        completion.notes!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '📝 ${completion.notes}',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                    if (completion.protectorUsed) ...[
+                      const SizedBox(height: 4),
+                      const Text(
+                        '🛡️ Protector usado',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                trailing: completion.notes == null || completion.notes!.isEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.note_add, size: 20),
+                        onPressed: () => _showEditNoteDialog(completion),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.edit, size: 20),
+                        onPressed: () => _showEditNoteDialog(completion),
+                      ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditNoteDialog(CompletionHistory completion) {
+    final TextEditingController noteController = TextEditingController(
+      text: completion.notes ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          completion.notes == null || completion.notes!.isEmpty
+              ? 'Agregar nota'
+              : 'Editar nota',
+        ),
+        content: TextField(
+          controller: noteController,
+          decoration: const InputDecoration(
+            hintText: '¿Cómo te fue ese día?',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+          maxLength: 500,
+          autofocus: true,
+        ),
+        actions: [
+          if (completion.notes != null && completion.notes!.isNotEmpty)
+            TextButton(
+              onPressed: () async {
+                await DatabaseHelper().updateCompletionNote(completion.id, '');
+                Navigator.pop(context);
+                setState(() {}); // Refresh
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Nota eliminada')),
+                );
+              },
+              child: const Text('Eliminar'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (noteController.text.trim().isNotEmpty) {
+                await DatabaseHelper().updateCompletionNote(
+                  completion.id,
+                  noteController.text.trim(),
+                );
+                Navigator.pop(context);
+                setState(() {}); // Refresh
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('📝 Nota guardada')),
+                );
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
     );
   }
 
