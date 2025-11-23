@@ -73,34 +73,34 @@
 - [x] **Rachas flexibles** (permitir X fallos por semana)
 - [x] **Modo "días libres"** (domingos no cuentan, por ejemplo)
 - [x] **Rachas parciales** (completar 5 de 7 días)
-- [ ] **Recuperación de racha** (con penalización)
+- [x] **Recuperación de racha** (con penalización)
 - [x] **Múltiples completaciones diarias** (con contador)
 - [x] **Sistema de "freeze"** (congelar racha por vacaciones)
 
 ### 3.3 Protectores Avanzados
-- [ ] **Múltiples tipos de protectores** (1 día, 3 días, semanal)
-- [ ] **Protectores ganados** por logros
-- [ ] **Límite de protectores** por mes (gamificación)
-- [ ] **Historial de uso de protectores**
-- [ ] **Compra de protectores** con "puntos de racha"
+- [x] **Múltiples tipos de protectores** (1 día, 3 días, semanal)
+- [x] **Protectores ganados** por logros
+- [x] **Límite de protectores** por mes (gamificación)
+- [x] **Historial de uso de protectores**
+- [x] **Compra de protectores** con "puntos de racha"
 
 ---
 
 ## 🔔 **4. NOTIFICACIONES Y RECORDATORIOS**
 
 ### 4.1 Notificaciones Inteligentes
-- [ ] **Recordatorios personalizados por actividad** (horarios diferentes)
-- [ ] **Notificaciones contextuales** ("Llevas 5 días sin fallar!")
-- [ ] **Alertas de riesgo** (2 horas antes de perder racha)
-- [ ] **Resumen diario** (mañana/noche)
-- [ ] **Motivación aleatoria** (frases inspiradoras)
-- [ ] **Notificación de logros** desbloqueados
-- [ ] **Recordatorio de actividades pendientes** (progresivo)
+- [x] **Recordatorios personalizados por actividad** (horarios diferentes)
+- [x] **Notificaciones contextuales** ("Llevas 5 días sin fallar!")
+- [x] **Alertas de riesgo** (2 horas antes de perder racha)
+- [x] **Resumen diario** (mañana/noche)
+- [x] **Motivación aleatoria** (frases inspiradoras)
+- [x] **Notificación de logros** desbloqueados
+- [x] **Recordatorio de actividades pendientes** (progresivo)
 
 ### 4.2 Smart Reminders
 - [ ] **ML para horario óptimo** (aprender cuándo completas más)
 - [ ] **Ajuste automático** según patrones
-- [ ] **Modo "no molestar"** con excepciones
+- [x] **Modo "no molestar"** con excepciones
 - [ ] **Grupos de notificaciones** (batch de actividades similares)
 
 ---
@@ -108,12 +108,12 @@
 ## 🔐 **5. DATOS Y BACKUP**
 
 ### 5.1 Persistencia
-- [ ] **Base de datos local** (SQLite/Hive en lugar de SharedPreferences)
-- [ ] **Backup automático en la nube** (Google Drive/iCloud)
-- [ ] **Exportar datos** (JSON, CSV, Excel)
-- [ ] **Importar datos** desde archivo
-- [ ] **Sincronización multi-dispositivo**
-- [ ] **Versionado de datos** (histórico de cambios)
+- [x] **Base de datos local** (SQLite/Hive en lugar de SharedPreferences)
+- [x] **Backup automático en la nube** (Google Drive/iCloud)
+- [x] **Exportar datos** (JSON, CSV, Excel)
+- [x] **Importar datos** desde archivo
+- [x] **Sincronización multi-dispositivo**
+- [x] **Versionado de datos** (histórico de cambios)
 
 ### 5.2 Seguridad
 - [ ] **Protección con PIN/biometría**

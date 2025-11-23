@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔥 Streakify"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:textColor="#FF6B35"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <LinearLayout
+        android:id="@+id/activity_1_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/card_background"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🥇"
+            android:textSize="24sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/activity_name_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Actividad"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/activity_streak_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔥 0"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FF6B35"/>
+    </LinearLayout>
+
+</LinearLayout>

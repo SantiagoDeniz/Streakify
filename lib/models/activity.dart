@@ -91,6 +91,11 @@ class Activity {
   String?
       freezeReason; // Razón del congelamiento (vacaciones, enfermedad, etc.)
 
+  // Sistema avanzado de protectores
+  int streakPoints; // Puntos de racha ganados por esta actividad
+  int monthlyProtectorUses; // Contador de protectores usados este mes
+  DateTime? lastProtectorReset; // Última vez que se reseteó el contador mensual
+
   Activity({
     required this.id,
     required this.name,
@@ -125,6 +130,9 @@ class Activity {
     this.isFrozen = false,
     this.frozenUntil,
     this.freezeReason,
+    this.streakPoints = 0,
+    this.monthlyProtectorUses = 0,
+    this.lastProtectorReset,
   })  : tags = tags ?? [],
         recurrenceDays = recurrenceDays ?? [],
         freeDays = freeDays ?? [];
@@ -164,6 +172,9 @@ class Activity {
         'isFrozen': isFrozen,
         'frozenUntil': frozenUntil?.toIso8601String(),
         'freezeReason': freezeReason,
+        'streakPoints': streakPoints,
+        'monthlyProtectorUses': monthlyProtectorUses,
+        'lastProtectorReset': lastProtectorReset?.toIso8601String(),
       };
 
   factory Activity.fromJson(Map<String, dynamic> json) {
@@ -213,6 +224,11 @@ class Activity {
           ? DateTime.parse(json['frozenUntil'])
           : null,
       freezeReason: json['freezeReason'],
+      streakPoints: json['streakPoints'] ?? 0,
+      monthlyProtectorUses: json['monthlyProtectorUses'] ?? 0,
+      lastProtectorReset: json['lastProtectorReset'] != null
+          ? DateTime.parse(json['lastProtectorReset'])
+          : null,
     );
   }
 
@@ -251,6 +267,9 @@ class Activity {
         'isFrozen': isFrozen ? 1 : 0,
         'frozenUntil': frozenUntil?.toIso8601String(),
         'freezeReason': freezeReason,
+        'streakPoints': streakPoints,
+        'monthlyProtectorUses': monthlyProtectorUses,
+        'lastProtectorReset': lastProtectorReset?.toIso8601String(),
       };
 
   factory Activity.fromMap(Map<String, dynamic> map) {
@@ -302,6 +321,11 @@ class Activity {
           ? DateTime.parse(map['frozenUntil'])
           : null,
       freezeReason: map['freezeReason'],
+      streakPoints: map['streakPoints'] ?? 0,
+      monthlyProtectorUses: map['monthlyProtectorUses'] ?? 0,
+      lastProtectorReset: map['lastProtectorReset'] != null
+          ? DateTime.parse(map['lastProtectorReset'])
+          : null,
     );
   }
 

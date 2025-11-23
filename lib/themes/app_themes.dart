@@ -297,11 +297,141 @@ class DarkTheme {
   );
 }
 
+/// Tema Alto Contraste - Accesibilidad máxima
+class HighContrastTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    // Colores principales - Alto contraste
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF0000FF), // Azul puro
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFE0E0FF),
+      onPrimaryContainer: Color(0xFF000000),
+
+      secondary: Color(0xFF008000), // Verde oscuro puro
+      onSecondary: Colors.white,
+      secondaryContainer: Color(0xFFE0FFE0),
+      onSecondaryContainer: Color(0xFF000000),
+
+      tertiary: Color(0xFF800080), // Púrpura oscuro
+      onTertiary: Colors.white,
+      tertiaryContainer: Color(0xFFFFE0FF),
+      onTertiaryContainer: Color(0xFF000000),
+
+      error: Color(0xFFB00020),
+      onError: Colors.white,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
+
+      background: Colors.white,
+      onBackground: Colors.black,
+
+      surface: Colors.white,
+      onSurface: Colors.black,
+      surfaceVariant: Color(0xFFE0E0E0),
+      onSurfaceVariant: Colors.black,
+
+      outline: Colors.black,
+      outlineVariant: Color(0xFF404040),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Colors.black,
+      onInverseSurface: Colors.white,
+      inversePrimary: Color(0xFF8080FF),
+    ),
+
+    // Tarjetas con bordes definidos
+    cardTheme: CardTheme(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: Colors.black, width: 2),
+      ),
+      color: Colors.white,
+    ),
+
+    // AppBar alto contraste
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      iconTheme: IconThemeData(color: Colors.black, size: 28),
+      actionsIconTheme: IconThemeData(color: Colors.black, size: 28),
+      titleTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+      shape: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+    ),
+
+    // Floating Action Button
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF0000FF),
+      foregroundColor: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: Colors.black, width: 2),
+      ),
+    ),
+
+    // Botones
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    // Input decoration
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF0000FF), width: 3),
+      ),
+    ),
+    
+    // Iconos más grandes y claros
+    iconTheme: const IconThemeData(
+      color: Colors.black,
+      size: 28,
+    ),
+  );
+}
+
 /// Enumeración para los modos de tema
 enum AppThemeMode {
   bright, // Tema claro y alegre
   chill, // Tema suave y relajante
   dark, // Tema oscuro
+  highContrast, // Tema alto contraste
 }
 
 /// Clase helper para obtener el tema según el modo
@@ -314,6 +444,8 @@ class AppThemes {
         return ChillTheme.theme;
       case AppThemeMode.dark:
         return DarkTheme.theme;
+      case AppThemeMode.highContrast:
+        return HighContrastTheme.theme;
     }
   }
 
@@ -325,6 +457,8 @@ class AppThemes {
         return 'Chill';
       case AppThemeMode.dark:
         return 'Oscuro';
+      case AppThemeMode.highContrast:
+        return 'Alto Contraste';
     }
   }
 
@@ -336,6 +470,8 @@ class AppThemes {
         return Icons.spa;
       case AppThemeMode.dark:
         return Icons.nights_stay;
+      case AppThemeMode.highContrast:
+        return Icons.contrast;
     }
   }
 }

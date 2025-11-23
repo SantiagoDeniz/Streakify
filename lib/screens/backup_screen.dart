@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/backup_service.dart';
 
 class BackupScreen extends StatefulWidget {
@@ -154,6 +156,205 @@ class _BackupScreenState extends State<BackupScreen> {
       ),
     );
   }
+
+  Future<void> _exportCSV() async {
+    try {
+      final file = await _backupService.exportToCSV();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ CSV exportado: ${file.path.split('/').last}'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'Compartir',
+              textColor: Colors.white,
+              onPressed: () async {
+                await Share.shareXFiles([XFile(file.path)]);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al exportar CSV: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportExcel() async {
+    try {
+      final file = await _backupService.exportToExcel();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Excel exportado: ${file.path.split('/').last}'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'Compartir',
+              textColor: Colors.white,
+              onPressed: () async {
+                await Share.shareXFiles([XFile(file.path)]);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al exportar Excel: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _createEncryptedBackup() async {
+    final password = await _showPasswordDialog(isImport: false);
+    if (password == null || password.isEmpty) return;
+
+    try {
+      await _backupService.exportToFileEncrypted(password);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Backup cifrado creado exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      _loadBackups();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al crear backup cifrado: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importEncryptedBackup() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        
+        // Verificar si es un backup cifrado
+        final content = await file.readAsString();
+        final data = jsonDecode(content) as Map<String, dynamic>;
+        
+        if (!data.containsKey('encrypted')) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('❌ Este no es un backup cifrado'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        final password = await _showPasswordDialog(isImport: true);
+        if (password == null || password.isEmpty) return;
+
+        final success = await _backupService.importFromFileEncrypted(file, password);
+
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('✅ Backup cifrado importado exitosamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('❌ Error: Contraseña incorrecta o archivo corrupto'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _showPasswordDialog({required bool isImport}) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isImport ? '🔐 Ingresar Contraseña' : '🔐 Crear Contraseña'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              isImport
+                  ? 'Ingresa la contraseña para descifrar el backup:'
+                  : 'Crea una contraseña para cifrar el backup:',
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.lock),
+              ),
+              autofocus: true,
+            ),
+            if (!isImport) ...[
+              const SizedBox(height: 12),
+              const Text(
+                '⚠️ Guarda esta contraseña en un lugar seguro. No podrás recuperar el backup sin ella.',
+                style: TextStyle(fontSize: 12, color: Colors.orange),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Future<void> _restoreBackup(File file) async {
     final confirm = await showDialog<bool>(
@@ -383,6 +584,69 @@ class _BackupScreenState extends State<BackupScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Formatos de Exportación',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _exportCSV,
+                        icon: const Icon(Icons.table_chart),
+                        label: const Text('CSV'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _exportExcel,
+                        icon: const Icon(Icons.grid_on),
+                        label: const Text('Excel'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Seguridad',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _createEncryptedBackup,
+                        icon: const Icon(Icons.lock),
+                        label: const Text('Backup Cifrado'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          backgroundColor: Colors.orange,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _importEncryptedBackup,
+                        icon: const Icon(Icons.lock_open),
+                        label: const Text('Importar Cifrado'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

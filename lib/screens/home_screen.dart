@@ -30,7 +30,11 @@ import 'activity_focus_screen.dart';
 import 'achievement_gallery_screen.dart';
 import 'dashboard_screen.dart';
 import 'gamification_screen.dart';
+import 'notification_settings_screen.dart';
+import 'accessibility_settings_screen.dart';
 import '../services/gamification_service.dart';
+import '../utils/responsive_helper.dart';
+import '../widgets/activity_card_tablet.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(AppThemeMode)? onThemeChanged;
@@ -1498,127 +1502,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showNotificationSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool notificationsEnabled = prefs.getBool('notifications_enabled') ?? false;
-    int notificationHour = prefs.getInt('notification_hour') ?? 20;
-
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (_) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.notifications),
-              SizedBox(width: 8),
-              Text('Notificaciones'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SwitchListTile(
-                title: const Text('Activar recordatorios'),
-                subtitle: const Text('Recibe un recordatorio diario'),
-                value: notificationsEnabled,
-                onChanged: (value) async {
-                  setDialogState(() => notificationsEnabled = value);
-                  await prefs.setBool('notifications_enabled', value);
-
-                  if (value) {
-                    await NotificationService().scheduleDailyReminder(
-                      hour: notificationHour,
-                      minute: 0,
-                    );
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('✓ Notificaciones activadas'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  } else {
-                    await NotificationService().cancelAllNotifications();
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Notificaciones desactivadas'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                },
-              ),
-              if (notificationsEnabled) ...[
-                const Divider(),
-                const Text('Hora del recordatorio:'),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.access_time),
-                    const SizedBox(width: 8),
-                    DropdownButton<int>(
-                      value: notificationHour,
-                      items: List.generate(24, (index) => index)
-                          .map((hour) => DropdownMenuItem(
-                                value: hour,
-                                child: Text(
-                                    '${hour.toString().padLeft(2, '0')}:00'),
-                              ))
-                          .toList(),
-                      onChanged: (value) async {
-                        if (value != null) {
-                          setDialogState(() => notificationHour = value);
-                          await prefs.setInt('notification_hour', value);
-                          await NotificationService().scheduleDailyReminder(
-                            hour: value,
-                            minute: 0,
-                          );
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Recordatorio programado para las ${value.toString().padLeft(2, '0')}:00',
-                              ),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            if (notificationsEnabled)
-              TextButton.icon(
-                onPressed: () async {
-                  await NotificationService().showInstantNotification(
-                    title: '🔥 Streakify',
-                    body: '¡Esta es una notificación de prueba!',
-                  );
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Notificación de prueba enviada'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.send),
-                label: const Text('Probar'),
-              ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar'),
-            ),
-          ],
-        ),
+  void _showNotificationSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const NotificationSettingsScreen(),
       ),
     );
   }
@@ -2074,6 +1961,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     );
+                  } else if (value == 'accessibility') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AccessibilitySettingsScreen(),
+                      ),
+                    );
                   }
                 },
                 itemBuilder: (context) => [
@@ -2114,6 +2008,67 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(Icons.emoji_events),
                         SizedBox(width: 8),
                         Text('Logros'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'gallery',
+                    child: Row(
+                      children: [
+                        Icon(Icons.collections),
+                        SizedBox(width: 8),
+                        Text('Galería'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'calendar',
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_month),
+                        SizedBox(width: 8),
+                        Text('Calendario'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'timeline',
+                    child: Row(
+                      children: [
+                        Icon(Icons.timeline),
+                        SizedBox(width: 8),
+                        Text('Línea de tiempo'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'theme',
+                    child: Row(
+                      children: [
+                        Icon(Icons.palette),
+                        SizedBox(width: 8),
+                        Text('Tema'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'accessibility',
+                    child: Row(
+                      children: [
+                        Icon(Icons.accessibility_new),
+                        SizedBox(width: 8),
+                        Text('Accesibilidad'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'notifications',
+                    child: Row(
+                      children: [
+                        Icon(Icons.notifications),
+                        SizedBox(width: 8),
+                        Text('Notificaciones'),
                       ],
                     ),
                   ),
@@ -2412,6 +2367,29 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
     // Ordenar actividades por displayOrder
     final sortedActivities = List<Activity>.from(widget.activities)
       ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+
+    if (ResponsiveHelper.isTablet(context) || ResponsiveHelper.isDesktop(context)) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: ResponsiveHelper.getGridCrossAxisCount(context),
+          childAspectRatio: 1.5,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: sortedActivities.length,
+        itemBuilder: (context, index) {
+          final activity = sortedActivities[index];
+          return ActivityCardTablet(
+            activity: activity,
+            onComplete: () => widget.onComplete(activity),
+            onEdit: () => widget.onEdit(activity),
+            onToggleActive: () => widget.onToggleActive(activity),
+            onUseProtector: () => widget.onUseProtector(activity),
+          );
+        },
+      );
+    }
 
     return ReorderableListView.builder(
       itemCount: sortedActivities.length,

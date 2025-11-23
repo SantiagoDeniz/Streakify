@@ -3,6 +3,9 @@ import 'package:path/path.dart';
 import '../models/activity.dart';
 import '../models/category.dart';
 import '../models/completion_history.dart';
+import '../models/protector.dart';
+import '../models/streak_recovery.dart';
+import '../models/notification_preferences.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -24,7 +27,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 8, // Rachas parciales, múltiples completaciones y freeze
+      version: 10, // Preferencias de notificaciones inteligentes
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -77,6 +80,9 @@ class DatabaseHelper {
         isFrozen INTEGER NOT NULL DEFAULT 0,
         frozenUntil TEXT,
         freezeReason TEXT,
+        streakPoints INTEGER NOT NULL DEFAULT 0,
+        monthlyProtectorUses INTEGER NOT NULL DEFAULT 0,
+        lastProtectorReset TEXT,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
         FOREIGN KEY (categoryId) REFERENCES categories(id)
@@ -95,6 +101,51 @@ class DatabaseHelper {
       )
     ''');
 
+    // Tabla de protectores
+    await db.execute('''
+      CREATE TABLE protectors (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        source TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        usedAt TEXT,
+        activityId TEXT,
+        isActive INTEGER NOT NULL DEFAULT 0,
+        expiresAt TEXT,
+        FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE SET NULL
+      )
+    ''');
+
+    // Tabla de historial de uso de protectores
+    await db.execute('''
+      CREATE TABLE protector_history (
+        id TEXT PRIMARY KEY,
+        protectorId TEXT NOT NULL,
+        activityId TEXT NOT NULL,
+        usedAt TEXT NOT NULL,
+        protectorType TEXT NOT NULL,
+        daysProtected INTEGER NOT NULL,
+        FOREIGN KEY (protectorId) REFERENCES protectors(id) ON DELETE CASCADE,
+        FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Tabla de recuperaciones de racha
+    await db.execute('''
+      CREATE TABLE streak_recoveries (
+        id TEXT PRIMARY KEY,
+        activityId TEXT NOT NULL,
+        originalStreak INTEGER NOT NULL,
+        recoveredStreak INTEGER NOT NULL,
+        penaltyDays INTEGER NOT NULL,
+        penaltyPercentage REAL NOT NULL,
+        lostAt TEXT NOT NULL,
+        recoveredAt TEXT NOT NULL,
+        pointsCost INTEGER NOT NULL,
+        FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
+      )
+    ''');
+
     // Crear índices para mejorar el rendimiento
     await db
         .execute('CREATE INDEX idx_activities_active ON activities(active)');
@@ -108,6 +159,64 @@ class DatabaseHelper {
         'CREATE INDEX idx_completion_activity ON completion_history(activityId)');
     await db.execute(
         'CREATE INDEX idx_completion_date ON completion_history(completedAt DESC)');
+    await db.execute(
+        'CREATE INDEX idx_protectors_activity ON protectors(activityId)');
+    await db.execute(
+        'CREATE INDEX idx_protectors_active ON protectors(isActive)');
+    await db.execute(
+        'CREATE INDEX idx_protector_history_activity ON protector_history(activityId)');
+    await db.execute(
+        'CREATE INDEX idx_streak_recoveries_activity ON streak_recoveries(activityId)');
+
+    // Tabla de preferencias de notificaciones
+    await db.execute('''
+      CREATE TABLE notification_preferences (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        contextualNotificationsEnabled INTEGER NOT NULL DEFAULT 1,
+        riskAlertsEnabled INTEGER NOT NULL DEFAULT 1,
+        riskAlertHoursBefore INTEGER NOT NULL DEFAULT 2,
+        dailySummaryEnabled INTEGER NOT NULL DEFAULT 1,
+        morningSummaryHour INTEGER NOT NULL DEFAULT 8,
+        morningSummaryMinute INTEGER NOT NULL DEFAULT 0,
+        eveningSummaryHour INTEGER NOT NULL DEFAULT 20,
+        eveningSummaryMinute INTEGER NOT NULL DEFAULT 0,
+        motivationalQuotesEnabled INTEGER NOT NULL DEFAULT 1,
+        achievementNotificationsEnabled INTEGER NOT NULL DEFAULT 1,
+        progressiveRemindersEnabled INTEGER NOT NULL DEFAULT 1,
+        firstReminderHour INTEGER NOT NULL DEFAULT 12,
+        secondReminderHour INTEGER NOT NULL DEFAULT 18,
+        finalReminderHour INTEGER NOT NULL DEFAULT 22,
+        doNotDisturbEnabled INTEGER NOT NULL DEFAULT 0,
+        doNotDisturbStartHour INTEGER NOT NULL DEFAULT 22,
+        doNotDisturbStartMinute INTEGER NOT NULL DEFAULT 0,
+        doNotDisturbEndHour INTEGER NOT NULL DEFAULT 7,
+        doNotDisturbEndMinute INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+
+    // Insertar preferencias por defecto
+    await db.insert('notification_preferences', {
+      'id': 1,
+      'contextualNotificationsEnabled': 1,
+      'riskAlertsEnabled': 1,
+      'riskAlertHoursBefore': 2,
+      'dailySummaryEnabled': 1,
+      'morningSummaryHour': 8,
+      'morningSummaryMinute': 0,
+      'eveningSummaryHour': 20,
+      'eveningSummaryMinute': 0,
+      'motivationalQuotesEnabled': 1,
+      'achievementNotificationsEnabled': 1,
+      'progressiveRemindersEnabled': 1,
+      'firstReminderHour': 12,
+      'secondReminderHour': 18,
+      'finalReminderHour': 22,
+      'doNotDisturbEnabled': 0,
+      'doNotDisturbStartHour': 22,
+      'doNotDisturbStartMinute': 0,
+      'doNotDisturbEndHour': 7,
+      'doNotDisturbEndMinute': 0,
+    });
 
     // Insertar categorías predefinidas
     await _insertDefaultCategories(db);
@@ -214,6 +323,123 @@ class DatabaseHelper {
           'ALTER TABLE activities ADD COLUMN isFrozen INTEGER NOT NULL DEFAULT 0');
       await db.execute('ALTER TABLE activities ADD COLUMN frozenUntil TEXT');
       await db.execute('ALTER TABLE activities ADD COLUMN freezeReason TEXT');
+    }
+
+    if (oldVersion < 9) {
+      // Agregar columnas para sistema avanzado de protectores
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN streakPoints INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN monthlyProtectorUses INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE activities ADD COLUMN lastProtectorReset TEXT');
+
+      // Crear tabla de protectores
+      await db.execute('''
+        CREATE TABLE protectors (
+          id TEXT PRIMARY KEY,
+          type TEXT NOT NULL,
+          source TEXT NOT NULL,
+          createdAt TEXT NOT NULL,
+          usedAt TEXT,
+          activityId TEXT,
+          isActive INTEGER NOT NULL DEFAULT 0,
+          expiresAt TEXT,
+          FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE SET NULL
+        )
+      ''');
+
+      // Crear tabla de historial de protectores
+      await db.execute('''
+        CREATE TABLE protector_history (
+          id TEXT PRIMARY KEY,
+          protectorId TEXT NOT NULL,
+          activityId TEXT NOT NULL,
+          usedAt TEXT NOT NULL,
+          protectorType TEXT NOT NULL,
+          daysProtected INTEGER NOT NULL,
+          FOREIGN KEY (protectorId) REFERENCES protectors(id) ON DELETE CASCADE,
+          FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // Crear tabla de recuperaciones de racha
+      await db.execute('''
+        CREATE TABLE streak_recoveries (
+          id TEXT PRIMARY KEY,
+          activityId TEXT NOT NULL,
+          originalStreak INTEGER NOT NULL,
+          recoveredStreak INTEGER NOT NULL,
+          penaltyDays INTEGER NOT NULL,
+          penaltyPercentage REAL NOT NULL,
+          lostAt TEXT NOT NULL,
+          recoveredAt TEXT NOT NULL,
+          pointsCost INTEGER NOT NULL,
+          FOREIGN KEY (activityId) REFERENCES activities(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // Crear índices
+      await db.execute(
+          'CREATE INDEX idx_protectors_activity ON protectors(activityId)');
+      await db.execute(
+          'CREATE INDEX idx_protectors_active ON protectors(isActive)');
+      await db.execute(
+          'CREATE INDEX idx_protector_history_activity ON protector_history(activityId)');
+      await db.execute(
+          'CREATE INDEX idx_streak_recoveries_activity ON streak_recoveries(activityId)');
+    }
+
+    if (oldVersion < 10) {
+      // Crear tabla de preferencias de notificaciones
+      await db.execute('''
+        CREATE TABLE notification_preferences (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          contextualNotificationsEnabled INTEGER NOT NULL DEFAULT 1,
+          riskAlertsEnabled INTEGER NOT NULL DEFAULT 1,
+          riskAlertHoursBefore INTEGER NOT NULL DEFAULT 2,
+          dailySummaryEnabled INTEGER NOT NULL DEFAULT 1,
+          morningSummaryHour INTEGER NOT NULL DEFAULT 8,
+          morningSummaryMinute INTEGER NOT NULL DEFAULT 0,
+          eveningSummaryHour INTEGER NOT NULL DEFAULT 20,
+          eveningSummaryMinute INTEGER NOT NULL DEFAULT 0,
+          motivationalQuotesEnabled INTEGER NOT NULL DEFAULT 1,
+          achievementNotificationsEnabled INTEGER NOT NULL DEFAULT 1,
+          progressiveRemindersEnabled INTEGER NOT NULL DEFAULT 1,
+          firstReminderHour INTEGER NOT NULL DEFAULT 12,
+          secondReminderHour INTEGER NOT NULL DEFAULT 18,
+          finalReminderHour INTEGER NOT NULL DEFAULT 22,
+          doNotDisturbEnabled INTEGER NOT NULL DEFAULT 0,
+          doNotDisturbStartHour INTEGER NOT NULL DEFAULT 22,
+          doNotDisturbStartMinute INTEGER NOT NULL DEFAULT 0,
+          doNotDisturbEndHour INTEGER NOT NULL DEFAULT 7,
+          doNotDisturbEndMinute INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
+
+      // Insertar preferencias por defecto
+      await db.insert('notification_preferences', {
+        'id': 1,
+        'contextualNotificationsEnabled': 1,
+        'riskAlertsEnabled': 1,
+        'riskAlertHoursBefore': 2,
+        'dailySummaryEnabled': 1,
+        'morningSummaryHour': 8,
+        'morningSummaryMinute': 0,
+        'eveningSummaryHour': 20,
+        'eveningSummaryMinute': 0,
+        'motivationalQuotesEnabled': 1,
+        'achievementNotificationsEnabled': 1,
+        'progressiveRemindersEnabled': 1,
+        'firstReminderHour': 12,
+        'secondReminderHour': 18,
+        'finalReminderHour': 22,
+        'doNotDisturbEnabled': 0,
+        'doNotDisturbStartHour': 22,
+        'doNotDisturbStartMinute': 0,
+        'doNotDisturbEndHour': 7,
+        'doNotDisturbEndMinute': 0,
+      });
     }
   }
 
@@ -529,6 +755,56 @@ class DatabaseHelper {
       'completion_history',
       where: 'activityId = ?',
       whereArgs: [activityId],
+    );
+  }
+
+  // CRUD Operations - Notification Preferences
+
+  /// Obtener preferencias de notificaciones
+  Future<NotificationPreferences> getNotificationPreferences() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'notification_preferences',
+      where: 'id = ?',
+      whereArgs: [1],
+      limit: 1,
+    );
+
+    if (maps.isEmpty) {
+      // Si no existen, crear preferencias por defecto
+      final prefs = NotificationPreferences();
+      await saveNotificationPreferences(prefs);
+      return prefs;
+    }
+
+    return NotificationPreferences.fromMap(maps.first);
+  }
+
+  /// Guardar preferencias de notificaciones
+  Future<int> saveNotificationPreferences(
+      NotificationPreferences prefs) async {
+    final db = await database;
+    final map = prefs.toMap();
+    map['id'] = 1; // Siempre usar ID 1 (solo hay un registro)
+
+    return await db.insert(
+      'notification_preferences',
+      map,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Actualizar preferencias de notificaciones
+  Future<int> updateNotificationPreferences(
+      NotificationPreferences prefs) async {
+    final db = await database;
+    final map = prefs.toMap();
+
+    return await db.update(
+      'notification_preferences',
+      map,
+      where: 'id = ?',
+      whereArgs: [1],
     );
   }
 

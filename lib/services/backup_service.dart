@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:csv/csv.dart';
+import 'package:excel/excel.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import '../models/activity.dart';
 import '../models/category.dart';
 import 'activity_service.dart';
@@ -248,4 +251,231 @@ class BackupService {
       await cleanupOldBackups();
     }
   }
+
+  /// Exporta actividades a formato CSV
+  Future<File> exportToCSV() async {
+    final activities = await _activityService.loadActivities();
+    final categories = await _categoryService.getAllCategories();
+    
+    // Crear mapa de categorías para búsqueda rápida
+    final categoryMap = {for (var c in categories) c.id: c.name};
+    
+    // Crear filas CSV
+    List<List<dynamic>> rows = [];
+    
+    // Encabezados
+    rows.add([
+      'ID',
+      'Nombre',
+      'Racha',
+      'Última Completación',
+      'Activa',
+      'Categoría',
+      'Tags',
+      'Recurrencia',
+      'Meta de Días',
+      'Archivada',
+      'Congelada',
+      'Puntos de Racha',
+    ]);
+    
+    // Datos de actividades
+    for (final activity in activities) {
+      rows.add([
+        activity.id,
+        activity.name,
+        activity.streak,
+        activity.lastCompleted?.toIso8601String() ?? '',
+        activity.active ? 'Sí' : 'No',
+        activity.categoryId != null ? categoryMap[activity.categoryId] ?? '' : '',
+        activity.tags.join('; '),
+        activity.getRecurrenceDescription(),
+        activity.targetDays?.toString() ?? '',
+        activity.isArchived ? 'Sí' : 'No',
+        activity.isCurrentlyFrozen() ? 'Sí' : 'No',
+        activity.streakPoints,
+      ]);
+    }
+    
+    // Convertir a CSV
+    String csv = const ListToCsvConverter().convert(rows);
+    
+    // Guardar archivo
+    final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final fileName = 'streakify_export_$timestamp.csv';
+    
+    final backupDir = await _getBackupDirectory();
+    final file = File('${backupDir.path}/$fileName');
+    await file.writeAsString(csv);
+    
+    return file;
+  }
+
+  /// Exporta datos a formato Excel con múltiples hojas
+  Future<File> exportToExcel() async {
+    final activities = await _activityService.loadActivities();
+    final categories = await _categoryService.getAllCategories();
+    
+    var excel = Excel.createExcel();
+    
+    // Eliminar hoja por defecto
+    excel.delete('Sheet1');
+    
+    // === HOJA 1: ACTIVIDADES ===
+    var activitiesSheet = excel['Actividades'];
+    
+    // Encabezados
+    activitiesSheet.appendRow([
+      TextCellValue('ID'),
+      TextCellValue('Nombre'),
+      IntCellValue(0), // Placeholder para "Racha"
+      TextCellValue('Última Completación'),
+      TextCellValue('Activa'),
+      TextCellValue('Categoría ID'),
+      TextCellValue('Tags'),
+      TextCellValue('Recurrencia'),
+      TextCellValue('Meta de Días'),
+      TextCellValue('Archivada'),
+      TextCellValue('Congelada'),
+      IntCellValue(0), // Placeholder para "Puntos"
+    ]);
+    
+    // Reemplazar el placeholder de "Racha" con el texto correcto
+    activitiesSheet.cell(CellIndex.indexByString('C1')).value = const TextCellValue('Racha');
+    activitiesSheet.cell(CellIndex.indexByString('L1')).value = const TextCellValue('Puntos de Racha');
+    
+    // Datos
+    for (final activity in activities) {
+      activitiesSheet.appendRow([
+        TextCellValue(activity.id),
+        TextCellValue(activity.name),
+        IntCellValue(activity.streak),
+        TextCellValue(activity.lastCompleted?.toIso8601String() ?? ''),
+        TextCellValue(activity.active ? 'Sí' : 'No'),
+        TextCellValue(activity.categoryId ?? ''),
+        TextCellValue(activity.tags.join('; ')),
+        TextCellValue(activity.getRecurrenceDescription()),
+        TextCellValue(activity.targetDays?.toString() ?? ''),
+        TextCellValue(activity.isArchived ? 'Sí' : 'No'),
+        TextCellValue(activity.isCurrentlyFrozen() ? 'Sí' : 'No'),
+        IntCellValue(activity.streakPoints),
+      ]);
+    }
+    
+    // === HOJA 2: CATEGORÍAS ===
+    var categoriesSheet = excel['Categorías'];
+    
+    categoriesSheet.appendRow([
+      TextCellValue('ID'),
+      TextCellValue('Nombre'),
+      TextCellValue('Icono'),
+      TextCellValue('Color'),
+    ]);
+    
+    for (final category in categories) {
+      categoriesSheet.appendRow([
+        TextCellValue(category.id),
+        TextCellValue(category.name),
+        TextCellValue(category.icon),
+        TextCellValue(category.color),
+      ]);
+    }
+    
+    // === HOJA 3: ESTADÍSTICAS ===
+    var statsSheet = excel['Estadísticas'];
+    
+    final totalActivities = activities.length;
+    final activeActivities = activities.where((a) => a.active).length;
+    final archivedActivities = activities.where((a) => a.isArchived).length;
+    final longestStreak = activities.isEmpty
+        ? 0
+        : activities.map((a) => a.streak).reduce((a, b) => a > b ? a : b);
+    final totalStreakPoints = activities.fold(0, (sum, a) => sum + a.streakPoints);
+    
+    statsSheet.appendRow([TextCellValue('Métrica'), TextCellValue('Valor')]);
+    statsSheet.appendRow([TextCellValue('Total de Actividades'), IntCellValue(totalActivities)]);
+    statsSheet.appendRow([TextCellValue('Actividades Activas'), IntCellValue(activeActivities)]);
+    statsSheet.appendRow([TextCellValue('Actividades Archivadas'), IntCellValue(archivedActivities)]);
+    statsSheet.appendRow([TextCellValue('Racha Más Larga'), IntCellValue(longestStreak)]);
+    statsSheet.appendRow([TextCellValue('Total Puntos de Racha'), IntCellValue(totalStreakPoints)]);
+    statsSheet.appendRow([TextCellValue('Total de Categorías'), IntCellValue(categories.length)]);
+    statsSheet.appendRow([TextCellValue('Fecha de Exportación'), TextCellValue(DateTime.now().toIso8601String())]);
+    
+    // Guardar archivo
+    final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final fileName = 'streakify_export_$timestamp.xlsx';
+    
+    final backupDir = await _getBackupDirectory();
+    final file = File('${backupDir.path}/$fileName');
+    
+    final bytes = excel.encode();
+    if (bytes != null) {
+      await file.writeAsBytes(bytes);
+    }
+    
+    return file;
+  }
+
+  /// Exporta datos a archivo JSON cifrado
+  Future<File> exportToFileEncrypted(String password) async {
+    final data = await exportToJson();
+    final jsonString = const JsonEncoder.withIndent('  ').convert(data);
+    
+    // Generar clave desde password
+    final key = encrypt.Key.fromUtf8(password.padRight(32, '0').substring(0, 32));
+    final iv = encrypt.IV.fromLength(16);
+    
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+    final encrypted = encrypter.encrypt(jsonString, iv: iv);
+    
+    // Crear objeto con datos cifrados e IV
+    final encryptedData = {
+      'encrypted': encrypted.base64,
+      'iv': iv.base64,
+      'version': '1.0',
+      'appName': 'Streakify',
+    };
+    
+    final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final fileName = 'streakify_backup_encrypted_$timestamp.json';
+    
+    final backupDir = await _getBackupDirectory();
+    final file = File('${backupDir.path}/$fileName');
+    
+    await file.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(encryptedData),
+    );
+    
+    return file;
+  }
+
+  /// Importa datos desde archivo JSON cifrado
+  Future<bool> importFromFileEncrypted(File file, String password) async {
+    try {
+      final content = await file.readAsString();
+      final encryptedData = jsonDecode(content) as Map<String, dynamic>;
+      
+      if (!encryptedData.containsKey('encrypted') || !encryptedData.containsKey('iv')) {
+        throw Exception('Formato de backup cifrado inválido');
+      }
+      
+      // Generar clave desde password
+      final key = encrypt.Key.fromUtf8(password.padRight(32, '0').substring(0, 32));
+      final iv = encrypt.IV.fromBase64(encryptedData['iv']);
+      
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final encrypted = encrypt.Encrypted.fromBase64(encryptedData['encrypted']);
+      
+      // Descifrar
+      final decrypted = encrypter.decrypt(encrypted, iv: iv);
+      final data = jsonDecode(decrypted) as Map<String, dynamic>;
+      
+      // Importar datos descifrados
+      return await importFromJson(data, merge: false);
+    } catch (e) {
+      print('Error al importar backup cifrado: $e');
+      return false;
+    }
+  }
 }
+
