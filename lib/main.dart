@@ -3,21 +3,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'themes/app_themes.dart';
 import 'services/accessibility_service.dart';
+import 'services/personalization_service.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   final accessibilityService = AccessibilityService();
   await accessibilityService.init();
   
-  runApp(StreakifyApp(accessibilityService: accessibilityService));
+  final personalizationService = PersonalizationService();
+  await personalizationService.init();
+  
+  final themeService = ThemeService();
+  await themeService.init();
+  
+  runApp(StreakifyApp(
+    accessibilityService: accessibilityService,
+    personalizationService: personalizationService,
+    themeService: themeService,
+  ));
 }
 
 class StreakifyApp extends StatefulWidget {
   final AccessibilityService accessibilityService;
+  final PersonalizationService personalizationService;
+  final ThemeService themeService;
   
   const StreakifyApp({
     super.key, 
     required this.accessibilityService,
+    required this.personalizationService,
+    required this.themeService,
   });
 
   @override
@@ -32,16 +49,38 @@ class _StreakifyAppState extends State<StreakifyApp> {
     super.initState();
     _loadTheme();
     widget.accessibilityService.addListener(_onAccessibilityChanged);
+    widget.personalizationService.addListener(_onPersonalizationChanged);
+    widget.themeService.addListener(_onThemeServiceChanged);
+    
+    // Check if auto-theme is enabled and apply it
+    if (widget.themeService.autoSwitchEnabled) {
+      _themeMode = widget.themeService.getAutoTheme();
+    }
   }
 
   @override
   void dispose() {
     widget.accessibilityService.removeListener(_onAccessibilityChanged);
+    widget.personalizationService.removeListener(_onPersonalizationChanged);
+    widget.themeService.removeListener(_onThemeServiceChanged);
     super.dispose();
   }
 
   void _onAccessibilityChanged() {
     setState(() {});
+  }
+
+  void _onPersonalizationChanged() {
+    setState(() {});
+  }
+
+  void _onThemeServiceChanged() {
+    if (widget.themeService.autoSwitchEnabled) {
+      final autoTheme = widget.themeService.getAutoTheme();
+      if (autoTheme != _themeMode) {
+        _changeTheme(autoTheme);
+      }
+    }
   }
 
   Future<void> _loadTheme() async {
@@ -66,7 +105,10 @@ class _StreakifyAppState extends State<StreakifyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Apply text scale factor from accessibility service
+    // Combine text scale from both accessibility and personalization
+    final combinedTextScale = widget.accessibilityService.textScaleFactor * 
+                              widget.personalizationService.textSizeMultiplier;
+    
     return AnimatedTheme(
       data: AppThemes.getTheme(_themeMode),
       duration: widget.accessibilityService.reduceMotion 
@@ -75,18 +117,27 @@ class _StreakifyAppState extends State<StreakifyApp> {
       curve: Curves.easeInOut,
       child: MediaQuery(
         data: MediaQueryData.fromView(View.of(context)).copyWith(
-          textScaler: TextScaler.linear(widget.accessibilityService.textScaleFactor),
+          textScaler: TextScaler.linear(combinedTextScale),
         ),
         child: MaterialApp(
           title: 'Streakify',
           debugShowCheckedModeBanner: false,
-          theme: AppThemes.getTheme(_themeMode),
-          home: HomeScreen(onThemeChanged: _changeTheme),
+          theme: AppThemes.getTheme(_themeMode).copyWith(
+            textTheme: AppThemes.getTheme(_themeMode).textTheme.apply(
+              fontFamily: widget.personalizationService.fontFamily,
+            ),
+          ),
+          locale: widget.personalizationService.locale,
+          home: HomeScreen(
+            onThemeChanged: _changeTheme,
+            personalizationService: widget.personalizationService,
+            themeService: widget.themeService,
+          ),
           builder: (context, child) {
             // Ensure text scale is applied globally
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(widget.accessibilityService.textScaleFactor),
+                textScaler: TextScaler.linear(combinedTextScale),
               ),
               child: child!,
             );
@@ -96,3 +147,4 @@ class _StreakifyAppState extends State<StreakifyApp> {
     );
   }
 }
+

@@ -5,27 +5,27 @@
 ## 🎨 **1. INTERFAZ Y EXPERIENCIA DE USUARIO (UX/UI)**
 
 ### 1.1 Animaciones y Transiciones
-- [ ] **Animaciones de confetti** al completar actividades o alcanzar hitos
-- [ ] **Transición suave** entre temas (fade animation)
-- [ ] **Animación del contador de racha** cuando aumenta (números que crecen)
-- [ ] **Hero animations** entre pantallas (home → estadísticas)
-- [ ] **Shimmer effect** mientras carga datos
-- [ ] **Bounce animation** en el botón de completar al hacer tap
+- [x] **Animaciones de confetti** al completar actividades o alcanzar hitos
+- [x] **Transición suave** entre temas (fade animation)
+- [x] **Animación del contador de racha** cuando aumenta (números que crecen)
+- [x] **Hero animations** entre pantallas (home → estadísticas)
+- [x] **Shimmer effect** mientras carga datos
+- [x] **Bounce animation** en el botón de completar al hacer tap
 
 ### 1.2 Mejoras de Tarjetas
-- [ ] **Vista compacta/expandida** (toggle para ver más/menos detalles)
-- [ ] **Gráfica de progreso semanal** en cada tarjeta (mini sparkline)
-- [ ] **Indicador de tiempo restante** hasta perder la racha
-- [ ] **Iconos personalizables** por actividad (gym, book, water, etc.)
-- [ ] **Colores personalizables** por actividad
-- [ ] **Drag & drop** para reordenar actividades manualmente
+- [x] **Vista compacta/expandida** (toggle para ver más/menos detalles)
+- [x] **Gráfica de progreso semanal** en cada tarjeta (mini sparkline)
+- [x] **Indicador de tiempo restante** hasta perder la racha
+- [x] **Iconos personalizables** por actividad (gym, book, water, etc.)
+- [x] **Colores personalizables** por actividad
+- [x] **Drag & drop** para reordenar actividades manualmente
 
 ### 1.3 Nuevas Vistas
-- [ ] **Vista de calendario mensual** con días completados marcados
-- [ ] **Vista de línea de tiempo** (timeline) de actividades del día
-- [ ] **Dashboard personalizable** con widgets movibles
-- [ ] **Modo enfoque** (fullscreen de una actividad)
-- [ ] **Vista de galería** con logros y medallas
+- [x] **Vista de calendario mensual** con días completados marcados
+- [x] **Vista de línea de tiempo** (timeline) de actividades del día
+- [x] **Dashboard personalizable** con widgets movibles
+- [x] **Modo enfoque** (fullscreen de una actividad)
+- [x] **Vista de galería** con logros y medallas
 
 ---
 
@@ -101,7 +101,7 @@
 - [ ] **ML para horario óptimo** (aprender cuándo completas más)
 - [ ] **Ajuste automático** según patrones
 - [x] **Modo "no molestar"** con excepciones
-- [ ] **Grupos de notificaciones** (batch de actividades similares)
+- [x] **Grupos de notificaciones** (batch de actividades similares)
 
 ---
 
@@ -116,24 +116,24 @@
 - [x] **Versionado de datos** (histórico de cambios)
 
 ### 5.2 Seguridad
-- [ ] **Protección con PIN/biometría**
-- [ ] **Backup cifrado**
-- [ ] **Modo privado** (ocultar rachas sensibles)
+- [x] **Protección con PIN/biometría**
+- [x] **Backup cifrado**
+- [x] **Modo privado** (ocultar rachas sensibles)
 
 ---
 
 ## 📱 **6. WIDGET Y PLATAFORMA**
 
 ### 6.1 Widget Mejorado
-- [ ] **Múltiples tamaños** de widget (pequeño, mediano, grande)
-- [ ] **Widgets interactivos** (marcar completado desde widget)
-- [ ] **Temas del widget** (match con app o independiente)
-- [ ] **Selección de actividades** a mostrar en widget
+- [x] **Múltiples tamaños** de widget (pequeño, mediano, grande)
+- [x] **Widgets interactivos** (marcar completado desde widget)
+- [x] **Temas del widget** (match con app o independiente)
+- [x] **Selección de actividades** a mostrar en widget
 - [ ] **Widget de estadísticas** (solo números)
 - [ ] **Widget de calendario**
 
 ### 6.2 Plataformas
-- [ ] **Soporte para tablet** (layout responsive)
+- [x] **Soporte para tablet** (layout responsive)
 - [ ] **Versión web** (Flutter web)
 - [ ] **Sincronización entre plataformas**
 - [ ] **Watchable app** (smartwatch companion)
@@ -143,36 +143,36 @@
 ## 🌐 **7. SOCIAL Y COMUNIDAD**
 
 ### 7.1 Features Sociales
-- [ ] **Compartir logros** en redes sociales
-- [ ] **Grupos de accountability** (amigos que se motivan)
-- [ ] **Competencias amistosas** (quién tiene más racha)
-- [ ] **Tabla de líderes** local/global
-- [ ] **Perfil público** (opcional)
-- [ ] **Sistema de "buddies"** (compañeros de racha)
+- [x] **Compartir logros** en redes sociales
+- [x] **Grupos de accountability** (amigos que se motivan)
+- [x] **Competencias amistosas** (quién tiene más racha)
+- [x] **Tabla de líderes** local/global
+- [x] **Perfil público** (opcional)
+- [x] **Sistema de "buddies"** (compañeros de racha)
 
 ### 7.2 Motivación
-- [ ] **Frases motivacionales** diarias
-- [ ] **Consejos para mantener hábitos**
-- [ ] **Historias de éxito** de la comunidad
-- [ ] **Challenges mensuales** comunitarios
+- [x] **Frases motivacionales** diarias
+- [x] **Consejos para mantener hábitos**
+- [x] **Historias de éxito** de la comunidad
+- [x] **Challenges mensuales** comunitarios
 
 ---
 
 ## 🎯 **8. PERSONALIZACIÓN**
 
 ### 8.1 Configuración Avanzada
-- [ ] **Fuentes personalizables**
-- [ ] **Tamaño de texto** ajustable
-- [ ] **Densidad de información** (compacto/normal/espacioso)
-- [ ] **Idiomas múltiples** (i18n completo)
-- [ ] **Formato de fecha personalizable**
-- [ ] **Primera hora del día** (para gente nocturna, 4am = nuevo día)
+- [x] **Fuentes personalizables**
+- [x] **Tamaño de texto** ajustable
+- [x] **Densidad de información** (compacto/normal/espacioso)
+- [x] **Idiomas múltiples** (i18n completo)
+- [x] **Formato de fecha personalizable**
+- [x] **Primera hora del día** (para gente nocturna, 4am = nuevo día)
 
 ### 8.2 Temas
-- [ ] **Más variaciones de temas** (10+ opciones)
-- [ ] **Tema automático por hora** (claro de día, oscuro de noche)
-- [ ] **Creador de temas personalizado**
-- [ ] **Galería de temas** compartidos por comunidad
+- [x] **Más variaciones de temas** (10+ opciones)
+- [x] **Tema automático por hora** (claro de día, oscuro de noche)
+- [x] **Creador de temas personalizado**
+- [x] **Galería de temas** compartidos por comunidad
 
 ---
 

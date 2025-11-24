@@ -426,12 +426,573 @@ class HighContrastTheme {
   );
 }
 
+/// Tema Ocean - Tonos azules del océano
+class OceanTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF0077BE), // Azul océano
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFD0E8F2),
+      onPrimaryContainer: Color(0xFF001F2A),
+
+      secondary: Color(0xFF4A90A4), // Azul turquesa
+      onSecondary: Colors.white,
+      secondaryContainer: Color(0xFFD7EEF4),
+      onSecondaryContainer: Color(0xFF002733),
+
+      tertiary: Color(0xFF00C9A7), // Verde agua
+      onTertiary: Colors.white,
+      tertiaryContainer: Color(0xFFC2F5E9),
+      onTertiaryContainer: Color(0xFF003828),
+
+      error: Color(0xFFBA1A1A),
+      onError: Colors.white,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
+
+      background: Color(0xFFF5FAFE),
+      onBackground: Color(0xFF1A1C1E),
+
+      surface: Color(0xFFF5FAFE),
+      onSurface: Color(0xFF1A1C1E),
+      surfaceVariant: Color(0xFFDDE3EA),
+      onSurfaceVariant: Color(0xFF41484D),
+
+      outline: Color(0xFF71787E),
+      outlineVariant: Color(0xFFC1C7CE),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFF2F3133),
+      onInverseSurface: Color(0xFFF1F0F4),
+      inversePrimary: Color(0xFF90CEF4),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF0077BE),
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF00C9A7),
+      foregroundColor: Colors.white,
+      elevation: 4,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFDDE3EA),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF0077BE), width: 2),
+      ),
+    ),
+  );
+}
+
+/// Tema Forest - Tonos verdes del bosque
+class ForestTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF2D6A4F), // Verde bosque
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFD8F3DC),
+      onPrimaryContainer: Color(0xFF0A2E1A),
+
+      secondary: Color(0xFF52B788), // Verde claro
+      onSecondary: Colors.white,
+      secondaryContainer: Color(0xFFD8F3DC),
+      onSecondaryContainer: Color(0xFF0F3D23),
+
+      tertiary: Color(0xFF95D5B2), // Verde menta
+      onTertiary: Color(0xFF1B4332),
+      tertiaryContainer: Color(0xFFE8F5E9),
+      onTertiaryContainer: Color(0xFF0A2E1A),
+
+      error: Color(0xFFBA1A1A),
+      onError: Colors.white,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
+
+      background: Color(0xFFF8FBF8),
+      onBackground: Color(0xFF1A1C1A),
+
+      surface: Color(0xFFF8FBF8),
+      onSurface: Color(0xFF1A1C1A),
+      surfaceVariant: Color(0xFFDEE5DC),
+      onSurfaceVariant: Color(0xFF424940),
+
+      outline: Color(0xFF727970),
+      outlineVariant: Color(0xFFC2C9C0),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFF2F312E),
+      onInverseSurface: Color(0xFFF1F1EC),
+      inversePrimary: Color(0xFFB7D1C1),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF2D6A4F),
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF52B788),
+      foregroundColor: Colors.white,
+      elevation: 4,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFDEE5DC),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
+      ),
+    ),
+  );
+}
+
+/// Tema Sunset - Tonos cálidos de atardecer
+class SunsetTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFFFF6B6B), // Coral
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFFFE5E5),
+      onPrimaryContainer: Color(0xFF4A0000),
+
+      secondary: Color(0xFFFFAA5A), // Naranja suave
+      onSecondary: Color(0xFF4A2800),
+      secondaryContainer: Color(0xFFFFEDD5),
+      onSecondaryContainer: Color(0xFF2D1600),
+
+      tertiary: Color(0xFFFFD93D), // Amarillo dorado
+      onTertiary: Color(0xFF3D2E00),
+      tertiaryContainer: Color(0xFFFFF8E1),
+      onTertiaryContainer: Color(0xFF2A1F00),
+
+      error: Color(0xFFBA1A1A),
+      onError: Colors.white,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
+
+      background: Color(0xFFFFFBF5),
+      onBackground: Color(0xFF1C1B1A),
+
+      surface: Color(0xFFFFFBF5),
+      onSurface: Color(0xFF1C1B1A),
+      surfaceVariant: Color(0xFFFAEBDD),
+      onSurfaceVariant: Color(0xFF4F4539),
+
+      outline: Color(0xFF807567),
+      outlineVariant: Color(0xFFD4C4B5),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFF31302F),
+      onInverseSurface: Color(0xFFF4F0E9),
+      inversePrimary: Color(0xFFFFB4AB),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFFFF6B6B),
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFFFFD93D),
+      foregroundColor: Color(0xFF3D2E00),
+      elevation: 4,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFFAEBDD),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFFF6B6B), width: 2),
+      ),
+    ),
+  );
+}
+
+/// Tema Midnight - Azul oscuro profundo
+class MidnightTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFF5E9FFF), // Azul brillante
+      onPrimary: Color(0xFF003258),
+      primaryContainer: Color(0xFF00497D),
+      onPrimaryContainer: Color(0xFFD4E3FF),
+
+      secondary: Color(0xFF8B7FFF), // Púrpura suave
+      onSecondary: Color(0xFF2E2066),
+      secondaryContainer: Color(0xFF45377D),
+      onSecondaryContainer: Color(0xFFE5DEFF),
+
+      tertiary: Color(0xFF00D9FF), // Cyan brillante
+      onTertiary: Color(0xFF003640),
+      tertiaryContainer: Color(0xFF004F5C),
+      onTertiaryContainer: Color(0xFFB8EEFF),
+
+      error: Color(0xFFFFB4AB),
+      onError: Color(0xFF690005),
+      errorContainer: Color(0xFF93000A),
+      onErrorContainer: Color(0xFFFFDAD6),
+
+      background: Color(0xFF0A1929), // Azul muy oscuro
+      onBackground: Color(0xFFE3E8EF),
+
+      surface: Color(0xFF132F4C), // Azul oscuro
+      onSurface: Color(0xFFE3E8EF),
+      surfaceVariant: Color(0xFF1E3A52),
+      onSurfaceVariant: Color(0xFFC1D0E0),
+
+      outline: Color(0xFF8B9AAA),
+      outlineVariant: Color(0xFF3E5060),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFFE3E8EF),
+      onInverseSurface: Color(0xFF0A1929),
+      inversePrimary: Color(0xFF00497D),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: const Color(0xFF132F4C),
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF0A1929),
+      foregroundColor: Color(0xFF5E9FFF),
+      titleTextStyle: TextStyle(
+        color: Color(0xFF5E9FFF),
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF00D9FF),
+      foregroundColor: Color(0xFF003640),
+      elevation: 6,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF1E3A52),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF5E9FFF), width: 2),
+      ),
+    ),
+  );
+}
+
+/// Tema Monochrome - Escala de grises elegante
+class MonochromeTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF2C2C2C), // Gris oscuro
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFE0E0E0),
+      onPrimaryContainer: Color(0xFF1A1A1A),
+
+      secondary: Color(0xFF5A5A5A), // Gris medio
+      onSecondary: Colors.white,
+      secondaryContainer: Color(0xFFEEEEEE),
+      onSecondaryContainer: Color(0xFF2C2C2C),
+
+      tertiary: Color(0xFF757575), // Gris claro
+      onTertiary: Colors.white,
+      tertiaryContainer: Color(0xFFF5F5F5),
+      onTertiaryContainer: Color(0xFF3C3C3C),
+
+      error: Color(0xFF5A5A5A),
+      onError: Colors.white,
+      errorContainer: Color(0xFFE0E0E0),
+      onErrorContainer: Color(0xFF1A1A1A),
+
+      background: Color(0xFFFAFAFA),
+      onBackground: Color(0xFF1A1A1A),
+
+      surface: Color(0xFFFAFAFA),
+      onSurface: Color(0xFF1A1A1A),
+      surfaceVariant: Color(0xFFEEEEEE),
+      onSurfaceVariant: Color(0xFF424242),
+
+      outline: Color(0xFF757575),
+      outlineVariant: Color(0xFFC2C2C2),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFF313131),
+      onInverseSurface: Color(0xFFF5F5F5),
+      inversePrimary: Color(0xFFB8B8B8),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF2C2C2C),
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF5A5A5A),
+      foregroundColor: Colors.white,
+      elevation: 4,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFEEEEEE),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF2C2C2C), width: 2),
+      ),
+    ),
+  );
+}
+
+/// Tema Neon - Colores vibrantes y neón
+class NeonTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFFFF00FF), // Magenta neón
+      onPrimary: Colors.black,
+      primaryContainer: Color(0xFF8B008B),
+      onPrimaryContainer: Color(0xFFFFD6FF),
+
+      secondary: Color(0xFF00FFFF), // Cyan neón
+      onSecondary: Colors.black,
+      secondaryContainer: Color(0xFF008B8B),
+      onSecondaryContainer: Color(0xFFD6FFFF),
+
+      tertiary: Color(0xFFFFFF00), // Amarillo neón
+      onTertiary: Colors.black,
+      tertiaryContainer: Color(0xFF8B8B00),
+      onTertiaryContainer: Color(0xFFFFFFC0),
+
+      error: Color(0xFFFF0080),
+      onError: Colors.black,
+      errorContainer: Color(0xFF8B0040),
+      onErrorContainer: Color(0xFFFFD6E8),
+
+      background: Color(0xFF0D0D0D), // Negro profundo
+      onBackground: Color(0xFFFFFFFF),
+
+      surface: Color(0xFF1A1A1A), // Gris muy oscuro
+      onSurface: Color(0xFFFFFFFF),
+      surfaceVariant: Color(0xFF2A2A2A),
+      onSurfaceVariant: Color(0xFFE0E0E0),
+
+      outline: Color(0xFFFF00FF),
+      outlineVariant: Color(0xFF4D004D),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFFFFFFFF),
+      onInverseSurface: Color(0xFF0D0D0D),
+      inversePrimary: Color(0xFF8B008B),
+    ),
+
+    cardTheme: CardTheme(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFFF00FF), width: 1),
+      ),
+      color: const Color(0xFF1A1A1A),
+    ),
+
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF0D0D0D),
+      foregroundColor: Color(0xFFFF00FF),
+      titleTextStyle: TextStyle(
+        color: Color(0xFFFF00FF),
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFFFFFF00),
+      foregroundColor: Colors.black,
+      elevation: 8,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 4,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF2A2A2A),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFFF00FF), width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFFF00FF), width: 2),
+      ),
+    ),
+  );
+}
+
 /// Enumeración para los modos de tema
 enum AppThemeMode {
   bright, // Tema claro y alegre
   chill, // Tema suave y relajante
   dark, // Tema oscuro
   highContrast, // Tema alto contraste
+  ocean, // Tema océano
+  forest, // Tema bosque
+  sunset, // Tema atardecer
+  midnight, // Tema medianoche
+  monochrome, // Tema monocromático
+  neon, // Tema neón
 }
 
 /// Clase helper para obtener el tema según el modo
@@ -446,6 +1007,18 @@ class AppThemes {
         return DarkTheme.theme;
       case AppThemeMode.highContrast:
         return HighContrastTheme.theme;
+      case AppThemeMode.ocean:
+        return OceanTheme.theme;
+      case AppThemeMode.forest:
+        return ForestTheme.theme;
+      case AppThemeMode.sunset:
+        return SunsetTheme.theme;
+      case AppThemeMode.midnight:
+        return MidnightTheme.theme;
+      case AppThemeMode.monochrome:
+        return MonochromeTheme.theme;
+      case AppThemeMode.neon:
+        return NeonTheme.theme;
     }
   }
 
@@ -459,6 +1032,18 @@ class AppThemes {
         return 'Oscuro';
       case AppThemeMode.highContrast:
         return 'Alto Contraste';
+      case AppThemeMode.ocean:
+        return 'Océano';
+      case AppThemeMode.forest:
+        return 'Bosque';
+      case AppThemeMode.sunset:
+        return 'Atardecer';
+      case AppThemeMode.midnight:
+        return 'Medianoche';
+      case AppThemeMode.monochrome:
+        return 'Monocromo';
+      case AppThemeMode.neon:
+        return 'Neón';
     }
   }
 
@@ -472,6 +1057,18 @@ class AppThemes {
         return Icons.nights_stay;
       case AppThemeMode.highContrast:
         return Icons.contrast;
+      case AppThemeMode.ocean:
+        return Icons.water;
+      case AppThemeMode.forest:
+        return Icons.park;
+      case AppThemeMode.sunset:
+        return Icons.wb_twilight;
+      case AppThemeMode.midnight:
+        return Icons.dark_mode;
+      case AppThemeMode.monochrome:
+        return Icons.gradient;
+      case AppThemeMode.neon:
+        return Icons.flash_on;
     }
   }
 }

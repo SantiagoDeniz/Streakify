@@ -303,47 +303,50 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 final bestStreak = _bestStreaks[activity.id] ?? 0;
                 final avgStreak = _averageStreaks[activity.id] ?? 0.0;
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: successRate >= 70
-                          ? Colors.green
-                          : successRate >= 40
-                              ? Colors.orange
-                              : Colors.red,
-                      child: Text(
-                        '${successRate.toStringAsFixed(0)}%',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.white,
+                return Hero(
+                  tag: 'activity_card_${activity.id}',
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: successRate >= 70
+                            ? Colors.green
+                            : successRate >= 40
+                                ? Colors.orange
+                                : Colors.red,
+                        child: Text(
+                          '${successRate.toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    title: Text(activity.name),
-                    subtitle: Text(
-                      'Récord: $bestStreak días | Promedio: ${avgStreak.toStringAsFixed(1)} días',
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Actual',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[600],
+                      title: Text(activity.name),
+                      subtitle: Text(
+                        'Récord: $bestStreak días | Promedio: ${avgStreak.toStringAsFixed(1)} días',
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Actual',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${activity.streak}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          Text(
+                            '${activity.streak}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

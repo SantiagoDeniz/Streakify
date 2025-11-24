@@ -6,6 +6,9 @@ import '../models/completion_history.dart';
 import '../models/protector.dart';
 import '../models/streak_recovery.dart';
 import '../models/notification_preferences.dart';
+import '../models/user_profile.dart';
+import '../models/buddy.dart';
+import '../models/accountability_group.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -27,7 +30,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 10, // Preferencias de notificaciones inteligentes
+      version: 11, // Social features
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -217,6 +220,49 @@ class DatabaseHelper {
       'doNotDisturbEndHour': 7,
       'doNotDisturbEndMinute': 0,
     });
+
+    // Tabla de perfil de usuario
+    await db.execute('''
+      CREATE TABLE user_profile (
+        id TEXT PRIMARY KEY,
+        username TEXT,
+        displayName TEXT,
+        avatarUrl TEXT,
+        bio TEXT,
+        isPublic INTEGER DEFAULT 1,
+        totalStreaks INTEGER DEFAULT 0,
+        currentStreak INTEGER DEFAULT 0,
+        totalXp INTEGER DEFAULT 0,
+        badges TEXT,
+        joinedDate TEXT
+      )
+    ''');
+
+    // Tabla de buddies
+    await db.execute('''
+      CREATE TABLE buddies (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        name TEXT,
+        avatarUrl TEXT,
+        currentStreak INTEGER DEFAULT 0,
+        status TEXT,
+        lastInteraction TEXT
+      )
+    ''');
+
+    // Tabla de grupos de accountability
+    await db.execute('''
+      CREATE TABLE accountability_groups (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        description TEXT,
+        iconUrl TEXT,
+        memberCount INTEGER DEFAULT 1,
+        totalGroupStreak INTEGER DEFAULT 0,
+        createdDate TEXT
+      )
+    ''');
 
     // Insertar categorías predefinidas
     await _insertDefaultCategories(db);
@@ -440,6 +486,49 @@ class DatabaseHelper {
         'doNotDisturbEndHour': 7,
         'doNotDisturbEndMinute': 0,
       });
+    }
+
+    if (oldVersion < 11) {
+      // Crear tablas para features sociales
+      await db.execute('''
+        CREATE TABLE user_profile (
+          id TEXT PRIMARY KEY,
+          username TEXT,
+          displayName TEXT,
+          avatarUrl TEXT,
+          bio TEXT,
+          isPublic INTEGER DEFAULT 1,
+          totalStreaks INTEGER DEFAULT 0,
+          currentStreak INTEGER DEFAULT 0,
+          totalXp INTEGER DEFAULT 0,
+          badges TEXT,
+          joinedDate TEXT
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE buddies (
+          id TEXT PRIMARY KEY,
+          userId TEXT,
+          name TEXT,
+          avatarUrl TEXT,
+          currentStreak INTEGER DEFAULT 0,
+          status TEXT,
+          lastInteraction TEXT
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE accountability_groups (
+          id TEXT PRIMARY KEY,
+          name TEXT,
+          description TEXT,
+          iconUrl TEXT,
+          memberCount INTEGER DEFAULT 1,
+          totalGroupStreak INTEGER DEFAULT 0,
+          createdDate TEXT
+        )
+      ''');
     }
   }
 
@@ -805,6 +894,99 @@ class DatabaseHelper {
       map,
       where: 'id = ?',
       whereArgs: [1],
+    );
+  }
+
+  // --- SOCIAL FEATURES ---
+
+  // User Profile
+  Future<UserProfile?> getUserProfile() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'user_profile',
+      limit: 1,
+    );
+
+    if (maps.isEmpty) return null;
+    return UserProfile.fromMap(maps.first);
+  }
+
+  Future<int> insertOrUpdateUserProfile(UserProfile profile) async {
+    final db = await database;
+    return await db.insert(
+      'user_profile',
+      profile.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Buddies
+  Future<List<Buddy>> getBuddies() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('buddies');
+    return List.generate(maps.length, (i) => Buddy.fromMap(maps[i]));
+  }
+
+  Future<int> insertBuddy(Buddy buddy) async {
+    final db = await database;
+    return await db.insert(
+      'buddies',
+      buddy.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<int> updateBuddy(Buddy buddy) async {
+    final db = await database;
+    return await db.update(
+      'buddies',
+      buddy.toMap(),
+      where: 'id = ?',
+      whereArgs: [buddy.id],
+    );
+  }
+
+  Future<int> deleteBuddy(String id) async {
+    final db = await database;
+    return await db.delete(
+      'buddies',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Accountability Groups
+  Future<List<AccountabilityGroup>> getAccountabilityGroups() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('accountability_groups');
+    return List.generate(maps.length, (i) => AccountabilityGroup.fromMap(maps[i]));
+  }
+
+  Future<int> insertAccountabilityGroup(AccountabilityGroup group) async {
+    final db = await database;
+    return await db.insert(
+      'accountability_groups',
+      group.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<int> updateAccountabilityGroup(AccountabilityGroup group) async {
+    final db = await database;
+    return await db.update(
+      'accountability_groups',
+      group.toMap(),
+      where: 'id = ?',
+      whereArgs: [group.id],
+    );
+  }
+
+  Future<int> deleteAccountabilityGroup(String id) async {
+    final db = await database;
+    return await db.delete(
+      'accountability_groups',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 

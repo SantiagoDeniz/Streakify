@@ -2,6 +2,7 @@
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
+import 'dart:ui';
 import '../models/activity.dart';
 import '../models/completion_history.dart';
 import '../services/activity_service.dart';
@@ -9,6 +10,8 @@ import '../services/achievement_service.dart';
 import '../services/notification_service.dart';
 import '../services/backup_service.dart';
 import '../services/database_helper.dart';
+import '../services/personalization_service.dart';
+import '../services/theme_service.dart';
 import '../widgets/home_widget_service.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/tag_input.dart';
@@ -32,14 +35,25 @@ import 'dashboard_screen.dart';
 import 'gamification_screen.dart';
 import 'notification_settings_screen.dart';
 import 'accessibility_settings_screen.dart';
+import 'personalization_settings_screen.dart';
+import 'theme_settings_screen.dart';
+import 'social_screen.dart';
 import '../services/gamification_service.dart';
 import '../utils/responsive_helper.dart';
 import '../widgets/activity_card_tablet.dart';
+import '../widgets/confetti_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(AppThemeMode)? onThemeChanged;
+  final PersonalizationService? personalizationService;
+  final ThemeService? themeService;
 
-  const HomeScreen({super.key, this.onThemeChanged});
+  const HomeScreen({
+    super.key,
+    this.onThemeChanged,
+    this.personalizationService,
+    this.themeService,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -56,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedTagFilter; // Filtro por tag
   late ConfettiController _confettiController;
   bool _isLoading = true;
+  bool _isCompactView = false;
 
   @override
   void initState() {
@@ -123,6 +138,33 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeWidgetService.updateWidget(_activities);
     // Reprogramar notificaciones después de cargar actividades
     _initNotifications();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isCompactView = prefs.getBool('compact_view') ?? false;
+    });
+  }
+
+  Future<void> _toggleViewMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isCompactView = !_isCompactView;
+    });
+    await prefs.setBool('compact_view', _isCompactView);
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final Activity item = _activities.removeAt(oldIndex);
+      _activities.insert(newIndex, item);
+    });
+    _save();
   }
 
   Future<void> _save() async => _service.saveActivities(_activities);
@@ -1792,6 +1834,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              IconButton(
+                icon: Icon(_isCompactView ? Icons.view_agenda : Icons.view_list),
+                tooltip: _isCompactView ? 'Vista expandida' : 'Vista compacta',
+                onPressed: _toggleViewMode,
+              ),
+            IconButton(
+              icon: const Icon(Icons.people),
+              tooltip: 'Comunidad',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SocialScreen()),
+                );
+              },
+            ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) {
@@ -2288,6 +2345,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onToggleActive: _toggleActive,
                                     onConfigureNotifications:
                                         _showActivityNotificationDialog,
+                                    isCompactView: _isCompactView,
+                                    onReorder: _onReorder,
                                   ),
                                 ),
                               ],
@@ -2300,25 +2359,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: _showAddDialog, child: const Icon(Icons.add)),
         ),
         // Widget de confetti
-        Align(
+        CelebrationConfetti(
+          controller: _confettiController,
           alignment: Alignment.topCenter,
-          child: ConfettiWidget(
-            confettiController: _confettiController,
-            blastDirectionality: BlastDirectionality.explosive,
-            particleDrag: 0.05,
-            emissionFrequency: 0.05,
-            numberOfParticles: 30,
-            gravity: 0.2,
-            shouldLoop: false,
-            colors: const [
-              Colors.green,
-              Colors.blue,
-              Colors.pink,
-              Colors.orange,
-              Colors.purple,
-              Colors.yellow,
-            ],
-          ),
         ),
       ],
     );
@@ -2333,6 +2376,8 @@ class StreakWidgetView extends StatefulWidget {
   final Function(Activity) onEdit;
   final Function(Activity) onToggleActive;
   final Function(Activity) onConfigureNotifications;
+  final bool isCompactView;
+  final Function(int, int) onReorder;
 
   const StreakWidgetView({
     super.key,
@@ -2343,6 +2388,8 @@ class StreakWidgetView extends StatefulWidget {
     required this.onEdit,
     required this.onToggleActive,
     required this.onConfigureNotifications,
+    this.isCompactView = false,
+    required this.onReorder,
   });
 
   @override
@@ -2364,11 +2411,12 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
 
   @override
   Widget build(BuildContext context) {
-    // Ordenar actividades por displayOrder
-    final sortedActivities = List<Activity>.from(widget.activities)
-      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+    // Ordenar actividades por displayOrder si no hay otro ordenamiento activo
+    // Nota: El ordenamiento se maneja en el padre, aquí solo mostramos la lista recibida
+    final activities = widget.activities;
 
-    if (ResponsiveHelper.isTablet(context) || ResponsiveHelper.isDesktop(context)) {
+    if (ResponsiveHelper.isTablet(context) ||
+        ResponsiveHelper.isDesktop(context)) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -2377,42 +2425,46 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: sortedActivities.length,
+        itemCount: activities.length,
         itemBuilder: (context, index) {
-          final activity = sortedActivities[index];
-          return ActivityCardTablet(
-            activity: activity,
-            onComplete: () => widget.onComplete(activity),
-            onEdit: () => widget.onEdit(activity),
-            onToggleActive: () => widget.onToggleActive(activity),
-            onUseProtector: () => widget.onUseProtector(activity),
+          final activity = activities[index];
+          return Hero(
+            tag: 'activity_card_${activity.id}',
+            child: ActivityCardTablet(
+              activity: activity,
+              onComplete: () => widget.onComplete(activity),
+              onEdit: () => widget.onEdit(activity),
+              onToggleActive: () => widget.onToggleActive(activity),
+              onUseProtector: () => widget.onUseProtector(activity),
+            ),
           );
         },
       );
     }
 
     return ReorderableListView.builder(
-      itemCount: sortedActivities.length,
-      onReorder: (oldIndex, newIndex) {
-        // Si movemos hacia abajo, el índice disminuye en 1
-        if (newIndex > oldIndex) {
-          newIndex -= 1;
-        }
-
-        // Reordenar la lista
-        final activity = sortedActivities.removeAt(oldIndex);
-        sortedActivities.insert(newIndex, activity);
-
-        // Actualizar displayOrder de todas las actividades
-        for (int i = 0; i < sortedActivities.length; i++) {
-          sortedActivities[i].displayOrder = i;
-        }
-
-        // Guardar cambios
-        widget.onEdit(activity); // Esto disparará el guardado
+      itemCount: activities.length,
+      onReorder: widget.onReorder,
+      padding: const EdgeInsets.only(bottom: 80),
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (BuildContext context, Widget? child) {
+            final double animValue = Curves.easeInOut.transform(animation.value);
+            final double elevation = lerpDouble(0, 6, animValue)!;
+            return Material(
+              elevation: elevation,
+              color: Colors.transparent,
+              shadowColor: Colors.black.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              child: child,
+            );
+          },
+          child: child,
+        );
       },
       itemBuilder: (context, index) {
-        final activity = sortedActivities[index];
+        final activity = activities[index];
         return TweenAnimationBuilder<double>(
           key: ValueKey(activity.id),
           tween: Tween(begin: 0.0, end: 1.0),
@@ -2427,7 +2479,10 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
               ),
             );
           },
-          child: _buildActivityCard(context, activity),
+          child: Hero(
+            tag: 'activity_card_${activity.id}',
+            child: _buildActivityCard(context, activity),
+          ),
         );
       },
     );
@@ -2478,6 +2533,74 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
         : null;
 
     // Determinar estado de la actividad
+    bool isCompletedToday = false;
+    if (lastCompleted != null) {
+      isCompletedToday =
+          today.year == lastCompleted.year &&
+          today.month == lastCompleted.month &&
+          today.day == lastCompleted.day;
+      
+      // Check for multiple completions
+      if (isCompletedToday && activity.allowsMultipleCompletions() && !activity.hasCompletedDailyGoal()) {
+        isCompletedToday = false; // Still needs more completions
+      }
+    }
+
+    if (widget.isCompactView) {
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ActivityColors.getColor(activity.customColor).withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              ActivityIcons.getIcon(activity.customIcon),
+              color: ActivityColors.getColor(activity.customColor),
+              size: 20,
+            ),
+          ),
+          title: Text(
+            activity.name,
+            style: TextStyle(
+              decoration: isCompletedToday ? TextDecoration.lineThrough : null,
+              color: isCompletedToday ? Colors.grey : null,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text('Racha: ${activity.streak} días'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (activity.allowsMultipleCompletions())
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    '${activity.dailyCompletionCount}/${activity.dailyGoal}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              IconButton(
+                icon: Icon(
+                  isCompletedToday ? Icons.check_circle : Icons.circle_outlined,
+                  color: isCompletedToday ? Colors.green : Colors.grey,
+                ),
+                onPressed: () => widget.onComplete(activity),
+              ),
+            ],
+          ),
+          onTap: () => _toggleExpanded(activity.id),
+        ),
+      );
+    }
     final bool completedToday = lastCompleted == today;
     final bool isAtRisk = lastCompleted != null &&
         !completedToday &&
@@ -3329,6 +3452,7 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
             ],
           ),
           actions: [
+
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),
