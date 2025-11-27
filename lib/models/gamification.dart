@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// Niveles de medallas para logros
@@ -117,7 +118,7 @@ class UserLevel {
 
   static int _calculateLevel(int points) {
     // Fórmula: nivel = sqrt(puntos / 50)
-    return (points / 50).sqrt().floor() + 1;
+    return (sqrt(points / 50)).floor() + 1;
   }
 
   static int _getPointsForLevel(int level) {

@@ -16,9 +16,22 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         run: flutter pub get
       
       - name: Run flutter doctor
         run: flutter doctor
+      
+      - name: Analyze code
+        run: flutter analyze
+      
+      - name: Run tests
+        run: flutter test --coverage
+      
+      - name: Generate coverage report
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+          echo "Coverage report generated"

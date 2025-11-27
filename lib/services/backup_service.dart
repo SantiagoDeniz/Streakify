@@ -341,8 +341,8 @@ class BackupService {
     ]);
     
     // Reemplazar el placeholder de "Racha" con el texto correcto
-    activitiesSheet.cell(CellIndex.indexByString('C1')).value = const TextCellValue('Racha');
-    activitiesSheet.cell(CellIndex.indexByString('L1')).value = const TextCellValue('Puntos de Racha');
+    activitiesSheet.cell(CellIndex.indexByString('C1')).value = TextCellValue('Racha');
+    activitiesSheet.cell(CellIndex.indexByString('L1')).value = TextCellValue('Puntos de Racha');
     
     // Datos
     for (final activity in activities) {
@@ -376,8 +376,8 @@ class BackupService {
       categoriesSheet.appendRow([
         TextCellValue(category.id),
         TextCellValue(category.name),
-        TextCellValue(category.icon),
-        TextCellValue(category.color),
+        TextCellValue(category.icon.codePoint.toString()),
+        TextCellValue(category.color.value.toRadixString(16)),
       ]);
     }
     

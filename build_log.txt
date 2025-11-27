@@ -1,0 +1,155 @@
+
+Running Gradle task 'assembleRelease'...                        
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Invalid depfile: C:\Streakify\.dart_tool\flutter_build\60b602f6412625c912ad9784cdefca2d\kernel_snapshot_program.d
+Error: Couldn't resolve the package 'encrypt' in 'package:encrypt/encrypt.dart'.
+lib/services/backup_service.dart:8:8: Error: Not found: 'package:encrypt/encrypt.dart'
+import 'package:encrypt/encrypt.dart' as encrypt;
+       ^
+lib/widgets/template_selector.dart:260:29: Error: Type 'RecurrenceType' not found.
+  String _getRecurrenceText(RecurrenceType type) {
+                            ^^^^^^^^^^^^^^
+lib/screens/home_screen.dart:807:74: Error: The getter 'points' isn't defined for the class 'MedalTier'.
+ - 'MedalTier' is from 'package:streakify/models/gamification.dart' ('lib/models/gamification.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'points'.
+                          '🎖️ Medalla ${medal.tier.name} (+${medal.tier.points} pts)',
+                                                                         ^^^^^^
+lib/services/notification_service.dart:490:48: Error: The getter 'name' isn't defined for the class 'Achievement'.
+ - 'Achievement' is from 'package:streakify/models/achievement.dart' ('lib/models/achievement.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'name'.
+      body: '${achievement.icon} ${achievement.name}\n$message',
+                                               ^^^^
+lib/services/backup_service.dart:344:71: Error: Cannot invoke a non-'const' constructor where a const expression is expected.
+Try using a constructor or factory that is 'const'.
+    activitiesSheet.cell(CellIndex.indexByString('C1')).value = const TextCellValue('Racha');
+                                                                      ^^^^^^^^^^^^^
+lib/services/backup_service.dart:345:71: Error: Cannot invoke a non-'const' constructor where a const expression is expected.
+Try using a constructor or factory that is 'const'.
+    activitiesSheet.cell(CellIndex.indexByString('L1')).value = const TextCellValue('Puntos de Racha');
+                                                                      ^^^^^^^^^^^^^
+lib/services/backup_service.dart:379:32: Error: The argument type 'IconData' can't be assigned to the parameter type 'String'.
+ - 'IconData' is from 'package:flutter/src/widgets/icon_data.dart' ('/C:/Flutter/flutter/packages/flutter/lib/src/widgets/icon_data.dart').
+        TextCellValue(category.icon),
+                               ^
+lib/services/backup_service.dart:380:32: Error: The argument type 'Color' can't be assigned to the parameter type 'String'.
+ - 'Color' is from 'dart:ui'.
+        TextCellValue(category.color),
+                               ^
+lib/services/backup_service.dart:425:25: Error: Undefined name 'Key'.
+    final key = encrypt.Key.fromUtf8(password.padRight(32, '0').substring(0, 32));
+                        ^^^
+lib/services/backup_service.dart:426:24: Error: Undefined name 'IV'.
+    final iv = encrypt.IV.fromLength(16);
+                       ^^
+lib/services/backup_service.dart:428:49: Error: Method not found: 'AES'.
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                                                ^^^
+lib/services/backup_service.dart:428:31: Error: Method not found: 'Encrypter'.
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                              ^^^^^^^^^
+lib/services/backup_service.dart:463:27: Error: Undefined name 'Key'.
+      final key = encrypt.Key.fromUtf8(password.padRight(32, '0').substring(0, 32));
+                          ^^^
+lib/services/backup_service.dart:464:26: Error: Undefined name 'IV'.
+      final iv = encrypt.IV.fromBase64(encryptedData['iv']);
+                         ^^
+lib/services/backup_service.dart:466:51: Error: Method not found: 'AES'.
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                                                  ^^^
+lib/services/backup_service.dart:466:33: Error: Method not found: 'Encrypter'.
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                                ^^^^^^^^^
+lib/services/backup_service.dart:467:33: Error: Undefined name 'Encrypted'.
+      final encrypted = encrypt.Encrypted.fromBase64(encryptedData['encrypted']);
+                                ^^^^^^^^^
+lib/widgets/template_selector.dart:31:48: Error: The method 'getCategories' isn't defined for the class 'CategoryService'.
+ - 'CategoryService' is from 'package:streakify/services/category_service.dart' ('lib/services/category_service.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'getCategories'.
+    final categories = await CategoryService().getCategories();
+                                               ^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:260:29: Error: 'RecurrenceType' isn't a type.
+  String _getRecurrenceText(RecurrenceType type) {
+                            ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:262:12: Error: Undefined name 'RecurrenceType'.
+      case RecurrenceType.daily:
+           ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:264:12: Error: Undefined name 'RecurrenceType'.
+      case RecurrenceType.weekdays:
+           ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:266:12: Error: Undefined name 'RecurrenceType'.
+      case RecurrenceType.weekends:
+           ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:268:12: Error: Undefined name 'RecurrenceType'.
+      case RecurrenceType.specificDays:
+           ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:270:12: Error: Undefined name 'RecurrenceType'.
+      case RecurrenceType.everyNDays:
+           ^^^^^^^^^^^^^^
+lib/widgets/template_selector.dart:260:10: Error: A non-null value must be returned since the return type 'String' doesn't allow null.
+  String _getRecurrenceText(RecurrenceType type) {
+         ^
+lib/screens/notification_settings_screen.dart:44:47: Error: The method 'getAllActivities' isn't defined for the class 'ActivityService'.
+ - 'ActivityService' is from 'package:streakify/services/activity_service.dart' ('lib/services/activity_service.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'getAllActivities'.
+    final activities = await _activityService.getAllActivities();
+                                              ^^^^^^^^^^^^^^^^
+lib/models/gamification.dart:120:26: Error: The method 'sqrt' isn't defined for the class 'double'.
+Try correcting the name to the name of an existing method, or defining a method named 'sqrt'.
+    return (points / 50).sqrt().floor() + 1;
+                         ^^^^
+lib/services/social_service.dart:11:51: Error: Member not found: 'instance'.
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+                                                  ^^^^^^^^
+Unhandled exception:
+FileSystemException(uri=org-dartlang-untranslatable-uri:package%3Aencrypt%2Fencrypt.dart; message=StandardFileSystem only supports file:* and data:* URIs)
+#0      StandardFileSystem.entityForUri (package:front_end/src/api_prototype/standard_file_system.dart:35)
+#1      asFileUri (package:vm/kernel_front_end.dart:792)
+#2      writeDepfile (package:vm/kernel_front_end.dart:932)
+<asynchronous suspension>
+#3      FrontendCompiler.compile (package:frontend_server/frontend_server.dart:704)
+<asynchronous suspension>
+#4      starter (package:frontend_server/starter.dart:109)
+<asynchronous suspension>
+#5      main (file:///C:/b/s/w/ir/x/w/sdk/pkg/frontend_server/bin/frontend_server_starter.dart:13)
+<asynchronous suspension>
+
+Target kernel_snapshot_program failed: Exception
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildRelease'.
+> Process 'command 'C:\Flutter\flutter\bin\flutter.bat'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 38s
+Running Gradle task 'assembleRelease'...                           39,3s
+Gradle task assembleRelease failed with exit code 1

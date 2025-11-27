@@ -487,7 +487,7 @@ class NotificationService {
 
     await showInstantNotification(
       title: '🏆 ¡Logro Desbloqueado!',
-      body: '${achievement.icon} ${achievement.name}\n$message',
+      body: '${achievement.icon} ${achievement.title}\n$message',
     );
   }
 
@@ -658,6 +658,101 @@ class NotificationService {
       title: '💫 Motivación del Día',
       body: quote,
     );
+  }
+
+  // ========== AUTO-AJUSTE DE HORARIOS ÓPTIMOS (ML) ==========
+
+  /// Programa una notificación en el horario óptimo aprendido
+  Future<void> scheduleOptimalTimeNotification({
+    required Activity activity,
+    required int hour,
+    required int minute,
+  }) async {
+    await initialize();
+
+    if (!activity.notificationsEnabled) {
+      return;
+    }
+
+    final now = DateTime.now();
+    var scheduledDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // Si la hora ya pasó hoy, programar para mañana
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    // Mensaje personalizado o mensaje por defecto
+    final message = activity.customMessage?.isNotEmpty == true
+        ? activity.customMessage!
+        : '¡Es hora de completar "${activity.name}"!';
+
+    await _notifications.zonedSchedule(
+      activity.id.hashCode, // ID único basado en el ID de la actividad
+      '🔥 ${activity.name}',
+      message,
+      tz.TZDateTime.from(scheduledDate, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'activity_reminders',
+          'Recordatorios de Actividades',
+          channelDescription: 'Recordatorios personalizados por actividad',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: activity.id, // Para identificar la actividad al tocar
+    );
+  }
+
+  /// Ajusta automáticamente los horarios de notificación basándose en patrones aprendidos
+  /// Requiere que se pase el OptimalTimeService desde fuera para evitar dependencias circulares
+  Future<void> autoAdjustActivityNotifications({
+    required List<Activity> activities,
+    required NotificationPreferences prefs,
+    required Function(String activityId) getOptimalTimeRecommendation,
+    required Function(Activity activity, int hour, int minute) updateActivityNotificationTime,
+  }) async {
+    if (!prefs.autoAdjustNotificationTimes) return;
+
+    await initialize();
+
+    for (var activity in activities) {
+      if (!activity.notificationsEnabled) continue;
+
+      // Obtener recomendación de horario óptimo
+      final recommendation = await getOptimalTimeRecommendation(activity.id);
+      
+      if (recommendation == null) continue;
+
+      final hour = recommendation['hour'] as int;
+      final minute = recommendation['minute'] as int;
+      final confidence = recommendation['confidence'] as double;
+
+      // Solo auto-ajustar si la confianza es suficiente
+      if (confidence < prefs.confidenceThresholdForAutoAdjust) continue;
+
+      // Solo ajustar si el horario es diferente al actual
+      if (activity.notificationHour == hour && activity.notificationMinute == minute) {
+        continue;
+      }
+
+      // Actualizar el horario de la actividad
+      await updateActivityNotificationTime(activity, hour, minute);
+
+      print('Auto-ajustado horario de "${activity.name}" a $hour:${minute.toString().padLeft(2, '0')} (confianza: ${(confidence * 100).toStringAsFixed(0)}%)');
+    }
   }
 }
 

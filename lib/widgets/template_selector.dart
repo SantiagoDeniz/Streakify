@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/activity_template.dart';
+import '../models/activity.dart';
 import '../models/category.dart';
 import '../services/category_service.dart';
 import '../utils/activity_icons.dart';
@@ -28,7 +29,7 @@ class _TemplateSelectorState extends State<TemplateSelector> {
   }
 
   Future<void> _loadCategories() async {
-    final categories = await CategoryService().getCategories();
+    final categories = await CategoryService().getAllCategories();
     setState(() {
       _categories = categories;
     });

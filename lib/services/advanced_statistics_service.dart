@@ -1,6 +1,8 @@
 import '../models/activity.dart';
 import '../models/completion_history.dart';
 import 'database_helper.dart';
+import '../utils/compute_helper.dart';
+import 'statistics_worker.dart';
 
 /// Servicio para calcular métricas y estadísticas avanzadas
 class AdvancedStatisticsService {
@@ -9,136 +11,64 @@ class AdvancedStatisticsService {
   /// Tasa de éxito histórica (% de días completados vs total de días desde creación)
   Future<Map<String, double>> getSuccessRate() async {
     final activities = await _db.getAllActivities();
-    final Map<String, double> successRates = {};
-
+    final Map<String, List<Map<String, dynamic>>> completionsMap = {};
+    
+    // Pre-fetch all completions to pass to isolate
     for (var activity in activities) {
-      if (activity.lastCompleted == null) {
-        successRates[activity.id] = 0.0;
-        continue;
-      }
-
       final completions = await _db.getCompletionHistory(activity.id);
-      if (completions.isEmpty) {
-        successRates[activity.id] = 0.0;
-        continue;
-      }
-
-      // Calcular días desde la primera completación hasta hoy
-      final firstCompletion = completions.last.completedAt;
-      final daysSinceStart = DateTime.now().difference(firstCompletion).inDays + 1;
-      
-      // Tasa de éxito = (días completados / días totales) * 100
-      final successRate = (completions.length / daysSinceStart) * 100;
-      successRates[activity.id] = successRate.clamp(0.0, 100.0);
+      completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
+    
+    final args = {
+      'activities': activities.map((a) => a.toJson()).toList(),
+      'completions': completionsMap,
+    };
 
-    return successRates;
+    return await ComputeHelper.run(StatisticsWorker.calculateSuccessRate, args);
   }
 
   /// Mejor racha histórica de cada actividad (récord personal)
   Future<Map<String, int>> getBestStreaks() async {
     final activities = await _db.getAllActivities();
-    final Map<String, int> bestStreaks = {};
-
+    final Map<String, List<Map<String, dynamic>>> completionsMap = {};
+    
     for (var activity in activities) {
       final completions = await _db.getCompletionHistory(activity.id);
-      if (completions.isEmpty) {
-        bestStreaks[activity.id] = 0;
-        continue;
-      }
-
-      // Ordenar por fecha ascendente para calcular rachas
-      completions.sort((a, b) => a.completedAt.compareTo(b.completedAt));
-
-      int currentStreak = 1;
-      int bestStreak = 1;
-
-      for (int i = 1; i < completions.length; i++) {
-        final prevDate = completions[i - 1].completedAt;
-        final currentDate = completions[i].completedAt;
-        
-        // Normalizar a solo fecha (sin hora)
-        final prevDay = DateTime(prevDate.year, prevDate.month, prevDate.day);
-        final currentDay = DateTime(currentDate.year, currentDate.month, currentDate.day);
-        
-        final daysDiff = currentDay.difference(prevDay).inDays;
-
-        if (daysDiff == 1) {
-          currentStreak++;
-          if (currentStreak > bestStreak) {
-            bestStreak = currentStreak;
-          }
-        } else if (daysDiff > 1) {
-          currentStreak = 1;
-        }
-      }
-
-      bestStreaks[activity.id] = bestStreak;
+      completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
+    
+    final args = {
+      'activities': activities.map((a) => a.toJson()).toList(),
+      'completions': completionsMap,
+    };
 
-    return bestStreaks;
+    return await ComputeHelper.run(StatisticsWorker.calculateBestStreaks, args);
   }
 
   /// Promedio de racha por actividad (racha promedio histórica)
   Future<Map<String, double>> getAverageStreaks() async {
     final activities = await _db.getAllActivities();
-    final Map<String, double> averageStreaks = {};
-
+    final Map<String, List<Map<String, dynamic>>> completionsMap = {};
+    
     for (var activity in activities) {
       final completions = await _db.getCompletionHistory(activity.id);
-      if (completions.isEmpty) {
-        averageStreaks[activity.id] = 0.0;
-        continue;
-      }
-
-      // Calcular todas las rachas
-      completions.sort((a, b) => a.completedAt.compareTo(b.completedAt));
-      
-      List<int> allStreaks = [];
-      int currentStreak = 1;
-
-      for (int i = 1; i < completions.length; i++) {
-        final prevDate = completions[i - 1].completedAt;
-        final currentDate = completions[i].completedAt;
-        
-        final prevDay = DateTime(prevDate.year, prevDate.month, prevDate.day);
-        final currentDay = DateTime(currentDate.year, currentDate.month, currentDate.day);
-        
-        final daysDiff = currentDay.difference(prevDay).inDays;
-
-        if (daysDiff == 1) {
-          currentStreak++;
-        } else if (daysDiff > 1) {
-          allStreaks.add(currentStreak);
-          currentStreak = 1;
-        }
-      }
-      allStreaks.add(currentStreak); // Agregar la última racha
-
-      // Calcular promedio
-      final sum = allStreaks.reduce((a, b) => a + b);
-      averageStreaks[activity.id] = sum / allStreaks.length;
+      completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
+    
+    final args = {
+      'activities': activities.map((a) => a.toJson()).toList(),
+      'completions': completionsMap,
+    };
 
-    return averageStreaks;
+    return await ComputeHelper.run(StatisticsWorker.calculateAverageStreaks, args);
   }
 
   /// Días consecutivos totales (suma de todos los días completados)
   Future<int> getTotalConsecutiveDays() async {
     final completions = await _db.getAllCompletions();
+    final rawCompletions = completions.map((c) => c.toJson()).toList();
     
-    // Agrupar por fecha única (sin importar la hora)
-    final Set<String> uniqueDays = {};
-    for (var completion in completions) {
-      final day = DateTime(
-        completion.completedAt.year,
-        completion.completedAt.month,
-        completion.completedAt.day,
-      );
-      uniqueDays.add(day.toIso8601String());
-    }
-
-    return uniqueDays.length;
+    return await ComputeHelper.run(StatisticsWorker.calculateTotalConsecutiveDays, rawCompletions);
   }
 
   /// Heatmap de actividad (datos para calendario anual estilo GitHub)
@@ -150,6 +80,8 @@ class AdvancedStatisticsService {
 
     final completions = await _db.getCompletionsByDateRange(startOfYear, endOfYear);
     
+    // This calculation is relatively light, but could be moved to isolate if needed
+    // For now keeping it here as it involves DateTime keys which might need serialization
     final Map<DateTime, int> heatmap = {};
 
     for (var completion in completions) {
@@ -377,3 +309,4 @@ class MonthComparison {
   bool get isDecline => improvement < 0;
   bool get isStable => improvement == 0;
 }
+

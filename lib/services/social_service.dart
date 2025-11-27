@@ -8,7 +8,7 @@ import '../models/accountability_group.dart';
 import 'database_helper.dart';
 
 class SocialService {
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  final DatabaseHelper _dbHelper = DatabaseHelper();
   final Uuid _uuid = const Uuid();
 
   // Share Achievement

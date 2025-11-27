@@ -16,6 +16,14 @@ class ActivityService {
     return await _db.getAllActivities();
   }
 
+  Future<List<Activity>> loadActivitiesWithPagination(int page, int pageSize) async {
+    if (!_migrated) {
+      await _migrateFromSharedPreferences();
+      _migrated = true;
+    }
+    return await _db.getActivitiesWithPagination(pageSize, page * pageSize);
+  }
+
   Future<void> saveActivities(List<Activity> activities) async {
     for (var activity in activities) {
       final existing = await _db.getActivity(activity.id);
@@ -145,5 +153,23 @@ class ActivityService {
     }
 
     return tagCount;
+  }
+
+  /// Actualiza el horario de notificación de una actividad
+  /// Usado por el sistema de auto-ajuste de horarios óptimos
+  Future<void> updateActivityNotificationTime(
+    String activityId,
+    int hour,
+    int minute,
+  ) async {
+    final activity = await getActivity(activityId);
+    if (activity == null) return;
+
+    // Actualizar horario
+    activity.notificationHour = hour;
+    activity.notificationMinute = minute;
+
+    // Guardar cambios
+    await updateActivity(activity);
   }
 }

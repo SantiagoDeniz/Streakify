@@ -35,6 +35,11 @@ class NotificationPreferences {
   int doNotDisturbEndHour;
   int doNotDisturbEndMinute;
 
+  // Auto-ajuste de horarios óptimos (ML)
+  bool autoAdjustNotificationTimes;
+  int minCompletionsForAutoAdjust;
+  double confidenceThresholdForAutoAdjust;
+
   NotificationPreferences({
     this.contextualNotificationsEnabled = true,
     this.riskAlertsEnabled = true,
@@ -55,6 +60,9 @@ class NotificationPreferences {
     this.doNotDisturbStartMinute = 0,
     this.doNotDisturbEndHour = 7,
     this.doNotDisturbEndMinute = 0,
+    this.autoAdjustNotificationTimes = false,
+    this.minCompletionsForAutoAdjust = 7,
+    this.confidenceThresholdForAutoAdjust = 0.6,
   });
 
   /// Verifica si estamos en modo No Molestar
@@ -95,6 +103,9 @@ class NotificationPreferences {
         'doNotDisturbStartMinute': doNotDisturbStartMinute,
         'doNotDisturbEndHour': doNotDisturbEndHour,
         'doNotDisturbEndMinute': doNotDisturbEndMinute,
+        'autoAdjustNotificationTimes': autoAdjustNotificationTimes,
+        'minCompletionsForAutoAdjust': minCompletionsForAutoAdjust,
+        'confidenceThresholdForAutoAdjust': confidenceThresholdForAutoAdjust,
       };
 
   /// Crea desde JSON
@@ -121,6 +132,9 @@ class NotificationPreferences {
       doNotDisturbStartMinute: json['doNotDisturbStartMinute'] ?? 0,
       doNotDisturbEndHour: json['doNotDisturbEndHour'] ?? 7,
       doNotDisturbEndMinute: json['doNotDisturbEndMinute'] ?? 0,
+      autoAdjustNotificationTimes: json['autoAdjustNotificationTimes'] ?? false,
+      minCompletionsForAutoAdjust: json['minCompletionsForAutoAdjust'] ?? 7,
+      confidenceThresholdForAutoAdjust: json['confidenceThresholdForAutoAdjust'] ?? 0.6,
     );
   }
 
@@ -146,6 +160,9 @@ class NotificationPreferences {
         'doNotDisturbStartMinute': doNotDisturbStartMinute,
         'doNotDisturbEndHour': doNotDisturbEndHour,
         'doNotDisturbEndMinute': doNotDisturbEndMinute,
+        'autoAdjustNotificationTimes': autoAdjustNotificationTimes ? 1 : 0,
+        'minCompletionsForAutoAdjust': minCompletionsForAutoAdjust,
+        'confidenceThresholdForAutoAdjust': confidenceThresholdForAutoAdjust,
       };
 
   /// Crea desde Map de SQLite
@@ -172,6 +189,9 @@ class NotificationPreferences {
       doNotDisturbStartMinute: map['doNotDisturbStartMinute'] ?? 0,
       doNotDisturbEndHour: map['doNotDisturbEndHour'] ?? 7,
       doNotDisturbEndMinute: map['doNotDisturbEndMinute'] ?? 0,
+      autoAdjustNotificationTimes: map['autoAdjustNotificationTimes'] == 1,
+      minCompletionsForAutoAdjust: map['minCompletionsForAutoAdjust'] ?? 7,
+      confidenceThresholdForAutoAdjust: map['confidenceThresholdForAutoAdjust'] ?? 0.6,
     );
   }
 
@@ -196,6 +216,9 @@ class NotificationPreferences {
     int? doNotDisturbStartMinute,
     int? doNotDisturbEndHour,
     int? doNotDisturbEndMinute,
+    bool? autoAdjustNotificationTimes,
+    int? minCompletionsForAutoAdjust,
+    double? confidenceThresholdForAutoAdjust,
   }) {
     return NotificationPreferences(
       contextualNotificationsEnabled:
@@ -224,6 +247,12 @@ class NotificationPreferences {
       doNotDisturbEndHour: doNotDisturbEndHour ?? this.doNotDisturbEndHour,
       doNotDisturbEndMinute:
           doNotDisturbEndMinute ?? this.doNotDisturbEndMinute,
+      autoAdjustNotificationTimes:
+          autoAdjustNotificationTimes ?? this.autoAdjustNotificationTimes,
+      minCompletionsForAutoAdjust:
+          minCompletionsForAutoAdjust ?? this.minCompletionsForAutoAdjust,
+      confidenceThresholdForAutoAdjust:
+          confidenceThresholdForAutoAdjust ?? this.confidenceThresholdForAutoAdjust,
     );
   }
 }

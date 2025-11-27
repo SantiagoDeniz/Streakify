@@ -981,6 +981,136 @@ class NeonTheme {
   );
 }
 
+/// Tema Colorblind - Diseñado para personas con daltonismo
+/// Usa patrones, bordes gruesos y alto contraste además de colores
+class ColorblindTheme {
+  static final ThemeData theme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.light(
+      // Usamos colores que son distinguibles para la mayoría de tipos de daltonismo
+      primary: Color(0xFF0051A5), // Azul oscuro (distinguible)
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xFFD4E3FF),
+      onPrimaryContainer: Color(0xFF001C3A),
+
+      secondary: Color(0xFFFFB000), // Naranja/Amarillo (distinguible del azul)
+      onSecondary: Colors.black,
+      secondaryContainer: Color(0xFFFFE8C5),
+      onSecondaryContainer: Color(0xFF3D2E00),
+
+      tertiary: Color(0xFF6B4C9A), // Púrpura (distinguible)
+      onTertiary: Colors.white,
+      tertiaryContainer: Color(0xFFEBDCFF),
+      onTertiaryContainer: Color(0xFF23005C),
+
+      error: Color(0xFFBA1A1A),
+      onError: Colors.white,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
+
+      background: Colors.white,
+      onBackground: Colors.black,
+
+      surface: Colors.white,
+      onSurface: Colors.black,
+      surfaceVariant: Color(0xFFE1E2EC),
+      onSurfaceVariant: Color(0xFF44474F),
+
+      outline: Colors.black,
+      outlineVariant: Color(0xFF74777F),
+
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: Color(0xFF2F3033),
+      onInverseSurface: Color(0xFFF1F0F4),
+      inversePrimary: Color(0xFFA6C8FF),
+    ),
+
+    // Tarjetas con bordes gruesos y distintivos
+    cardTheme: CardTheme(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Colors.black, width: 3),
+      ),
+      color: Colors.white,
+    ),
+
+    // AppBar con borde inferior grueso
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF0051A5),
+      foregroundColor: Colors.white,
+      iconTheme: IconThemeData(color: Colors.white, size: 28),
+      actionsIconTheme: IconThemeData(color: Colors.white, size: 28),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+      shape: Border(bottom: BorderSide(color: Colors.black, width: 3)),
+    ),
+
+    // Floating Action Button con borde grueso
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFFFFB000),
+      foregroundColor: Colors.black,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: Colors.black, width: 3),
+      ),
+    ),
+
+    // Botones con bordes gruesos
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Color(0xFF0051A5),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    // Input decoration con bordes gruesos
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      floatingLabelStyle: const TextStyle(color: Color(0xFF0051A5), fontWeight: FontWeight.bold),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 3),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 3),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF0051A5), width: 4),
+      ),
+    ),
+    
+    // Iconos más grandes y claros
+    iconTheme: const IconThemeData(
+      color: Colors.black,
+      size: 28,
+    ),
+  );
+}
+
 /// Enumeración para los modos de tema
 enum AppThemeMode {
   bright, // Tema claro y alegre
@@ -993,6 +1123,7 @@ enum AppThemeMode {
   midnight, // Tema medianoche
   monochrome, // Tema monocromático
   neon, // Tema neón
+  colorblind, // Tema para daltonismo
 }
 
 /// Clase helper para obtener el tema según el modo
@@ -1019,6 +1150,8 @@ class AppThemes {
         return MonochromeTheme.theme;
       case AppThemeMode.neon:
         return NeonTheme.theme;
+      case AppThemeMode.colorblind:
+        return ColorblindTheme.theme;
     }
   }
 
@@ -1044,6 +1177,8 @@ class AppThemes {
         return 'Monocromo';
       case AppThemeMode.neon:
         return 'Neón';
+      case AppThemeMode.colorblind:
+        return 'Daltónico';
     }
   }
 
@@ -1069,6 +1204,8 @@ class AppThemes {
         return Icons.gradient;
       case AppThemeMode.neon:
         return Icons.flash_on;
+      case AppThemeMode.colorblind:
+        return Icons.accessibility_new;
     }
   }
 }

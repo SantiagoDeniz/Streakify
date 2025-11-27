@@ -5,9 +5,19 @@ import 'themes/app_themes.dart';
 import 'services/accessibility_service.dart';
 import 'services/personalization_service.dart';
 import 'services/theme_service.dart';
+import 'services/firebase_service.dart';
+import 'services/feature_flags_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase services
+  final firebaseService = FirebaseService();
+  await firebaseService.initialize();
+  
+  // Initialize Feature Flags
+  final featureFlagsService = FeatureFlagsService();
+  await featureFlagsService.initialize();
   
   final accessibilityService = AccessibilityService();
   await accessibilityService.init();

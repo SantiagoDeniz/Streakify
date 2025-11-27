@@ -27,5 +27,42 @@ dependencies:
   # Data export
   csv: ^6.0.0
   excel: ^4.0.3
+  encrypt: ^5.0.1
+  
+  # State management
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.3.0
+  
+  # Firebase
+  firebase_core: ^2.24.0
+  firebase_crashlytics: ^3.4.0
+  firebase_analytics: ^10.7.0
+  firebase_remote_config: ^4.3.0
+  
+  # In-app purchases
+  in_app_purchase: ^3.1.13
+  in_app_purchase_android: ^0.3.0+18
+  in_app_purchase_storekit: ^0.3.6+7
+  
+  # Onboarding and help
+  url_launcher: ^6.2.2
+  package_info_plus: ^4.2.0
+  device_info_plus: ^9.0.0
+  introduction_screen: ^3.1.12
+  showcaseview: ^2.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  
+  # Code generation
+  riverpod_generator: ^2.3.0
+  build_runner: ^2.4.0
+  
+  # Testing
+  mockito: ^5.4.0
+
 flutter:
   uses-material-design: true

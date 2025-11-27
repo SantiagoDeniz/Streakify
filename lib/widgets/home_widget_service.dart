@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HomeWidgetService {
   static const String widgetDataKey = 'widget_activities';
   static const String widgetStatsKey = 'widget_stats';
+  static const String widgetCalendarKey = 'widget_calendar';
   static const String widgetThemeKey = 'widget_theme';
   static const String widgetSelectedActivitiesKey = 'widget_selected_activities';
 
@@ -63,7 +64,34 @@ class HomeWidgetService {
       });
       await HomeWidget.saveWidgetData<String>(widgetStatsKey, statsData);
 
-      // 3. Actualizar Widgets
+      // 3. Preparar datos de calendario
+      final now = DateTime.now();
+      final currentMonth = now.month;
+      final currentYear = now.year;
+      
+      // Calcular días completados en el mes actual
+      final completedDaysInMonth = <int>{};
+      for (final activity in activities.where((a) => a.active)) {
+        for (final date in activity.completedDates) {
+          final completedDate = DateTime.parse(date);
+          if (completedDate.month == currentMonth && completedDate.year == currentYear) {
+            completedDaysInMonth.add(completedDate.day);
+          }
+        }
+      }
+      
+      final monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      final monthYear = '${monthNames[currentMonth - 1]} $currentYear';
+      
+      final calendarData = jsonEncode({
+        'completedDays': completedDaysInMonth.toList(),
+        'monthYear': monthYear,
+        'completionCount': completedDaysInMonth.length,
+        'isDark': isDark,
+      });
+      await HomeWidget.saveWidgetData<String>(widgetCalendarKey, calendarData);
+
+      // 4. Actualizar Widgets
       // Widget Principal (Grande, Mediano, Pequeño usan el mismo provider base en este plugin, 
       // pero definiremos nombres específicos si usamos providers separados)
       await HomeWidget.updateWidget(
@@ -79,7 +107,14 @@ class HomeWidgetService {
         iOSName: 'StreakifyStatsWidget',
       );
 
-      print('✓ Widgets actualizados: ${targetActivities.length} actividades, Stats: $totalStreak dias');
+      // Widget de Calendario
+      await HomeWidget.updateWidget(
+        name: 'StreakifyCalendarWidgetProvider',
+        androidName: 'StreakifyCalendarWidgetProvider',
+        iOSName: 'StreakifyCalendarWidget',
+      );
+
+      print('✓ Widgets actualizados: ${targetActivities.length} actividades, Stats: $totalStreak dias, Calendar: ${completedDaysInMonth.length} días');
     } catch (e) {
       print('⚠ Error al actualizar widget: $e');
     }
@@ -104,6 +139,7 @@ class HomeWidgetService {
     try {
       await HomeWidget.saveWidgetData<String>(widgetDataKey, '{"activities":[], "isDark":false}');
       await HomeWidget.saveWidgetData<String>(widgetStatsKey, '{"totalStreak":0, "activeCount":0, "bestStreak":0, "isDark":false}');
+      await HomeWidget.saveWidgetData<String>(widgetCalendarKey, '{"completedDays":[], "monthYear":"", "completionCount":0, "isDark":false}');
       
       await HomeWidget.updateWidget(
         name: 'StreakifyWidgetProvider',
@@ -115,6 +151,12 @@ class HomeWidgetService {
         name: 'StreakifyStatsWidgetProvider',
         androidName: 'StreakifyStatsWidgetProvider',
         iOSName: 'StreakifyStatsWidget',
+      );
+      
+      await HomeWidget.updateWidget(
+        name: 'StreakifyCalendarWidgetProvider',
+        androidName: 'StreakifyCalendarWidgetProvider',
+        iOSName: 'StreakifyCalendarWidget',
       );
       print('✓ Widgets inicializados');
     } catch (e) {

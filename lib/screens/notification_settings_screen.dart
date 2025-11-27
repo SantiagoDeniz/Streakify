@@ -3,6 +3,7 @@ import '../models/notification_preferences.dart';
 import '../services/database_helper.dart';
 import '../services/notification_service.dart';
 import '../services/activity_service.dart';
+import 'optimal_time_insights_screen.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({Key? key}) : super(key: key);
@@ -41,7 +42,7 @@ class _NotificationSettingsScreenState
     await _dbHelper.updateNotificationPreferences(_prefs!);
 
     // Reprogramar notificaciones con las nuevas preferencias
-    final activities = await _activityService.getAllActivities();
+    final activities = await _activityService.loadActivities();
     await _notificationService.rescheduleAllSmartNotifications(
       activities: activities,
       prefs: _prefs!,
@@ -401,6 +402,96 @@ class _NotificationSettingsScreenState
                   _savePreferences();
                 }
               },
+            ),
+          ],
+          const Divider(),
+
+          // Smart Notifications (ML)
+          _buildSectionHeader('🧠 Notificaciones Inteligentes'),
+          SwitchListTile(
+            title: const Text('Auto-ajustar horarios'),
+            subtitle: const Text('Aprende cuándo completas más actividades'),
+            value: _prefs!.autoAdjustNotificationTimes,
+            onChanged: (value) {
+              setState(() {
+                _prefs = _prefs!.copyWith(autoAdjustNotificationTimes: value);
+              });
+              _savePreferences();
+            },
+          ),
+          if (_prefs!.autoAdjustNotificationTimes) ...[ 
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    'Completaciones mínimas: ${_prefs!.minCompletionsForAutoAdjust}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Slider(
+                    value: _prefs!.minCompletionsForAutoAdjust.toDouble(),
+                    min: 5,
+                    max: 20,
+                    divisions: 15,
+                    label: '${_prefs!.minCompletionsForAutoAdjust}',
+                    onChanged: (value) {
+                      setState(() {
+                        _prefs = _prefs!.copyWith(
+                          minCompletionsForAutoAdjust: value.toInt(),
+                        );
+                      });
+                    },
+                    onChangeEnd: (value) => _savePreferences(),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Confianza mínima: ${(_prefs!.confidenceThresholdForAutoAdjust * 100).toStringAsFixed(0)}%',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Slider(
+                    value: _prefs!.confidenceThresholdForAutoAdjust,
+                    min: 0.5,
+                    max: 0.9,
+                    divisions: 8,
+                    label:
+                        '${(_prefs!.confidenceThresholdForAutoAdjust * 100).toStringAsFixed(0)}%',
+                    onChanged: (value) {
+                      setState(() {
+                        _prefs = _prefs!.copyWith(
+                          confidenceThresholdForAutoAdjust: value,
+                        );
+                      });
+                    },
+                    onChangeEnd: (value) => _savePreferences(),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.insights),
+              title: const Text('Ver horarios óptimos'),
+              subtitle: const Text('Analiza tus patrones de completación'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OptimalTimeInsightsScreen(),
+                  ),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'ℹ️ El sistema aprenderá cuándo sueles completar cada actividad y ajustará automáticamente los horarios de notificación.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+              ),
             ),
           ],
           const SizedBox(height: 24),

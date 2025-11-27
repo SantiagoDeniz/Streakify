@@ -12,7 +12,7 @@ import es.antonborri.home_widget.HomeWidgetProvider
 import org.json.JSONArray
 import org.json.JSONObject
 
-class StreakifyWidgetProvider : HomeWidgetProvider() {
+open class StreakifyWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,

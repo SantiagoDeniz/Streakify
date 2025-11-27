@@ -36,7 +36,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />        
-        <!-- Home Widget Receiver -->
+        <!-- Home Widget Receivers -->
         <receiver
             android:name=".StreakifyWidgetProvider"
             android:exported="true">
@@ -47,6 +47,29 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/home_widget_provider" />
         </receiver>
+        
+        <receiver
+            android:name=".StreakifyStatsWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_stats_provider" />
+        </receiver>
+        
+        <receiver
+            android:name=".StreakifyCalendarWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_calendar_provider" />
+        </receiver>
+
         
         <!-- Receptor para notificaciones -->
         <receiver 

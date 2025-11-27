@@ -1,0 +1,42 @@
+﻿
+Running Gradle task 'assembleDebug'...                          
+C:\Flutter\flutter\bin\flutter.bat : e: file:///C:
+/Streakify/android/app/src/main/kotlin/com/streaki
+fy/streakify/StreakifyMediumWidgetProvider.kt:3:39
+ This type is final, so it cannot be extended.
+En línea: 1 Carácter: 1
++ C:\Flutter\flutter\bin\flutter.bat build apk 
+--debug 2>&1 | Out-File  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: f 
+   ile:///C:/S...ot be extended.:String) [], Rem  
+  oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Streakify/android/app/src/main/kotli
+n/com/streakify/streakify/StreakifySmallWidgetProv
+ider.kt:3:38 This type is final, so it cannot be 
+extended.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains
+.kotlin.compilerRunner.GradleCompilerRunnerWithWor
+kers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack 
+trace.
+> Run with --info or --debug option to get more 
+log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 34s
+Running Gradle task 'assembleDebug'...                             35,5s
+Gradle task assembleDebug failed with exit code 1

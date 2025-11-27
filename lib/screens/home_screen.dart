@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:ui';
 import '../models/activity.dart';
+import '../models/gamification.dart';
 import '../models/completion_history.dart';
 import '../services/activity_service.dart';
 import '../services/achievement_service.dart';
@@ -23,6 +24,7 @@ import '../widgets/animated_widgets.dart';
 import '../widgets/activity_visualizations.dart';
 import '../models/activity_template.dart';
 import '../utils/activity_icons.dart';
+import '../utils/lazy_list_controller.dart';
 import '../themes/app_themes.dart';
 import 'statistics_screen.dart';
 import 'achievements_screen.dart';
@@ -71,12 +73,17 @@ class _HomeScreenState extends State<HomeScreen> {
   late ConfettiController _confettiController;
   bool _isLoading = true;
   bool _isCompactView = false;
+  late LazyListController _lazyListController;
 
   @override
   void initState() {
     super.initState();
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
+    _lazyListController = LazyListController(
+      pageSize: 20,
+      onLoadMore: _loadMoreActivities,
+    );
     _load();
     _initAchievements();
     _initNotifications();
@@ -102,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _confettiController.dispose();
+    _lazyListController.dispose();
     super.dispose();
   }
 
@@ -135,10 +143,27 @@ class _HomeScreenState extends State<HomeScreen> {
       _activities = list;
       _isLoading = false;
     });
+    _lazyListController.reset();
     HomeWidgetService.updateWidget(_activities);
     // Reprogramar notificaciones después de cargar actividades
     _initNotifications();
     _loadPreferences();
+  }
+
+  Future<List<Activity>> _loadMoreActivities(int page) async {
+    // For now, we load all activities at once, but this can be optimized
+    // to use pagination from the database in the future
+    final startIndex = page * _lazyListController.pageSize;
+    final endIndex = startIndex + _lazyListController.pageSize;
+    
+    if (startIndex >= _activities.length) {
+      return [];
+    }
+    
+    return _activities.sublist(
+      startIndex,
+      endIndex > _activities.length ? _activities.length : endIndex,
+    );
   }
 
   Future<void> _loadPreferences() async {

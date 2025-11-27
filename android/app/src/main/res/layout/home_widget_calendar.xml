@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+        
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📅 Calendario"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#FF6B35"/>
+            
+        <TextView
+            android:id="@+id/month_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nov 2025"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- Days of week header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="D"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="L"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="M"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="M"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="J"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="V"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="S"
+            android:textSize="10sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Calendar grid - 5 weeks -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        
+        <!-- Week 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/day_1" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_2" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_3" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_4" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_5" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_6" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_7" style="@style/CalendarDay"/>
+        </LinearLayout>
+        
+        <!-- Week 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/day_8" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_9" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_10" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_11" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_12" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_13" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_14" style="@style/CalendarDay"/>
+        </LinearLayout>
+        
+        <!-- Week 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/day_15" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_16" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_17" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_18" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_19" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_20" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_21" style="@style/CalendarDay"/>
+        </LinearLayout>
+        
+        <!-- Week 4 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/day_22" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_23" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_24" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_25" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_26" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_27" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_28" style="@style/CalendarDay"/>
+        </LinearLayout>
+        
+        <!-- Week 5 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/day_29" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_30" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_31" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_32" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_33" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_34" style="@style/CalendarDay"/>
+            <TextView android:id="@+id/day_35" style="@style/CalendarDay"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/completion_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="15 días completados"
+        android:textSize="11sp"
+        android:textColor="#666666"
+        android:gravity="center"/>
+
+</LinearLayout>

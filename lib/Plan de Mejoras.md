@@ -98,8 +98,8 @@
 - [x] **Recordatorio de actividades pendientes** (progresivo)
 
 ### 4.2 Smart Reminders
-- [ ] **ML para horario óptimo** (aprender cuándo completas más)
-- [ ] **Ajuste automático** según patrones
+- [x] **ML para horario óptimo** (aprender cuándo completas más)
+- [x] **Ajuste automático** según patrones
 - [x] **Modo "no molestar"** con excepciones
 - [x] **Grupos de notificaciones** (batch de actividades similares)
 
@@ -129,8 +129,8 @@
 - [x] **Widgets interactivos** (marcar completado desde widget)
 - [x] **Temas del widget** (match con app o independiente)
 - [x] **Selección de actividades** a mostrar en widget
-- [ ] **Widget de estadísticas** (solo números)
-- [ ] **Widget de calendario**
+- [x] **Widget de estadísticas** (solo números)
+- [x] **Widget de calendario**
 
 ### 6.2 Plataformas
 - [x] **Soporte para tablet** (layout responsive)
@@ -179,40 +179,40 @@
 ## 🔧 **9. OPTIMIZACIÓN TÉCNICA**
 
 ### 9.1 Performance
-- [ ] **Lazy loading** de actividades
-- [ ] **Caché de imágenes/iconos**
-- [ ] **Optimización de renders** (const widgets)
-- [ ] **Worker isolates** para cálculos pesados
-- [ ] **Paginación** de historial largo
+- [x] **Lazy loading** de actividades
+- [x] **Caché de imágenes/iconos**
+- [x] **Optimización de renders** (const widgets)
+- [x] **Worker isolates** para cálculos pesados
+- [x] **Paginación** de historial largo
 
 ### 9.2 Código
-- [ ] **Arquitectura limpia** (Clean Architecture/MVVM)
-- [ ] **State management** robusto (Riverpod/Bloc)
-- [ ] **Testing completo** (unit, widget, integration)
-- [ ] **CI/CD** (GitHub Actions)
-- [ ] **Logs y analytics** (Crashlytics, Analytics)
-- [ ] **Feature flags** para testing A/B
+- [x] **Arquitectura limpia** (Clean Architecture/MVVM)
+- [x] **State management** robusto (Riverpod/Bloc)
+- [x] **Testing completo** (unit, widget, integration)
+- [x] **CI/CD** (GitHub Actions)
+- [x] **Logs y analytics** (Crashlytics, Analytics)
+- [x] **Feature flags** para testing A/B
 
 ---
 
 ## ♿ **10. ACCESIBILIDAD**
 
-- [ ] **Screen reader completo** (semantics)
-- [ ] **Alto contraste** automático
-- [ ] **Navegación por teclado** (tablet/desktop)
-- [ ] **Tamaños de toque** adecuados (44x44pt mínimo)
-- [ ] **Descripciones alt** en todos los iconos
-- [ ] **Modo daltónico** (colorblind friendly)
-- [ ] **Reducción de movimiento** (respeta preferencias OS)
+- [x] **Screen reader completo** (semantics)
+- [x] **Alto contraste** automático
+- [x] **Navegación por teclado** (tablet/desktop)
+- [x] **Tamaños de toque** adecuados (44x44pt mínimo)
+- [x] **Descripciones alt** en todos los iconos
+- [x] **Modo daltónico** (colorblind friendly)
+- [x] **Reducción de movimiento** (respeta preferencias OS)
 
 ---
 
 ## 🚀 **11. MONETIZACIÓN (OPCIONAL)**
 
 ### 11.1 Modelo Freemium
-- [ ] **Versión gratuita** con funcionalidades básicas
-- [ ] **Premium** con:
-  - Actividades ilimitadas (free: máx 5)
+- [x] **Versión gratuita** con funcionalidades básicas
+- [x] **Premium** con:
+  - Actividades ilimitadas (free: máx 10)
   - Todos los temas
   - Backup en nube
   - Estadísticas avanzadas
@@ -221,21 +221,21 @@
   - Exportación de datos
 
 ### 11.2 Alternativas
-- [ ] **Compras in-app** (protectores extra, temas, iconos)
-- [ ] **Donaciones** (tip jar)
-- [ ] **Suscripción anual** con descuento
+- [x] **Compras in-app** (protectores extra, temas, iconos)
+- [x] **Donaciones** (tip jar)
+- [x] **Suscripción anual** con descuento del valor de 2 meses
 
 ---
 
 ## 📚 **12. ONBOARDING Y AYUDA**
 
-- [ ] **Tutorial interactivo** en primer uso
-- [ ] **Tooltips contextuales** (primera vez que ves algo)
-- [ ] **Centro de ayuda** en la app
-- [ ] **Video tutoriales** breves
-- [ ] **FAQ integrado**
-- [ ] **Feedback in-app** (reportar bugs, sugerencias)
-- [ ] **Changelog** de versiones
+- [x] **Tutorial interactivo** en primer uso
+- [x] **Tooltips contextuales** (primera vez que ves algo)
+- [x] **Centro de ayuda** en la app
+- [x] **Video tutoriales** breves
+- [x] **FAQ integrado**
+- [x] **Feedback in-app** (reportar bugs, sugerencias)
+- [x] **Changelog** de versiones
 
 ---
 
