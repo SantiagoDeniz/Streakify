@@ -24,7 +24,7 @@ class AdvancedStatisticsService {
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run(StatisticsWorker.calculateSuccessRate, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(StatisticsWorker.calculateSuccessRate, args);
   }
 
   /// Mejor racha histórica de cada actividad (récord personal)
@@ -42,7 +42,7 @@ class AdvancedStatisticsService {
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run(StatisticsWorker.calculateBestStreaks, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, int>>(StatisticsWorker.calculateBestStreaks, args);
   }
 
   /// Promedio de racha por actividad (racha promedio histórica)
@@ -60,7 +60,7 @@ class AdvancedStatisticsService {
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run(StatisticsWorker.calculateAverageStreaks, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(StatisticsWorker.calculateAverageStreaks, args);
   }
 
   /// Días consecutivos totales (suma de todos los días completados)
@@ -68,7 +68,7 @@ class AdvancedStatisticsService {
     final completions = await _db.getAllCompletions();
     final rawCompletions = completions.map((c) => c.toJson()).toList();
     
-    return await ComputeHelper.run(StatisticsWorker.calculateTotalConsecutiveDays, rawCompletions);
+    return await ComputeHelper.run<List<Map<String, dynamic>>, int>(StatisticsWorker.calculateTotalConsecutiveDays, rawCompletions);
   }
 
   /// Heatmap de actividad (datos para calendario anual estilo GitHub)

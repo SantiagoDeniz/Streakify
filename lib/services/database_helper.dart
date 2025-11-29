@@ -698,6 +698,12 @@ class DatabaseHelper {
       orderBy: 'streak DESC',
     );
 
+    return List.generate(maps.length, (i) => Activity.fromMap(maps[i]));
+  }
+
+  /// Obtener una categoría por ID
+  Future<Category?> getCategory(String id) async {
+    final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'categories',
       where: 'id = ?',
@@ -766,11 +772,9 @@ class DatabaseHelper {
     return await db.update(
       'completion_history',
       {'notes': note},
-      'completion_history',
-      orderBy: 'completedAt DESC',
+      where: 'id = ?',
+      whereArgs: [completionId],
     );
-    return List.generate(
-        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
   }
 
   /// Obtener completaciones en un rango de fechas
@@ -807,6 +811,30 @@ class DatabaseHelper {
       where: 'activityId = ?',
       whereArgs: [activityId],
     );
+  }
+
+  /// Obtener historial de completaciones de una actividad
+  Future<List<CompletionHistory>> getCompletionHistory(String activityId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'completion_history',
+      where: 'activityId = ?',
+      whereArgs: [activityId],
+      orderBy: 'completedAt DESC',
+    );
+    return List.generate(
+        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
+  }
+
+  /// Obtener todas las completaciones
+  Future<List<CompletionHistory>> getAllCompletions() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'completion_history',
+      orderBy: 'completedAt DESC',
+    );
+    return List.generate(
+        maps.length, (i) => CompletionHistory.fromMap(maps[i]));
   }
 
   // CRUD Operations - Notification Preferences

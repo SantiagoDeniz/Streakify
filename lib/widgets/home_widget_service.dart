@@ -19,6 +19,22 @@ class HomeWidgetService {
 
       // 1. Preparar datos de actividades
       List<Activity> targetActivities;
+      bool allTasksCompleted = false;
+      String completionMessage = '';
+      
+      // Helper para verificar si una actividad está completada hoy
+      bool isCompletedToday(Activity activity) {
+        if (activity.lastCompleted == null) return false;
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final lastCompletedDate = DateTime(
+          activity.lastCompleted!.year,
+          activity.lastCompleted!.month,
+          activity.lastCompleted!.day,
+        );
+        return lastCompletedDate.isAtSameMomentAs(today) && 
+               activity.hasCompletedDailyGoal();
+      }
       
       if (selectedIds.isNotEmpty) {
         // Si hay selección manual, usar esas actividades
@@ -26,19 +42,49 @@ class HomeWidgetService {
             .where((a) => selectedIds.contains(a.id))
             .toList();
             
-        // Rellenar con las mejores rachas si faltan para llegar a 3
+        // Rellenar con actividades incompletas si faltan para llegar a 3
         if (targetActivities.length < 3) {
           final remaining = activities
-              .where((a) => !selectedIds.contains(a.id) && a.active)
-              .toList()
-            ..sort((a, b) => b.streak.compareTo(a.streak));
+              .where((a) => !selectedIds.contains(a.id) && 
+                           a.active && 
+                           a.shouldCompleteToday() &&
+                           !isCompletedToday(a))
+              .toList();
           
           targetActivities.addAll(remaining.take(3 - targetActivities.length));
         }
       } else {
-        // Si no, usar las top 3 por racha
-        targetActivities = activities.where((a) => a.active).toList()
-          ..sort((a, b) => b.streak.compareTo(a.streak));
+        // Filtrar actividades activas que deben completarse hoy
+        final todaysActivities = activities
+            .where((a) => a.active && a.shouldCompleteToday())
+            .toList();
+        
+        // Separar completadas e incompletas
+        final incomplete = todaysActivities
+            .where((a) => !isCompletedToday(a))
+            .toList();
+        
+        // Si todas las tareas están completadas
+        if (todaysActivities.isNotEmpty && incomplete.isEmpty) {
+          allTasksCompleted = true;
+          final messages = [
+            '¡Increíble! 🎉 Todas las tareas completadas',
+            '¡Eres imparable! ✨ Todo listo por hoy',
+            '¡Perfecto! 🌟 Has completado todo',
+            '¡Excelente trabajo! 🚀 Día completado',
+            '¡Fantástico! 💪 Todas las metas cumplidas',
+          ];
+          // Usar el día del año como seed para el mensaje
+          final dayOfYear = DateTime.now().difference(
+            DateTime(DateTime.now().year, 1, 1)
+          ).inDays;
+          completionMessage = messages[dayOfYear % messages.length];
+        }
+        
+        // Usar actividades incompletas, ordenadas por prioridad
+        // (las que tienen menor racha primero, para no perderlas)
+        targetActivities = incomplete
+          ..sort((a, b) => a.streak.compareTo(b.streak));
         targetActivities = targetActivities.take(3).toList();
       }
 
@@ -46,6 +92,8 @@ class HomeWidgetService {
       final activitiesData = jsonEncode({
         'activities': targetActivities.map((e) => e.toJson()).toList(),
         'isDark': isDark,
+        'allTasksCompleted': allTasksCompleted,
+        'completionMessage': completionMessage,
       });
       await HomeWidget.saveWidgetData<String>(widgetDataKey, activitiesData);
 
@@ -65,28 +113,32 @@ class HomeWidgetService {
       await HomeWidget.saveWidgetData<String>(widgetStatsKey, statsData);
 
       // 3. Preparar datos de calendario
+      // TODO: Refactorizar para usar completion_history de la base de datos
+      // final now = DateTime.now();
+      // final currentMonth = now.month;
+      // final currentYear = now.year;
+      
+      // // Calcular días completados en el mes actual
+      // final completedDaysInMonth = <int>{};
+      // for (final activity in activities.where((a) => a.active)) {
+      //   for (final date in activity.completedDates) {
+      //     final completedDate = DateTime.parse(date);
+      //     if (completedDate.month == currentMonth && completedDate.year == currentYear) {
+      //       completedDaysInMonth.add(completedDate.day);
+      //     }
+      //   }
+      // }
+      
       final now = DateTime.now();
       final currentMonth = now.month;
       final currentYear = now.year;
-      
-      // Calcular días completados en el mes actual
-      final completedDaysInMonth = <int>{};
-      for (final activity in activities.where((a) => a.active)) {
-        for (final date in activity.completedDates) {
-          final completedDate = DateTime.parse(date);
-          if (completedDate.month == currentMonth && completedDate.year == currentYear) {
-            completedDaysInMonth.add(completedDate.day);
-          }
-        }
-      }
-      
       final monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
       final monthYear = '${monthNames[currentMonth - 1]} $currentYear';
       
       final calendarData = jsonEncode({
-        'completedDays': completedDaysInMonth.toList(),
+        'completedDays': [], // Temporalmente vacío hasta refactorizar
         'monthYear': monthYear,
-        'completionCount': completedDaysInMonth.length,
+        'completionCount': 0,
         'isDark': isDark,
       });
       await HomeWidget.saveWidgetData<String>(widgetCalendarKey, calendarData);
@@ -114,7 +166,10 @@ class HomeWidgetService {
         iOSName: 'StreakifyCalendarWidget',
       );
 
-      print('✓ Widgets actualizados: ${targetActivities.length} actividades, Stats: $totalStreak dias, Calendar: ${completedDaysInMonth.length} días');
+      final statusMessage = allTasksCompleted 
+          ? 'Todas las tareas completadas! 🎉' 
+          : '${targetActivities.length} actividades incompletas';
+      print('✓ Widgets actualizados: $statusMessage, Stats: $totalStreak dias');
     } catch (e) {
       print('⚠ Error al actualizar widget: $e');
     }
