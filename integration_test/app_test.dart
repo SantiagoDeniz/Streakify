@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:streakify/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -10,14 +8,14 @@ void main() {
     testWidgets('App should launch successfully', (WidgetTester tester) async {
       // Note: This test will need to be updated once Firebase is integrated
       // For now, we'll skip Firebase initialization in tests
-      
+
       // Build the app
       // app.main();
       // await tester.pumpAndSettle();
 
       // Verify the app title is present
       // expect(find.text('Streakify'), findsOneWidget);
-      
+
       // This is a placeholder test that will be expanded
       expect(true, true);
     });
@@ -28,7 +26,7 @@ void main() {
       // 2. Creating a new activity
       // 3. Completing the activity
       // 4. Verifying streak increment
-      
+
       // Placeholder for now
       expect(true, true);
     });
@@ -39,7 +37,7 @@ void main() {
       // 2. Missing a day (losing streak)
       // 3. Using a protector to recover
       // 4. Verifying streak is restored
-      
+
       // Placeholder for now
       expect(true, true);
     });

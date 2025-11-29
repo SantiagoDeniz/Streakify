@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Tipos de protectores disponibles
 enum ProtectorType {
   oneDay, // Protege 1 día
@@ -101,7 +99,8 @@ class Protector {
   ProtectorSource source;
   DateTime createdAt;
   DateTime? usedAt;
-  String? activityId; // ID de la actividad donde se usó (null si no se ha usado)
+  String?
+      activityId; // ID de la actividad donde se usó (null si no se ha usado)
   bool isActive; // Si está actualmente activo
   DateTime? expiresAt; // Cuándo expira el protector activo
 

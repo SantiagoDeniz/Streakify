@@ -25,9 +25,9 @@ class ChangelogScreen extends StatelessWidget {
 
   Widget _buildChangelogEntry(
     BuildContext context,
-    ChangelogEntry entry,
-    {bool isLatest = false},
-  ) {
+    ChangelogEntry entry, {
+    bool isLatest = false,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: ExpansionTile(
@@ -155,8 +155,18 @@ class ChangelogScreen extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
     ];
     return '${date.day} de ${months[date.month - 1]}, ${date.year}';
   }

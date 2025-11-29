@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/security_service.dart';
-import 'package:local_auth/local_auth.dart';
+// TODO: Add local_auth package to pubspec.yaml to enable biometric authentication
+// import 'package:local_auth/local_auth.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -11,13 +12,14 @@ class SecuritySettingsScreen extends StatefulWidget {
 
 class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   final SecurityService _securityService = SecurityService();
-  
+
   bool _securityEnabled = false;
   bool _hasPIN = false;
   bool _biometricEnabled = false;
   bool _canUseBiometrics = false;
   bool _privateModeEnabled = false;
-  List<BiometricType> _availableBiometrics = [];
+  List<String> _availableBiometrics =
+      []; // Changed from BiometricType to String
   bool _loading = true;
 
   @override
@@ -28,9 +30,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   Future<void> _loadSecurityStatus() async {
     setState(() => _loading = true);
-    
+
     final status = await _securityService.getSecurityStatus();
-    
+
     setState(() {
       _securityEnabled = status['securityEnabled'] ?? false;
       _hasPIN = status['hasPIN'] ?? false;
@@ -71,7 +73,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
     await _securityService.setPIN(pin);
     await _securityService.setSecurityEnabled(true);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -80,7 +82,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         ),
       );
     }
-    
+
     _loadSecurityStatus();
   }
 
@@ -112,7 +114,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     }
 
     await _securityService.setPIN(newPin);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -212,18 +214,20 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     }
   }
 
-  String _getBiometricTypeString(BiometricType type) {
+  String _getBiometricTypeString(String type) {
     switch (type) {
-      case BiometricType.face:
+      case 'face':
         return 'Reconocimiento facial';
-      case BiometricType.fingerprint:
+      case 'fingerprint':
         return 'Huella dactilar';
-      case BiometricType.iris:
+      case 'iris':
         return 'Reconocimiento de iris';
-      case BiometricType.strong:
+      case 'strong':
         return 'Biometría fuerte';
-      case BiometricType.weak:
+      case 'weak':
         return 'Biometría débil';
+      default:
+        return 'Biometría';
     }
   }
 
@@ -280,9 +284,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     leading: const Icon(Icons.pin, color: Colors.blue),
                     title: const Text('PIN'),
                     subtitle: Text(
-                      _hasPIN
-                          ? 'PIN configurado'
-                          : 'No hay PIN configurado',
+                      _hasPIN ? 'PIN configurado' : 'No hay PIN configurado',
                     ),
                     trailing: _hasPIN
                         ? IconButton(

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'activity.dart';
 
 /// Plantilla predefinida de actividad

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'premium_screen.dart';
+import '../screens/premium_screen.dart';
 
 /// Dialog to prompt user to upgrade to premium
 class UpgradePromptDialog extends StatelessWidget {

@@ -5,11 +5,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:streakify/main.dart';
+import 'package:streakify/services/accessibility_service.dart';
+import 'package:streakify/services/personalization_service.dart';
+import 'package:streakify/services/theme_service.dart';
 
 void main() {
   testWidgets('Streakify app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const StreakifyApp());
+    await tester.pumpWidget(
+      StreakifyApp(
+        accessibilityService: AccessibilityService(),
+        personalizationService: PersonalizationService(),
+        themeService: ThemeService(),
+      ),
+    );
 
     // Verify that the app title is present
     expect(find.text('Streakify'), findsOneWidget);
@@ -26,7 +35,13 @@ void main() {
   });
 
   testWidgets('Can navigate to statistics screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const StreakifyApp());
+    await tester.pumpWidget(
+      StreakifyApp(
+        accessibilityService: AccessibilityService(),
+        personalizationService: PersonalizationService(),
+        themeService: ThemeService(),
+      ),
+    );
 
     // Find and tap the menu button
     expect(find.byIcon(Icons.more_vert), findsOneWidget);

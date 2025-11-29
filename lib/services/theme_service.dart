@@ -19,6 +19,7 @@ class ThemeService extends ChangeNotifier {
   int _lightThemeEndHour = 18; // 6 PM
   AppThemeMode _lightThemeMode = AppThemeMode.bright;
   AppThemeMode _darkThemeMode = AppThemeMode.dark;
+  AppThemeMode _currentTheme = AppThemeMode.bright;
 
   // Getters
   List<CustomTheme> get customThemes => List.unmodifiable(_customThemes);
@@ -27,6 +28,7 @@ class ThemeService extends ChangeNotifier {
   int get lightThemeEndHour => _lightThemeEndHour;
   AppThemeMode get lightThemeMode => _lightThemeMode;
   AppThemeMode get darkThemeMode => _darkThemeMode;
+  AppThemeMode get currentTheme => _currentTheme;
 
   /// Initialize and load settings
   Future<void> init() async {
@@ -36,33 +38,38 @@ class ThemeService extends ChangeNotifier {
   /// Load settings from SharedPreferences
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Load custom themes
     final customThemesJson = prefs.getStringList(_keyCustomThemes) ?? [];
     _customThemes = customThemesJson
         .map((json) => CustomTheme.fromJson(jsonDecode(json)))
         .toList();
-    
+
     // Load auto-switch settings
     _autoSwitchEnabled = prefs.getBool(_keyAutoSwitch) ?? false;
     _lightThemeStartHour = prefs.getInt(_keyLightThemeStart) ?? 6;
     _lightThemeEndHour = prefs.getInt(_keyLightThemeEnd) ?? 18;
-    
-    final lightThemeIndex = prefs.getInt(_keyLightThemeMode) ?? AppThemeMode.bright.index;
+
+    final lightThemeIndex =
+        prefs.getInt(_keyLightThemeMode) ?? AppThemeMode.bright.index;
     _lightThemeMode = AppThemeMode.values[lightThemeIndex];
-    
-    final darkThemeIndex = prefs.getInt(_keyDarkThemeMode) ?? AppThemeMode.dark.index;
+
+    final darkThemeIndex =
+        prefs.getInt(_keyDarkThemeMode) ?? AppThemeMode.dark.index;
     _darkThemeMode = AppThemeMode.values[darkThemeIndex];
-    
+
+    final currentThemeIndex =
+        prefs.getInt('current_theme') ?? AppThemeMode.bright.index;
+    _currentTheme = AppThemeMode.values[currentThemeIndex];
+
     notifyListeners();
   }
 
   /// Save custom themes to storage
   Future<void> _saveCustomThemes() async {
     final prefs = await SharedPreferences.getInstance();
-    final themesJson = _customThemes
-        .map((theme) => jsonEncode(theme.toJson()))
-        .toList();
+    final themesJson =
+        _customThemes.map((theme) => jsonEncode(theme.toJson())).toList();
     await prefs.setStringList(_keyCustomThemes, themesJson);
   }
 
@@ -118,7 +125,8 @@ class ThemeService extends ChangeNotifier {
   }
 
   /// Set theme modes for auto-switch
-  Future<void> setAutoSwitchThemes(AppThemeMode lightMode, AppThemeMode darkMode) async {
+  Future<void> setAutoSwitchThemes(
+      AppThemeMode lightMode, AppThemeMode darkMode) async {
     _lightThemeMode = lightMode;
     _darkThemeMode = darkMode;
     final prefs = await SharedPreferences.getInstance();
@@ -139,14 +147,16 @@ class ThemeService extends ChangeNotifier {
     // Check if current time is within light theme hours
     if (_lightThemeStartHour < _lightThemeEndHour) {
       // Normal case: e.g., 6 AM to 6 PM
-      if (currentHour >= _lightThemeStartHour && currentHour < _lightThemeEndHour) {
+      if (currentHour >= _lightThemeStartHour &&
+          currentHour < _lightThemeEndHour) {
         return _lightThemeMode;
       } else {
         return _darkThemeMode;
       }
     } else {
       // Wrap-around case: e.g., 8 PM to 6 AM (next day)
-      if (currentHour >= _lightThemeStartHour || currentHour < _lightThemeEndHour) {
+      if (currentHour >= _lightThemeStartHour ||
+          currentHour < _lightThemeEndHour) {
         return _lightThemeMode;
       } else {
         return _darkThemeMode;
@@ -181,5 +191,13 @@ class ThemeService extends ChangeNotifier {
   /// Check if a theme name already exists
   bool themeNameExists(String name) {
     return _customThemes.any((t) => t.name.toLowerCase() == name.toLowerCase());
+  }
+
+  /// Set current theme
+  Future<void> setTheme(AppThemeMode theme) async {
+    _currentTheme = theme;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('current_theme', theme.index);
+    notifyListeners();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:uuid/uuid.dart';
-import '../models/activity.dart';
 import '../models/streak_recovery.dart';
 import 'database_helper.dart';
 import 'database_protector_extension.dart';
@@ -54,7 +53,7 @@ class StreakRecoveryService {
     await db.insertStreakRecovery(recovery);
 
     // Descontar puntos
-    await _pointsService._deductPoints(pointsCost);
+    await _pointsService.deductPoints(pointsCost);
 
     // Actualizar la actividad con la racha recuperada
     activity.streak = recoveredStreak;

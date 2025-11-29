@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/user_profile.dart';
 import '../models/buddy.dart';
@@ -12,9 +10,11 @@ class SocialService {
   final Uuid _uuid = const Uuid();
 
   // Share Achievement
-  Future<void> shareAchievement(String title, String description, {String? imagePath}) async {
-    final String text = '¡He desbloqueado un nuevo logro en Streakify! 🏆\n\n$title\n$description\n\n#Streakify #Habits #Goals';
-    
+  Future<void> shareAchievement(String title, String description,
+      {String? imagePath}) async {
+    final String text =
+        '¡He desbloqueado un nuevo logro en Streakify! 🏆\n\n$title\n$description\n\n#Streakify #Habits #Goals';
+
     if (imagePath != null) {
       await Share.shareXFiles([XFile(imagePath)], text: text);
     } else {
@@ -24,7 +24,8 @@ class SocialService {
 
   // Share Streak
   Future<void> shareStreak(String activityName, int days) async {
-    final String text = '¡Llevo una racha de $days días en $activityName! 🔥\n\n¿Puedes superarme?\n\n#Streakify #$activityName #Streak';
+    final String text =
+        '¡Llevo una racha de $days días en $activityName! 🔥\n\n¿Puedes superarme?\n\n#Streakify #$activityName #Streak';
     await Share.share(text);
   }
 
@@ -34,7 +35,7 @@ class SocialService {
     if (profile != null) {
       return profile;
     }
-    
+
     // Create default profile if not exists
     final newProfile = UserProfile(
       id: 'local_user',

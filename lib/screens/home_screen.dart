@@ -37,8 +37,7 @@ import 'dashboard_screen.dart';
 import 'gamification_screen.dart';
 import 'notification_settings_screen.dart';
 import 'accessibility_settings_screen.dart';
-import 'personalization_settings_screen.dart';
-import 'theme_settings_screen.dart';
+
 import 'social_screen.dart';
 import '../services/gamification_service.dart';
 import '../utils/responsive_helper.dart';
@@ -82,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ConfettiController(duration: const Duration(seconds: 3));
     _lazyListController = LazyListController(
       pageSize: 20,
-      onLoadMore: _loadMoreActivities,
+      fetchItems: (page, pageSize) =>
+          _service.getActivitiesPage(pageSize, page),
     );
     _load();
     _initAchievements();
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _activities = list;
       _isLoading = false;
     });
-    _lazyListController.reset();
+    await _lazyListController.refresh();
     HomeWidgetService.updateWidget(_activities);
     // Reprogramar notificaciones después de cargar actividades
     _initNotifications();
@@ -155,11 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // to use pagination from the database in the future
     final startIndex = page * _lazyListController.pageSize;
     final endIndex = startIndex + _lazyListController.pageSize;
-    
+
     if (startIndex >= _activities.length) {
       return [];
     }
-    
+
     return _activities.sublist(
       startIndex,
       endIndex > _activities.length ? _activities.length : endIndex,
@@ -1860,20 +1860,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             actions: [
               IconButton(
-                icon: Icon(_isCompactView ? Icons.view_agenda : Icons.view_list),
+                icon:
+                    Icon(_isCompactView ? Icons.view_agenda : Icons.view_list),
                 tooltip: _isCompactView ? 'Vista expandida' : 'Vista compacta',
                 onPressed: _toggleViewMode,
               ),
-            IconButton(
-              icon: const Icon(Icons.people),
-              tooltip: 'Comunidad',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SocialScreen()),
-                );
-              },
-            ),
+              IconButton(
+                icon: const Icon(Icons.people),
+                tooltip: 'Comunidad',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SocialScreen()),
+                  );
+                },
+              ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) {
@@ -2047,7 +2049,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AccessibilitySettingsScreen(),
+                        builder: (context) =>
+                            const AccessibilitySettingsScreen(),
                       ),
                     );
                   }
@@ -2475,7 +2478,8 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
         return AnimatedBuilder(
           animation: animation,
           builder: (BuildContext context, Widget? child) {
-            final double animValue = Curves.easeInOut.transform(animation.value);
+            final double animValue =
+                Curves.easeInOut.transform(animation.value);
             final double elevation = lerpDouble(0, 6, animValue)!;
             return Material(
               elevation: elevation,
@@ -2560,13 +2564,14 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
     // Determinar estado de la actividad
     bool isCompletedToday = false;
     if (lastCompleted != null) {
-      isCompletedToday =
-          today.year == lastCompleted.year &&
+      isCompletedToday = today.year == lastCompleted.year &&
           today.month == lastCompleted.month &&
           today.day == lastCompleted.day;
-      
+
       // Check for multiple completions
-      if (isCompletedToday && activity.allowsMultipleCompletions() && !activity.hasCompletedDailyGoal()) {
+      if (isCompletedToday &&
+          activity.allowsMultipleCompletions() &&
+          !activity.hasCompletedDailyGoal()) {
         isCompletedToday = false; // Still needs more completions
       }
     }
@@ -2580,7 +2585,8 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: ActivityColors.getColor(activity.customColor).withOpacity(0.2),
+              color: ActivityColors.getColor(activity.customColor)
+                  .withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -3477,7 +3483,6 @@ class _StreakWidgetViewState extends State<StreakWidgetView> {
             ],
           ),
           actions: [
-
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),

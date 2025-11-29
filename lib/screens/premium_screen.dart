@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/premium_feature.dart';
-import '../models/subscription_tier.dart';
-import '../services/premium_service.dart';
 import '../services/purchase_service.dart';
 import '../config/product_ids.dart';
 
@@ -13,7 +11,6 @@ class PremiumScreen extends StatefulWidget {
 }
 
 class _PremiumScreenState extends State<PremiumScreen> {
-  final PremiumService _premiumService = PremiumService();
   final PurchaseService _purchaseService = PurchaseService();
   bool _isAnnual = true;
 
@@ -104,13 +101,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
-  Widget _buildToggleButton(String label, bool isSelected, VoidCallback onTap, {String? badge}) {
+  Widget _buildToggleButton(String label, bool isSelected, VoidCallback onTap,
+      {String? badge}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -118,7 +118,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -142,7 +144,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildPricingCards() {
-    final productId = _isAnnual ? ProductIds.premiumAnnual : ProductIds.premiumMonthly;
+    final productId =
+        _isAnnual ? ProductIds.premiumAnnual : ProductIds.premiumMonthly;
     final product = _purchaseService.getProduct(productId);
     final price = product?.price ?? (_isAnnual ? '\$24.99' : '\$2.99');
     final period = _isAnnual ? 'año' : 'mes';
@@ -157,20 +160,23 @@ class _PremiumScreenState extends State<PremiumScreen> {
             children: [
               Text(
                 price,
-                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
               ),
               Text('por $period', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _purchasePending ? null : () => _purchase(productId),
+                  onPressed:
+                      _purchasePending ? null : () => _purchase(productId),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: _purchasePending
                       ? const CircularProgressIndicator()
-                      : const Text('Comenzar Ahora', style: TextStyle(fontSize: 18)),
+                      : const Text('Comenzar Ahora',
+                          style: TextStyle(fontSize: 18)),
                 ),
               ),
             ],
@@ -188,7 +194,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
         children: [
           Text(
             'Características Premium',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...PremiumFeature.values.map((feature) => _buildFeatureItem(feature)),
@@ -202,14 +211,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary),
+          Icon(Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(feature.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(feature.description, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                Text(feature.displayName,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(feature.description,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
               ],
             ),
           ),

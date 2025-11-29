@@ -1,6 +1,5 @@
 import 'package:uuid/uuid.dart';
 import '../models/protector.dart';
-import '../models/activity.dart';
 import 'database_helper.dart';
 import 'database_protector_extension.dart';
 
@@ -121,7 +120,8 @@ class ProtectorService {
       // Protectores específicos de la actividad o globales
       maps = await db.query(
         'protectors',
-        where: '(activityId = ? OR activityId IS NULL) AND usedAt IS NULL AND isActive = 0',
+        where:
+            '(activityId = ? OR activityId IS NULL) AND usedAt IS NULL AND isActive = 0',
         whereArgs: [activityId],
         orderBy: 'createdAt DESC',
       );
@@ -161,7 +161,8 @@ class ProtectorService {
   }
 
   /// Obtener historial de uso de protectores
-  Future<List<Map<String, dynamic>>> getProtectorHistory({String? activityId}) async {
+  Future<List<Map<String, dynamic>>> getProtectorHistory(
+      {String? activityId}) async {
     final db = await _db.database;
 
     if (activityId != null) {
@@ -229,6 +230,7 @@ class ProtectorService {
       return monthlyProtectorLimit;
     }
 
-    return (monthlyProtectorLimit - activity.monthlyProtectorUses).clamp(0, monthlyProtectorLimit);
+    return (monthlyProtectorLimit - activity.monthlyProtectorUses)
+        .clamp(0, monthlyProtectorLimit);
   }
 }

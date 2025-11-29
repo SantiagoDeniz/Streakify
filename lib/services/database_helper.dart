@@ -3,8 +3,7 @@ import 'package:path/path.dart';
 import '../models/activity.dart';
 import '../models/category.dart';
 import '../models/completion_history.dart';
-import '../models/protector.dart';
-import '../models/streak_recovery.dart';
+
 import '../models/notification_preferences.dart';
 import '../models/user_profile.dart';
 import '../models/buddy.dart';
@@ -164,8 +163,8 @@ class DatabaseHelper {
         'CREATE INDEX idx_completion_date ON completion_history(completedAt DESC)');
     await db.execute(
         'CREATE INDEX idx_protectors_activity ON protectors(activityId)');
-    await db.execute(
-        'CREATE INDEX idx_protectors_active ON protectors(isActive)');
+    await db
+        .execute('CREATE INDEX idx_protectors_active ON protectors(isActive)');
     await db.execute(
         'CREATE INDEX idx_protector_history_activity ON protector_history(activityId)');
     await db.execute(
@@ -377,8 +376,8 @@ class DatabaseHelper {
           'ALTER TABLE activities ADD COLUMN streakPoints INTEGER NOT NULL DEFAULT 0');
       await db.execute(
           'ALTER TABLE activities ADD COLUMN monthlyProtectorUses INTEGER NOT NULL DEFAULT 0');
-      await db.execute(
-          'ALTER TABLE activities ADD COLUMN lastProtectorReset TEXT');
+      await db
+          .execute('ALTER TABLE activities ADD COLUMN lastProtectorReset TEXT');
 
       // Crear tabla de protectores
       await db.execute('''
@@ -571,6 +570,20 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) => Activity.fromMap(maps[i]));
   }
 
+  /// Obtener actividades con paginación
+  Future<List<Activity>> getActivitiesWithPagination(
+      int limit, int offset) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'activities',
+      orderBy: 'updatedAt DESC',
+      limit: limit,
+      offset: offset,
+    );
+
+    return List.generate(maps.length, (i) => Activity.fromMap(maps[i]));
+  }
+
   /// Obtener una actividad por ID
   Future<Activity?> getActivity(String id) async {
     final db = await database;
@@ -715,6 +728,17 @@ class DatabaseHelper {
     return Category.fromMap(maps.first);
   }
 
+  /// Obtener todas las categorías
+  Future<List<Category>> getAllCategories() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'categories',
+      orderBy: 'name ASC',
+    );
+
+    return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
+  }
+
   /// Insertar una nueva categoría
   Future<int> insertCategory(Category category) async {
     final db = await database;
@@ -814,7 +838,8 @@ class DatabaseHelper {
   }
 
   /// Obtener historial de completaciones de una actividad
-  Future<List<CompletionHistory>> getCompletionHistory(String activityId) async {
+  Future<List<CompletionHistory>> getCompletionHistory(
+      String activityId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'completion_history',
@@ -860,8 +885,7 @@ class DatabaseHelper {
   }
 
   /// Guardar preferencias de notificaciones
-  Future<int> saveNotificationPreferences(
-      NotificationPreferences prefs) async {
+  Future<int> saveNotificationPreferences(NotificationPreferences prefs) async {
     final db = await database;
     final map = prefs.toMap();
     map['id'] = 1; // Siempre usar ID 1 (solo hay un registro)
@@ -948,8 +972,10 @@ class DatabaseHelper {
   // Accountability Groups
   Future<List<AccountabilityGroup>> getAccountabilityGroups() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('accountability_groups');
-    return List.generate(maps.length, (i) => AccountabilityGroup.fromMap(maps[i]));
+    final List<Map<String, dynamic>> maps =
+        await db.query('accountability_groups');
+    return List.generate(
+        maps.length, (i) => AccountabilityGroup.fromMap(maps[i]));
   }
 
   Future<int> insertAccountabilityGroup(AccountabilityGroup group) async {

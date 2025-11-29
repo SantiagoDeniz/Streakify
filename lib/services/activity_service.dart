@@ -16,12 +16,17 @@ class ActivityService {
     return await _db.getAllActivities();
   }
 
-  Future<List<Activity>> loadActivitiesWithPagination(int page, int pageSize) async {
+  Future<List<Activity>> loadActivitiesWithPagination(
+      int page, int pageSize) async {
     if (!_migrated) {
       await _migrateFromSharedPreferences();
       _migrated = true;
     }
     return await _db.getActivitiesWithPagination(pageSize, page * pageSize);
+  }
+
+  Future<List<Activity>> getActivitiesPage(int pageSize, int page) async {
+    return await loadActivitiesWithPagination(page, pageSize);
   }
 
   Future<void> saveActivities(List<Activity> activities) async {

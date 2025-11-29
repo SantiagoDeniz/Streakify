@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Modelo para almacenar las preferencias de notificaciones del usuario
 class NotificationPreferences {
   // Notificaciones contextuales
@@ -134,13 +132,15 @@ class NotificationPreferences {
       doNotDisturbEndMinute: json['doNotDisturbEndMinute'] ?? 0,
       autoAdjustNotificationTimes: json['autoAdjustNotificationTimes'] ?? false,
       minCompletionsForAutoAdjust: json['minCompletionsForAutoAdjust'] ?? 7,
-      confidenceThresholdForAutoAdjust: json['confidenceThresholdForAutoAdjust'] ?? 0.6,
+      confidenceThresholdForAutoAdjust:
+          json['confidenceThresholdForAutoAdjust'] ?? 0.6,
     );
   }
 
   /// Convierte a Map para SQLite
   Map<String, dynamic> toMap() => {
-        'contextualNotificationsEnabled': contextualNotificationsEnabled ? 1 : 0,
+        'contextualNotificationsEnabled':
+            contextualNotificationsEnabled ? 1 : 0,
         'riskAlertsEnabled': riskAlertsEnabled ? 1 : 0,
         'riskAlertHoursBefore': riskAlertHoursBefore,
         'dailySummaryEnabled': dailySummaryEnabled ? 1 : 0,
@@ -191,7 +191,8 @@ class NotificationPreferences {
       doNotDisturbEndMinute: map['doNotDisturbEndMinute'] ?? 0,
       autoAdjustNotificationTimes: map['autoAdjustNotificationTimes'] == 1,
       minCompletionsForAutoAdjust: map['minCompletionsForAutoAdjust'] ?? 7,
-      confidenceThresholdForAutoAdjust: map['confidenceThresholdForAutoAdjust'] ?? 0.6,
+      confidenceThresholdForAutoAdjust:
+          map['confidenceThresholdForAutoAdjust'] ?? 0.6,
     );
   }
 
@@ -251,8 +252,8 @@ class NotificationPreferences {
           autoAdjustNotificationTimes ?? this.autoAdjustNotificationTimes,
       minCompletionsForAutoAdjust:
           minCompletionsForAutoAdjust ?? this.minCompletionsForAutoAdjust,
-      confidenceThresholdForAutoAdjust:
-          confidenceThresholdForAutoAdjust ?? this.confidenceThresholdForAutoAdjust,
+      confidenceThresholdForAutoAdjust: confidenceThresholdForAutoAdjust ??
+          this.confidenceThresholdForAutoAdjust,
     );
   }
 }

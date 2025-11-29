@@ -1,14 +1,19 @@
-import 'package:local_auth/local_auth.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// TODO: Agregar paquetes faltantes a pubspec.yaml:
+// - local_auth: ^2.1.0
+// - flutter_secure_storage: ^9.0.0
+// import 'package:local_auth/local_auth.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Servicio para manejar seguridad de la app (PIN, biometría, modo privado)
+/// NOTA: Temporalmente usando SharedPreferences en lugar de FlutterSecureStorage
 class SecurityService {
   static final SecurityService _instance = SecurityService._internal();
   factory SecurityService() => _instance;
   SecurityService._internal();
 
-  final LocalAuthentication _localAuth = LocalAuthentication();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  // final LocalAuthentication _localAuth = LocalAuthentication();
+  // final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   // Claves para almacenamiento seguro
   static const String _keySecurityEnabled = 'security_enabled';
@@ -19,7 +24,8 @@ class SecurityService {
   /// Verifica si el dispositivo puede usar biometría
   Future<bool> canCheckBiometrics() async {
     try {
-      return await _localAuth.canCheckBiometrics;
+      // return await _localAuth.canCheckBiometrics;
+      return false; // Retornar false hasta que se agregue el paquete local_auth
     } catch (e) {
       print('Error al verificar biometría: $e');
       return false;
@@ -27,9 +33,10 @@ class SecurityService {
   }
 
   /// Obtiene los tipos de biometría disponibles
-  Future<List<BiometricType>> getAvailableBiometrics() async {
+  Future<List<String>> getAvailableBiometrics() async {
     try {
-      return await _localAuth.getAvailableBiometrics();
+      // return await _localAuth.getAvailableBiometrics();
+      return []; // Retornar vacío hasta que se agregue el paquete local_auth
     } catch (e) {
       print('Error al obtener biometrías disponibles: $e');
       return [];
@@ -38,40 +45,38 @@ class SecurityService {
 
   /// Verifica si la seguridad está habilitada
   Future<bool> isSecurityEnabled() async {
-    final value = await _secureStorage.read(key: _keySecurityEnabled);
-    return value == 'true';
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keySecurityEnabled) ?? false;
   }
 
   /// Activa o desactiva la seguridad
   Future<void> setSecurityEnabled(bool enabled) async {
-    await _secureStorage.write(
-      key: _keySecurityEnabled,
-      value: enabled.toString(),
-    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keySecurityEnabled, enabled);
   }
 
   /// Verifica si la biometría está habilitada
   Future<bool> isBiometricEnabled() async {
-    final value = await _secureStorage.read(key: _keyBiometricEnabled);
-    return value == 'true';
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyBiometricEnabled) ?? false;
   }
 
   /// Activa o desactiva la biometría
   Future<void> setBiometricEnabled(bool enabled) async {
-    await _secureStorage.write(
-      key: _keyBiometricEnabled,
-      value: enabled.toString(),
-    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyBiometricEnabled, enabled);
   }
 
   /// Configura un PIN
   Future<void> setPIN(String pin) async {
-    await _secureStorage.write(key: _keyPIN, value: pin);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyPIN, pin);
   }
 
   /// Obtiene el PIN almacenado (solo para verificación interna)
   Future<String?> _getPIN() async {
-    return await _secureStorage.read(key: _keyPIN);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyPIN);
   }
 
   /// Verifica si hay un PIN configurado
@@ -88,7 +93,8 @@ class SecurityService {
 
   /// Elimina el PIN
   Future<void> removePIN() async {
-    await _secureStorage.delete(key: _keyPIN);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyPIN);
   }
 
   /// Autentica al usuario con biometría
@@ -97,15 +103,17 @@ class SecurityService {
       final canCheck = await canCheckBiometrics();
       if (!canCheck) return false;
 
-      final authenticated = await _localAuth.authenticate(
-        localizedReason: 'Autentícate para acceder a Streakify',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
-      );
+      // TODO: Implementar cuando se agregue el paquete local_auth
+      // final authenticated = await _localAuth.authenticate(
+      //   localizedReason: 'Autentícate para acceder a Streakify',
+      //   options: const AuthenticationOptions(
+      //     stickyAuth: true,
+      //     biometricOnly: true,
+      //   ),
+      // );
+      // return authenticated;
 
-      return authenticated;
+      return false; // Retornar false hasta que se implemente
     } catch (e) {
       print('Error en autenticación biométrica: $e');
       return false;
@@ -118,7 +126,7 @@ class SecurityService {
     if (!securityEnabled) return true; // Si no hay seguridad, permitir acceso
 
     final biometricEnabled = await isBiometricEnabled();
-    
+
     // Intentar biometría primero si está habilitada
     if (biometricEnabled) {
       final canUseBiometric = await canCheckBiometrics();
@@ -138,21 +146,23 @@ class SecurityService {
 
   /// Verifica si el modo privado está habilitado
   Future<bool> isPrivateModeEnabled() async {
-    final value = await _secureStorage.read(key: _keyPrivateModeEnabled);
-    return value == 'true';
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyPrivateModeEnabled) ?? false;
   }
 
   /// Activa o desactiva el modo privado
   Future<void> setPrivateModeEnabled(bool enabled) async {
-    await _secureStorage.write(
-      key: _keyPrivateModeEnabled,
-      value: enabled.toString(),
-    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyPrivateModeEnabled, enabled);
   }
 
   /// Resetea toda la configuración de seguridad
   Future<void> resetSecurity() async {
-    await _secureStorage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keySecurityEnabled);
+    await prefs.remove(_keyPIN);
+    await prefs.remove(_keyBiometricEnabled);
+    await prefs.remove(_keyPrivateModeEnabled);
   }
 
   /// Obtiene un resumen del estado de seguridad

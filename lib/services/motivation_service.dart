@@ -20,9 +20,9 @@ class MotivationService {
   ];
 
   String getDailyQuote() {
-    final random = Random();
     // In a real app, this could be seeded by the date to be consistent throughout the day
-    final dayOfYear = int.parse("${DateTime.now().year}${DateTime.now().month}${DateTime.now().day}");
+    final dayOfYear = int.parse(
+        "${DateTime.now().year}${DateTime.now().month}${DateTime.now().day}");
     final seed = Random(dayOfYear);
     return _quotes[seed.nextInt(_quotes.length)];
   }
@@ -36,16 +36,18 @@ class MotivationService {
     return {
       "title": "Cómo Juan recuperó su salud",
       "author": "Juan P.",
-      "content": "Empecé caminando 10 minutos al día. Al principio fue difícil, pero después de 21 días se convirtió en algo que mi cuerpo pedía. Ahora corro maratones.",
+      "content":
+          "Empecé caminando 10 minutos al día. Al principio fue difícil, pero después de 21 días se convirtió en algo que mi cuerpo pedía. Ahora corro maratones.",
     };
   }
-  
+
   Map<String, dynamic> getMonthlyChallenge() {
     final now = DateTime.now();
     // Example logic for monthly challenges
     return {
       "title": "Reto de ${now.month == 1 ? 'Enero' : 'Mes'}",
-      "description": "Completa 20 días de cualquier actividad de salud este mes.",
+      "description":
+          "Completa 20 días de cualquier actividad de salud este mes.",
       "target": 20,
       "reward": "Medalla de Bronce",
     };

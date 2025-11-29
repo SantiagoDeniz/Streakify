@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/activity.dart';
 import '../utils/activity_icons.dart';
-import '../themes/app_themes.dart';
-import '../widgets/animated_widgets.dart';
 
 class ActivityCardTablet extends StatelessWidget {
   final Activity activity;

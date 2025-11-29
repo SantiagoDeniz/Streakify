@@ -5,7 +5,6 @@ import '../models/activity.dart';
 import '../models/notification_preferences.dart';
 import '../models/achievement.dart';
 import '../utils/motivational_quotes.dart';
-import 'dart:math';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -253,24 +252,29 @@ class NotificationService {
 
     // Mensajes según el progreso
     if (streak >= 100) {
-      message = '¡Increíble! Llevas $streak días consecutivos en "${activity.name}"! 🏆';
+      message =
+          '¡Increíble! Llevas $streak días consecutivos en "${activity.name}"! 🏆';
     } else if (streak >= 50) {
-      message = '¡Impresionante! $streak días de racha en "${activity.name}"! 💎';
+      message =
+          '¡Impresionante! $streak días de racha en "${activity.name}"! 💎';
     } else if (streak >= 30) {
-      message = '¡Excelente! Ya llevas $streak días sin fallar en "${activity.name}"! 🌟';
+      message =
+          '¡Excelente! Ya llevas $streak días sin fallar en "${activity.name}"! 🌟';
     } else if (streak >= 14) {
       message = '¡Genial! Dos semanas completadas en "${activity.name}"! 🎉';
     } else if (streak >= 7) {
       message = '¡Felicidades! Una semana completa en "${activity.name}"! 🔥';
     } else if (streak >= 3) {
-      message = '¡Vas por buen camino! $streak días seguidos en "${activity.name}"! 💪';
+      message =
+          '¡Vas por buen camino! $streak días seguidos en "${activity.name}"! 💪';
     } else {
       message = '¡Sigue así! Cada día cuenta en "${activity.name}"! ⭐';
     }
 
     // Agregar frase motivacional si está habilitado
     if (prefs.motivationalQuotesEnabled) {
-      message += '\n\n${MotivationalQuotes.getContextualQuote(QuoteContext.perseverance)}';
+      message +=
+          '\n\n${MotivationalQuotes.getContextualQuote(QuoteContext.perseverance)}';
     }
 
     await showInstantNotification(
@@ -339,7 +343,8 @@ class NotificationService {
     }
 
     if (prefs.motivationalQuotesEnabled) {
-      message += '\n\n${MotivationalQuotes.getContextualQuote(QuoteContext.resilience)}';
+      message +=
+          '\n\n${MotivationalQuotes.getContextualQuote(QuoteContext.resilience)}';
     }
 
     await _notifications.zonedSchedule(
@@ -722,7 +727,8 @@ class NotificationService {
     required List<Activity> activities,
     required NotificationPreferences prefs,
     required Function(String activityId) getOptimalTimeRecommendation,
-    required Function(Activity activity, int hour, int minute) updateActivityNotificationTime,
+    required Function(Activity activity, int hour, int minute)
+        updateActivityNotificationTime,
   }) async {
     if (!prefs.autoAdjustNotificationTimes) return;
 
@@ -733,7 +739,7 @@ class NotificationService {
 
       // Obtener recomendación de horario óptimo
       final recommendation = await getOptimalTimeRecommendation(activity.id);
-      
+
       if (recommendation == null) continue;
 
       final hour = recommendation['hour'] as int;
@@ -744,15 +750,16 @@ class NotificationService {
       if (confidence < prefs.confidenceThresholdForAutoAdjust) continue;
 
       // Solo ajustar si el horario es diferente al actual
-      if (activity.notificationHour == hour && activity.notificationMinute == minute) {
+      if (activity.notificationHour == hour &&
+          activity.notificationMinute == minute) {
         continue;
       }
 
       // Actualizar el horario de la actividad
       await updateActivityNotificationTime(activity, hour, minute);
 
-      print('Auto-ajustado horario de "${activity.name}" a $hour:${minute.toString().padLeft(2, '0')} (confianza: ${(confidence * 100).toStringAsFixed(0)}%)');
+      print(
+          'Auto-ajustado horario de "${activity.name}" a $hour:${minute.toString().padLeft(2, '0')} (confianza: ${(confidence * 100).toStringAsFixed(0)}%)');
     }
   }
 }
-

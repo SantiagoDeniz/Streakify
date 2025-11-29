@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/activity.dart';
 import '../utils/activity_icons.dart';
-import '../utils/image_cache_manager.dart';
-import '../themes/app_themes.dart';
 import '../screens/activity_focus_screen.dart';
 import 'animated_widgets.dart';
 
@@ -38,13 +36,14 @@ class ActivityCard extends StatelessWidget {
     // Determinar estado de la actividad
     bool isCompletedToday = false;
     if (lastCompleted != null) {
-      isCompletedToday =
-          today.year == lastCompleted.year &&
+      isCompletedToday = today.year == lastCompleted.year &&
           today.month == lastCompleted.month &&
           today.day == lastCompleted.day;
-      
+
       // Check for multiple completions
-      if (isCompletedToday && activity.allowsMultipleCompletions() && !activity.hasCompletedDailyGoal()) {
+      if (isCompletedToday &&
+          activity.allowsMultipleCompletions() &&
+          !activity.hasCompletedDailyGoal()) {
         isCompletedToday = false; // Still needs more completions
       }
     }
@@ -57,12 +56,14 @@ class ActivityCard extends StatelessWidget {
       } else {
         semanticLabel += 'Pendiente. ';
       }
-      semanticLabel += 'Racha actual: ${activity.streak} ${activity.streak == 1 ? "día" : "días"}. ';
-      
+      semanticLabel +=
+          'Racha actual: ${activity.streak} ${activity.streak == 1 ? "día" : "días"}. ';
+
       if (activity.allowsMultipleCompletions()) {
-        semanticLabel += 'Progreso: ${activity.dailyCompletionCount} de ${activity.dailyGoal} completaciones. ';
+        semanticLabel +=
+            'Progreso: ${activity.dailyCompletionCount} de ${activity.dailyGoal} completaciones. ';
       }
-      
+
       if (!activity.active) {
         semanticLabel += 'Actividad pausada. ';
       }
@@ -74,7 +75,8 @@ class ActivityCard extends StatelessWidget {
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 4),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
             leading: Semantics(
               label: 'Icono de ${activity.name}',
@@ -82,7 +84,8 @@ class ActivityCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: ActivityColors.getColor(activity.customColor).withOpacity(0.2),
+                  color: ActivityColors.getColor(activity.customColor)
+                      .withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -96,7 +99,8 @@ class ActivityCard extends StatelessWidget {
               child: Text(
                 activity.name,
                 style: TextStyle(
-                  decoration: isCompletedToday ? TextDecoration.lineThrough : null,
+                  decoration:
+                      isCompletedToday ? TextDecoration.lineThrough : null,
                   color: isCompletedToday ? Colors.grey : null,
                   fontWeight: FontWeight.bold,
                 ),
@@ -123,14 +127,16 @@ class ActivityCard extends StatelessWidget {
                     ),
                   ),
                 Semantics(
-                  label: isCompletedToday 
-                      ? 'Marcar como no completada' 
+                  label: isCompletedToday
+                      ? 'Marcar como no completada'
                       : 'Completar actividad',
                   button: true,
                   enabled: true,
                   child: IconButton(
                     icon: Icon(
-                      isCompletedToday ? Icons.check_circle : Icons.circle_outlined,
+                      isCompletedToday
+                          ? Icons.check_circle
+                          : Icons.circle_outlined,
                       color: isCompletedToday ? Colors.green : Colors.grey,
                     ),
                     onPressed: onComplete,
@@ -139,8 +145,8 @@ class ActivityCard extends StatelessWidget {
               ],
             ),
             onTap: () {
-               // Expand logic if needed, or navigate
-               Navigator.push(
+              // Expand logic if needed, or navigate
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ActivityFocusScreen(
@@ -159,7 +165,7 @@ class ActivityCard extends StatelessWidget {
     final bool isAtRisk = lastCompleted != null &&
         !completedToday &&
         today.difference(lastCompleted).inDays >= 1;
-    
+
     // Color del borde según estado
     Color? borderColor;
     if (!activity.active) {
@@ -179,15 +185,17 @@ class ActivityCard extends StatelessWidget {
     } else {
       fullSemanticLabel += 'Pendiente. ';
     }
-    fullSemanticLabel += 'Racha actual: ${activity.streak} ${activity.streak == 1 ? "día" : "días"}. ';
-    
+    fullSemanticLabel +=
+        'Racha actual: ${activity.streak} ${activity.streak == 1 ? "día" : "días"}. ';
+
     if (!activity.active) {
       fullSemanticLabel += 'Actividad pausada. ';
     }
 
     return Semantics(
       label: fullSemanticLabel,
-      hint: 'Toca para ver detalles. Desliza a la derecha para editar, o a la izquierda para eliminar.',
+      hint:
+          'Toca para ver detalles. Desliza a la derecha para editar, o a la izquierda para eliminar.',
       button: false,
       child: Dismissible(
         key: Key(activity.id),
@@ -413,25 +421,26 @@ class ActivityCard extends StatelessWidget {
     required VoidCallback onConfirm,
   }) async {
     return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: confirmColor),
+                onPressed: () {
+                  onConfirm();
+                  Navigator.pop(context, true);
+                },
+                child: Text(confirmText),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: confirmColor),
-            onPressed: () {
-              onConfirm();
-              Navigator.pop(context, true);
-            },
-            child: Text(confirmText),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 }

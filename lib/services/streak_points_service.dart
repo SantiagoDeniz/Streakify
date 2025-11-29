@@ -85,8 +85,8 @@ class StreakPointsService {
     return true;
   }
 
-  /// Descontar puntos del total
-  Future<void> _deductPoints(int amount) async {
+  /// Descontar puntos del total (público para ser usado por otros servicios)
+  Future<void> deductPoints(int amount) async {
     final activities = await _db.getAllActivities();
 
     // Ordenar por puntos disponibles (mayor a menor)
@@ -99,7 +99,8 @@ class StreakPointsService {
 
       final availablePoints = activity.streakPoints;
       if (availablePoints > 0) {
-        final toDeduct = availablePoints >= remaining ? remaining : availablePoints;
+        final toDeduct =
+            availablePoints >= remaining ? remaining : availablePoints;
         activity.streakPoints -= toDeduct;
         remaining -= toDeduct;
         await _db.updateActivity(activity);
@@ -109,6 +110,11 @@ class StreakPointsService {
     // Si aún quedan puntos por descontar, usar puntos de racha base
     // (esto es conceptual, en la práctica los puntos de racha no se descuentan)
     // Solo descontamos de streakPoints que son puntos "extra"
+  }
+
+  /// Descontar puntos del total (versión privada para uso interno)
+  Future<void> _deductPoints(int amount) async {
+    await deductPoints(amount);
   }
 
   /// Agregar puntos bonus a una actividad

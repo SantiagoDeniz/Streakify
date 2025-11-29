@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/gamification.dart';
-import '../models/activity.dart';
+
 import '../services/gamification_service.dart';
 import '../services/activity_service.dart';
 
@@ -44,7 +44,7 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     final level = await _gamification.getUserLevel();
     final medals = await _gamification.getMedals();
-    final challenge = await _gamification.getWeeklyChallenge();
+    await _gamification.getWeeklyChallenge();
     final rewards = await _gamification.getConsistencyRewards();
 
     // Actualizar progreso del desafío

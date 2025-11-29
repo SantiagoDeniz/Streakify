@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import '../config/product_ids.dart';
 import '../models/subscription_tier.dart';
 import 'premium_service.dart';
@@ -16,7 +13,7 @@ class PurchaseService {
 
   final InAppPurchase _iap = InAppPurchase.instance;
   final PremiumService _premiumService = PremiumService();
-  
+
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   List<ProductDetails> _products = [];
   bool _isAvailable = false;
@@ -30,7 +27,7 @@ class PurchaseService {
   Future<void> init() async {
     // Check if in-app purchase is available
     _isAvailable = await _iap.isAvailable();
-    
+
     if (!_isAvailable) {
       debugPrint('In-app purchase not available');
       return;
@@ -93,8 +90,9 @@ class PurchaseService {
     _purchasePending = true;
 
     try {
-      final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-      
+      final PurchaseParam purchaseParam =
+          PurchaseParam(productDetails: product);
+
       // Determine if it's a subscription or consumable
       if (ProductIds.subscriptions.contains(productId)) {
         return await _iap.buyNonConsumable(purchaseParam: purchaseParam);
@@ -120,7 +118,8 @@ class PurchaseService {
   }
 
   /// Handle purchase updates
-  Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
+  Future<void> _onPurchaseUpdate(
+      List<PurchaseDetails> purchaseDetailsList) async {
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
       await _handlePurchase(purchaseDetails);
     }
@@ -141,10 +140,9 @@ class PurchaseService {
 
     if (purchaseDetails.status == PurchaseStatus.purchased ||
         purchaseDetails.status == PurchaseStatus.restored) {
-      
       // Verify purchase (in production, verify with your backend)
       final valid = await _verifyPurchase(purchaseDetails);
-      
+
       if (valid) {
         await _deliverProduct(purchaseDetails);
       }
@@ -178,20 +176,22 @@ class PurchaseService {
     // Handle subscriptions
     if (productId == ProductIds.premiumMonthly) {
       final expiryDate = DateTime.now().add(const Duration(days: 30));
-      await _premiumService.upgradeToPremium(SubscriptionTier.premiumMonthly, expiryDate);
+      await _premiumService.upgradeToPremium(
+          SubscriptionTier.premiumMonthly, expiryDate);
       debugPrint('Delivered premium monthly subscription');
     } else if (productId == ProductIds.premiumAnnual) {
       final expiryDate = DateTime.now().add(const Duration(days: 365));
-      await _premiumService.upgradeToPremium(SubscriptionTier.premiumAnnual, expiryDate);
+      await _premiumService.upgradeToPremium(
+          SubscriptionTier.premiumAnnual, expiryDate);
       debugPrint('Delivered premium annual subscription');
     }
-    
+
     // Handle consumables (donations)
     else if (ProductIds.consumables.contains(productId)) {
       debugPrint('Delivered donation: $productId');
       // Donations don't unlock features, just show thank you message
     }
-    
+
     // Handle non-consumables
     else if (ProductIds.nonConsumables.contains(productId)) {
       debugPrint('Delivered non-consumable: $productId');

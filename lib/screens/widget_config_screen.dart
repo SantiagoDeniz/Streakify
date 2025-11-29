@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/activity.dart';
-import '../services/storage_service.dart';
-import 'home_widget_service.dart';
+import '../services/activity_service.dart';
+import '../widgets/home_widget_service.dart';
 
 class WidgetConfigScreen extends StatefulWidget {
   const WidgetConfigScreen({super.key});
@@ -16,7 +16,7 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
   List<String> _selectedIds = [];
   bool _isDark = false;
   bool _isLoading = true;
-  final StorageService _storage = StorageService();
+  final ActivityService _activityService = ActivityService();
 
   @override
   void initState() {
@@ -27,12 +27,14 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      final activities = await _storage.getActivities();
+      final activities = await _activityService.loadActivities();
       final prefs = await SharedPreferences.getInstance();
-      
+
       setState(() {
         _activities = activities.where((a) => a.active).toList();
-        _selectedIds = prefs.getStringList(HomeWidgetService.widgetSelectedActivitiesKey) ?? [];
+        _selectedIds = prefs
+                .getStringList(HomeWidgetService.widgetSelectedActivitiesKey) ??
+            [];
         _isDark = prefs.getBool(HomeWidgetService.widgetThemeKey) ?? false;
         _isLoading = false;
       });
@@ -50,13 +52,14 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
     try {
       await HomeWidgetService.setSelectedActivities(_selectedIds);
       await HomeWidgetService.setWidgetTheme(_isDark);
-      
+
       // Forzar actualización del widget
       await HomeWidgetService.updateWidget(_activities);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Configuración guardada y widget actualizado')),
+          const SnackBar(
+              content: Text('Configuración guardada y widget actualizado')),
         );
         Navigator.pop(context);
       }
@@ -143,7 +146,7 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
               return CheckboxListTile(
                 title: Text(activity.name),
                 subtitle: Text('Racha: ${activity.streak} días'),
-                secondary: Text(activity.emoji),
+                secondary: Text(activity.customIcon ?? '🎯'),
                 value: isSelected,
                 onChanged: (bool? value) {
                   setState(() {
@@ -215,14 +218,16 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
               ),
               const SizedBox(height: 12),
               if (_selectedIds.isEmpty)
-                _buildPreviewItem(_activities.isNotEmpty ? _activities.first : null, 1)
+                _buildPreviewItem(
+                    _activities.isNotEmpty ? _activities.first : null, 1)
               else
                 ..._selectedIds.map((id) {
                   final activity = _activities.firstWhere(
                     (a) => a.id == id,
                     orElse: () => _activities.first,
                   );
-                  return _buildPreviewItem(activity, _selectedIds.indexOf(id) + 1);
+                  return _buildPreviewItem(
+                      activity, _selectedIds.indexOf(id) + 1);
                 }).toList(),
             ],
           ),
@@ -233,7 +238,7 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
 
   Widget _buildPreviewItem(Activity? activity, int index) {
     if (activity == null) return const SizedBox();
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(8),
@@ -244,7 +249,11 @@ class _WidgetConfigScreenState extends State<WidgetConfigScreen> {
       child: Row(
         children: [
           Text(
-            index == 1 ? '🥇' : index == 2 ? '🥈' : '🥉',
+            index == 1
+                ? '🥇'
+                : index == 2
+                    ? '🥈'
+                    : '🥉',
             style: const TextStyle(fontSize: 20),
           ),
           const SizedBox(width: 12),

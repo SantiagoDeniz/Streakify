@@ -1,5 +1,3 @@
-import '../models/activity.dart';
-import '../models/completion_history.dart';
 import 'database_helper.dart';
 import '../utils/compute_helper.dart';
 import 'statistics_worker.dart';
@@ -12,63 +10,67 @@ class AdvancedStatisticsService {
   Future<Map<String, double>> getSuccessRate() async {
     final activities = await _db.getAllActivities();
     final Map<String, List<Map<String, dynamic>>> completionsMap = {};
-    
+
     // Pre-fetch all completions to pass to isolate
     for (var activity in activities) {
       final completions = await _db.getCompletionHistory(activity.id);
       completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
-    
+
     final args = {
       'activities': activities.map((a) => a.toJson()).toList(),
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(StatisticsWorker.calculateSuccessRate, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(
+        StatisticsWorker.calculateSuccessRate, args);
   }
 
   /// Mejor racha histórica de cada actividad (récord personal)
   Future<Map<String, int>> getBestStreaks() async {
     final activities = await _db.getAllActivities();
     final Map<String, List<Map<String, dynamic>>> completionsMap = {};
-    
+
     for (var activity in activities) {
       final completions = await _db.getCompletionHistory(activity.id);
       completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
-    
+
     final args = {
       'activities': activities.map((a) => a.toJson()).toList(),
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run<Map<String, dynamic>, Map<String, int>>(StatisticsWorker.calculateBestStreaks, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, int>>(
+        StatisticsWorker.calculateBestStreaks, args);
   }
 
   /// Promedio de racha por actividad (racha promedio histórica)
   Future<Map<String, double>> getAverageStreaks() async {
     final activities = await _db.getAllActivities();
     final Map<String, List<Map<String, dynamic>>> completionsMap = {};
-    
+
     for (var activity in activities) {
       final completions = await _db.getCompletionHistory(activity.id);
       completionsMap[activity.id] = completions.map((c) => c.toJson()).toList();
     }
-    
+
     final args = {
       'activities': activities.map((a) => a.toJson()).toList(),
       'completions': completionsMap,
     };
 
-    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(StatisticsWorker.calculateAverageStreaks, args);
+    return await ComputeHelper.run<Map<String, dynamic>, Map<String, double>>(
+        StatisticsWorker.calculateAverageStreaks, args);
   }
 
   /// Días consecutivos totales (suma de todos los días completados)
   Future<int> getTotalConsecutiveDays() async {
     final completions = await _db.getAllCompletions();
     final rawCompletions = completions.map((c) => c.toJson()).toList();
-    
-    return await ComputeHelper.run<List<Map<String, dynamic>>, int>(StatisticsWorker.calculateTotalConsecutiveDays, rawCompletions);
+
+    return await ComputeHelper.run<List<Map<String, dynamic>>, int>(
+        StatisticsWorker.calculateTotalConsecutiveDays, rawCompletions);
   }
 
   /// Heatmap de actividad (datos para calendario anual estilo GitHub)
@@ -78,8 +80,9 @@ class AdvancedStatisticsService {
     final startOfYear = DateTime(targetYear.year, 1, 1);
     final endOfYear = DateTime(targetYear.year, 12, 31, 23, 59, 59);
 
-    final completions = await _db.getCompletionsByDateRange(startOfYear, endOfYear);
-    
+    final completions =
+        await _db.getCompletionsByDateRange(startOfYear, endOfYear);
+
     // This calculation is relatively light, but could be moved to isolate if needed
     // For now keeping it here as it involves DateTime keys which might need serialization
     final Map<DateTime, int> heatmap = {};
@@ -169,10 +172,11 @@ class AdvancedStatisticsService {
   }
 
   /// Comparativa mes a mes (mejora/declive)
-  Future<MonthComparison> compareMonths(DateTime month1, DateTime month2) async {
+  Future<MonthComparison> compareMonths(
+      DateTime month1, DateTime month2) async {
     final m1Start = DateTime(month1.year, month1.month, 1);
     final m1End = DateTime(month1.year, month1.month + 1, 0);
-    
+
     final m2Start = DateTime(month2.year, month2.month, 1);
     final m2End = DateTime(month2.year, month2.month + 1, 0);
 
@@ -207,12 +211,12 @@ class AdvancedStatisticsService {
 
       // Calcular tasa de éxito de los últimos 30 días
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-      final recentCompletions = completions.where(
-        (c) => c.completedAt.isAfter(thirtyDaysAgo)
-      ).toList();
+      final recentCompletions = completions
+          .where((c) => c.completedAt.isAfter(thirtyDaysAgo))
+          .toList();
 
       final successRate = recentCompletions.length / 30;
-      
+
       // Predecir racha en 7 días: racha actual + (tasa de éxito * 7)
       final predictedIncrease = (successRate * 7).round();
       predictions[activity.id] = activity.streak + predictedIncrease;
@@ -227,7 +231,7 @@ class AdvancedStatisticsService {
     if (activities.isEmpty) return [];
 
     final completions = await _db.getAllCompletions();
-    
+
     // Agrupar completaciones por día
     final Map<String, Set<String>> dayToActivities = {};
     for (var completion in completions) {
@@ -237,7 +241,7 @@ class AdvancedStatisticsService {
         completion.completedAt.day,
       );
       final dayStr = day.toIso8601String();
-      
+
       if (!dayToActivities.containsKey(dayStr)) {
         dayToActivities[dayStr] = {};
       }
@@ -309,4 +313,3 @@ class MonthComparison {
   bool get isDecline => improvement < 0;
   bool get isStable => improvement == 0;
 }
-
