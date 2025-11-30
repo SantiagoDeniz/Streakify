@@ -63,6 +63,7 @@ dev_dependencies:
   
   # Testing
   mockito: ^5.4.0
+  sqflite_common_ffi: ^2.3.0
 
 flutter:
   uses-material-design: true

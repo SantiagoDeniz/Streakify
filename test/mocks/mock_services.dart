@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// Mock services for testing
 /// This file provides centralized mocks for external dependencies
@@ -8,6 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> initializeMocks() async {
   // Initialize SharedPreferences mock
   SharedPreferences.setMockInitialValues({});
+
+  // Initialize sqflite_ffi for database testing
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
 }
 
 /// Mock SharedPreferences with custom initial values
@@ -38,7 +43,7 @@ class MockFlutterLocalNotificationsPlugin {
     if (!_initialized) {
       throw Exception('Plugin not initialized');
     }
-    
+
     _scheduledNotifications.add(PendingNotification(
       id: id,
       title: title,
@@ -60,7 +65,7 @@ class MockFlutterLocalNotificationsPlugin {
   }
 
   bool get isInitialized => _initialized;
-  List<PendingNotification> get scheduledNotifications => 
+  List<PendingNotification> get scheduledNotifications =>
       List.from(_scheduledNotifications);
 }
 
@@ -118,8 +123,6 @@ class MockFileSystem {
   }
 
   List<String> listFiles(String directory) {
-    return _files.keys
-        .where((path) => path.startsWith(directory))
-        .toList();
+    return _files.keys.where((path) => path.startsWith(directory)).toList();
   }
 }

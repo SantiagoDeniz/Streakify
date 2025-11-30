@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:streakify/services/database_helper.dart';
 import 'package:streakify/models/activity.dart';
 import 'package:streakify/models/category.dart';
@@ -43,10 +44,10 @@ void main() {
       );
 
       await dbHelper.insertActivity(activity);
-      
+
       final updated = activity.copyWith(name: 'Updated Name');
       await dbHelper.updateActivity(updated);
-      
+
       final retrieved = await dbHelper.getActivity('test-2');
       expect(retrieved!.name, equals('Updated Name'));
     });
@@ -60,16 +61,25 @@ void main() {
 
       await dbHelper.insertActivity(activity);
       await dbHelper.deleteActivity('test-3');
-      
+
       final retrieved = await dbHelper.getActivity('test-3');
       expect(retrieved, isNull);
     });
 
     test('should get all activities', () async {
       final activities = [
-        Activity(id: 'test-4', name: 'Activity 1', recurrenceType: RecurrenceType.daily),
-        Activity(id: 'test-5', name: 'Activity 2', recurrenceType: RecurrenceType.daily),
-        Activity(id: 'test-6', name: 'Activity 3', recurrenceType: RecurrenceType.daily),
+        Activity(
+            id: 'test-4',
+            name: 'Activity 1',
+            recurrenceType: RecurrenceType.daily),
+        Activity(
+            id: 'test-5',
+            name: 'Activity 2',
+            recurrenceType: RecurrenceType.daily),
+        Activity(
+            id: 'test-6',
+            name: 'Activity 3',
+            recurrenceType: RecurrenceType.daily),
       ];
 
       for (var activity in activities) {
@@ -87,7 +97,7 @@ void main() {
         recurrenceType: RecurrenceType.daily,
         active: true,
       );
-      
+
       final inactiveActivity = Activity(
         id: 'test-8',
         name: 'Inactive',
@@ -111,8 +121,8 @@ void main() {
       final category = Category(
         id: 'cat-1',
         name: 'Test Category',
-        icon: 'work',
-        color: 'blue',
+        icon: Icons.work,
+        color: Colors.blue,
       );
 
       await dbHelper.insertCategory(category);
@@ -124,8 +134,13 @@ void main() {
 
     test('should get all categories', () async {
       final categories = [
-        Category(id: 'cat-2', name: 'Work', icon: 'work', color: 'blue'),
-        Category(id: 'cat-3', name: 'Personal', icon: 'person', color: 'green'),
+        Category(
+            id: 'cat-2', name: 'Work', icon: Icons.work, color: Colors.blue),
+        Category(
+            id: 'cat-3',
+            name: 'Personal',
+            icon: Icons.person,
+            color: Colors.green),
       ];
 
       for (var category in categories) {
@@ -140,13 +155,13 @@ void main() {
       final category = Category(
         id: 'cat-4',
         name: 'To Delete',
-        icon: 'delete',
-        color: 'red',
+        icon: Icons.delete,
+        color: Colors.red,
       );
 
       await dbHelper.insertCategory(category);
       await dbHelper.deleteCategory('cat-4');
-      
+
       final retrieved = await dbHelper.getCategory('cat-4');
       expect(retrieved, isNull);
     });
@@ -194,7 +209,7 @@ void main() {
         activityId: 'test-10',
         completedAt: DateTime.now(),
       ));
-      
+
       await dbHelper.insertCompletion(CompletionHistory(
         id: 'comp-3',
         activityId: 'test-11',
@@ -231,8 +246,8 @@ void main() {
       final category = Category(
         id: 'cat-5',
         name: 'Fitness',
-        icon: 'fitness',
-        color: 'orange',
+        icon: Icons.fitness_center,
+        color: Colors.orange,
       );
       await dbHelper.insertCategory(category);
 
@@ -302,7 +317,7 @@ void main() {
       );
 
       await dbHelper.insertActivity(activity);
-      
+
       // Second insert with same ID should replace
       final duplicate = Activity(
         id: 'duplicate',

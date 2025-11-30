@@ -611,6 +611,19 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) => Activity.fromMap(maps[i]));
   }
 
+  /// Obtener solo actividades inactivas
+  Future<List<Activity>> getInactiveActivities() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'activities',
+      where: 'active = ?',
+      whereArgs: [0],
+      orderBy: 'streak DESC',
+    );
+
+    return List.generate(maps.length, (i) => Activity.fromMap(maps[i]));
+  }
+
   /// Actualizar una actividad
   Future<int> updateActivity(Activity activity) async {
     final db = await database;
@@ -815,6 +828,14 @@ class DatabaseHelper {
     );
     return List.generate(
         maps.length, (i) => CompletionHistory.fromMap(maps[i]));
+  }
+
+  /// Obtener completaciones en un rango de fechas (alias para compatibilidad)
+  Future<List<CompletionHistory>> getCompletionsInRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return getCompletionsByDateRange(start, end);
   }
 
   /// Eliminar completación
