@@ -145,7 +145,7 @@ class ActivityCard extends StatelessWidget {
               ],
             ),
             onTap: () {
-              // Expand logic if needed, or navigate
+              // Navigate to details screen
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -240,6 +240,7 @@ class ActivityCard extends StatelessWidget {
           opacity: activity.active ? 1.0 : 0.5,
           child: GestureDetector(
             onTap: () {
+              // Navigate to detailed view
               Navigator.push(
                 context,
                 MaterialPageRoute(

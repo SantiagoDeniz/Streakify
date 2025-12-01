@@ -1,0 +1,815 @@
+﻿
+  11-30 20:35:08.922 D/surfaceflinger(  953): debug.config.media.video.dolby_vision_suports == 
+false
+  11-30 20:35:08.922 E/HWComposer(  953): getSupportedContentTypes: getSupportedContentTypes 
+failed for display 0: Unsupported (8)
+> 11-30 20:35:08.924 I/BufferQueueDebug(  953): [SurfaceView[com.streakify.streakify/com.streakify
+.streakify.MainActivity](BLAST)#416777](this:0xb4000079f10468a8,id:-1,api:0,p:-1,c:-1) 
+BufferQueue core=(953:/system/bin/surfaceflinger)
+  11-30 20:35:08.925 I/PlayGamesServices[GamesSyncAdapter](24682): Starting sync for 59a618e8
+  11-30 20:35:08.925 D/BufferQueueConsumer(15067): [](id:3adb00000001,api:0,p:-1,c:15067) 
+connect: controlledByApp=false
+  11-30 20:35:08.927 W/PlayGamesServices[DataBroker](24682): No player ID found when refreshing
+  11-30 20:35:08.927 D/libMEOW (15067): meow new tls: 0xb40000777cccaec0
+> 11-30 20:35:08.927 D/libMEOW (15067): applied 1 plugins for [com.streakify.streakify]:
+  11-30 20:35:08.927 D/libMEOW (15067):   plugin 1: [libMEOW_gift.so]:
+  11-30 20:35:08.928 W/PlayGamesServices[DataBroker](24682): No player ID found when refreshing
+  11-30 20:35:08.938 I/NetworkScheduler.Stats(25052): (REDACTED) Task %s/%s finished executing. 
+cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+  11-30 20:35:08.939 D/SessionLifecycleClient(15067): Sending lifecycle 1 to service
+> 11-30 20:35:08.940 D/SurfaceView(15067): UPDATE Surface(name=SurfaceView[com.streakify.streakify
+/com.streakify.streakify.MainActivity])/@0x939f092, mIsProjectionMode = false
+  11-30 20:35:08.940 D/SurfaceControl(15067): nativeSetScreenProjection ===> setScreenProjection
+  11-30 20:35:08.940 D/SurfaceControl(15067): nativeSetScreenProjection ===> setScreenProjection
+  11-30 20:35:08.944 D/SessionLifecycleService(15067): Generated new session 
+212785c807b643fa82b1fb490a047a9a
+  11-30 20:35:08.945 D/SurfaceControl(15067): nativeSetScreenProjection ===> setScreenProjection
+> 11-30 20:35:08.947 I/flutter (15067): The Dart VM service is listening on 
+http://127.0.0.1:45761/CqihURoG6uE=/
+  11-30 20:35:08.947 D/SessionLifecycleService(15067): Broadcasting new session: 
+SessionDetails(sessionId=212785c807b643fa82b1fb490a047a9a, 
+firstSessionId=212785c807b643fa82b1fb490a047a9a, sessionIndex=0, 
+sessionStartTimestampUs=1764545708944000)
+  11-30 20:35:08.951 D/SessionFirelogPublisher(15067): Data Collection is enabled for at least 
+one Subscriber
+  11-30 20:35:08.974 I/AdvertisingIdClient(24682): shouldSendLog 3265209714
+  11-30 20:35:08.975 I/AdvertisingIdClient(24682): GetInfoInternal elapse 8ms
+> 11-30 20:35:08.978 D/EventGDTLogger(15067): Session Event: {"eventType":1,"sessionData":{"sessio
+nId":"212785c807b643fa82b1fb490a047a9a","firstSessionId":"212785c807b643fa82b1fb490a047a9a","sessi
+onIndex":0,"eventTimestampUs":1764545708944000,"dataCollectionStatus":{"performance":1,"crashlytic
+s":2,"sessionSamplingRate":1.0},"firebaseInstallationId":"ekn9FSUDRXeyckMsFdIOD2","firebaseAuthent
+icationToken":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjE6MzIxNjY5Mjg3MDA6YW5kcm9pZDo4Zm
+JhYjljMTk2NDA0NzNjYWZiZTM5IiwiZXhwIjoxNzY1MTQ4MDQ5LCJmaWQiOiJla245RlNVRFJYZXlja01zRmRJT0QyIiwicHJv
+amVjdE51bWJlciI6MzIxNjY5Mjg3MDB9.AB2LPV8wRQIgAMnXcDZfalLO_QLUuv_x_pxmoBPC7U2h86Xoqn7scIACIQCPwhllL
+i5Gt8aK-I8OKOzRSQ8YgJ3UswXF4-qYazjkLA"},"applicationInfo":{"appId":"1:32166928700:android:8fbab9c1
+9640473cafbe39","deviceModel":"M2101K7BG","sessionSdkVersion":"1.2.3","osVersion":"13","logEnviron
+ment":3,"androidAppInfo":{"packageName":"com.streakify.streakify","versionName":"0.0.1","appBuildV
+ersion":"1","deviceManufacturer":"Xiaomi","currentProcessDetails":{"processName":"com.streakify.st
+reakify","pid":15067,"importance":100,"defaultProcess":true},"appProcessDetails":[{"processName":"
+com.streakify.streakify","pid":15067,"importance":100,"defaultProcess":true}]}}}
+  11-30 20:35:08.978 D/SessionFirelogPublisher(15067): Successfully logged Session Start event: 
+212785c807b643fa82b1fb490a047a9a
+  11-30 20:35:08.979 I/SmartPower.android.process.acore/10061(10351)( 1633): 
+background->idle(3000ms) R(broadcast start Intent { act=android.intent.action.PACKAGE_REMOVED 
+dat=package: flg=0x4000010 (has extras) }) adj=800.
+  11-30 20:35:09.159 D/AlarmManagerService( 1633): inside native alarm timerfd set Alarm Type = 2
+  11-30 20:35:09.161 D/AlarmManagerService( 1633): inside native alarm timerfd set Alarm Type = 2
+> 11-30 20:35:09.183 I/akify.streakify(15067): Compiler allocated 5039KB to compile void 
+android.view.ViewRootImpl.performTraversals()
+  11-30 20:35:09.236 I/SmartPower.com.google.android.ext.services/10220(25920)( 1633): 
+background->idle(3090ms) R(adj below visible) adj=100.
+  11-30 20:35:09.236 I/SmartPower( 1633): com.google.android.ext.services/10220 state=inactive 
+adj=100 proc size=1 move to idle adj below visible
+  11-30 20:35:11.448 E/Situation(  874): processEvent, handle:72, flush_action:0
+  11-30 20:35:11.454 E/gralloc4(15067): Empty SMPTE 2094-40 data
+> 11-30 20:35:11.454 D/BLASTBufferQueue(15067): 
+[SurfaceView[com.streakify.streakify/com.streakify.streakify.MainActivity]#1](f:0,a:1) 
+acquireNextBufferLocked size=1080x2270 mFrameNumber=1 applyTransaction=true 
+mTimestamp=2281513003997217(auto) mPendingTransactions.size=0 graphicBufferId=64712272248832 
+transform=0
+  11-30 20:35:11.458 E/SurfaceSyncer(15067): Failed to find sync for id=0
+  11-30 20:35:11.460 I/ClientCache(  953): add: Cache owner=0xb400007a4e7b4100
+> 11-30 20:35:11.461 D/BufferStateLayer(  953): 
+SurfaceView[com.streakify.streakify/com.streakify.streakify.MainActivity](BLAST)#416777 setBuffer 
+frameId=1, bufferId=64712272248832 fenceId=739, w= 1080, h=2270
+  11-30 20:35:11.462 E/gralloc4(15067): Empty SMPTE 2094-40 data
+  11-30 20:35:11.463 I/hwcomposer(  869): [HWCDisplay] [Display_0 (type:1)] 
+fps:1.942068,dur:2574.58,max:2371.97,min:15.48  
+  11-30 20:35:11.463 I/surfaceflinger(  953): surfaceflinger setAffinity mode=0
+> 11-30 20:35:11.465 D/akify.streakify(15067): MiuiProcessManagerServiceStub setSchedFifo
+  11-30 20:35:11.466 I/MiuiProcessManagerImpl(15067): setSchedFifo pid:15067, mode:3
+  11-30 20:35:11.466 D/ProcessManager( 1633): beginSchedThreads is not Enabled
+  11-30 20:35:11.489 D/BLASTBufferQueue(15067): [VRI[MainActivity]#0](f:0,a:1) 
+acquireNextBufferLocked size=1080x2400 mFrameNumber=1 applyTransaction=true 
+mTimestamp=2281513039198140(auto) mPendingTransactions.size=0 graphicBufferId=64712272248834 
+transform=0
+  11-30 20:35:11.492 W/Parcel  (15067): Expecting binder but got null!
+> 11-30 20:35:11.493 D/WindowManager( 1633): finishDrawingLocked: mDrawState=COMMIT_DRAW_PENDING 
+Window{fb3dd63 u0 com.streakify.streakify/com.streakify.streakify.MainActivity} in 
+Surface(name=com.streakify.streakify/com.streakify.streakify.MainActivity)/@0xcf3e53c
+> 11-30 20:35:11.493 D/MiuiFreeFormGesturePointerEventListener( 1633): finishDrawingWindow: 
+topFullScreenWindow= Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:35:11.497 D/TaskSnapshot_Helper( 1633): shouldDelay()... Not launched by home, no 
+delay needed.
+> 11-30 20:35:11.498 D/BufferStateLayer(  953): 
+com.streakify.streakify/com.streakify.streakify.MainActivity#416772 setBuffer frameId=1, 
+bufferId=64712272248834 fenceId=768, w= 1080, h=2400
+  11-30 20:35:11.501 D/View    (13810): [Warning] assignParent to null: this = 
+android.widget.FrameLayout{9367b67 V.E...... ......I. 0,0-1080,2400}
+  11-30 20:35:11.503 W/libprocessgroup( 1633): Failed to open /dev/blkio//cgroup.procs: No such 
+file or directory
+> 11-30 20:35:11.505 I/WindowManager( 1633): showSurfaceRobustly mWin:Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:35:11.507 E/MiuiActivityController( 1633): MiuiLog-ActivityObserver: There was 
+something wrong : null
+  11-30 20:35:11.507 I/mtkpower@impl(  883): [setMode] type:5, enabled:0
+  11-30 20:35:11.509 I/PowerHalWrapper( 1633): amsBoostStop AMS_BOOST_PACK_SWITCH:false, 
+AMS_BOOST_ACT_SWITCH:false, AMS_BOOST_PROCESS_CREATE:false 
+  11-30 20:35:11.509 I/libPowerHal(  883): [perfNotifyAppState] pack:com.miui.home, 
+act:com.miui.home.launcher.Launcher, state:0, pid:2248, uid:10090, fps:-1
+> 11-30 20:35:11.510 D/BLASTBufferQueue(13810): [VRI[streakify]#2304](f:0,a:1) destructor()
+> 11-30 20:35:11.510 D/BufferQueueConsumer(13810): [VRI[streakify]#2304(BLAST 
+Consumer)2304](id:35f20000091d,api:0,p:-1,c:13810) disconnect
+  11-30 20:35:11.512 D/Launcher.Lifecycle( 2248): onStop:UserHandle{0},d0a0e28,false
+> 11-30 20:35:11.512 D/WindowManager( 1633): Update InputWindowHandle: fb3dd63 
+com.streakify.streakify/com.streakify.streakify.MainActivity, frame=[0,0,0,0], 
+touchableRegion=SkRegion((0,0,1080,2400)), scaleFactor=1.0, transform=null, 
+windowToken=android.os.BinderProxy@132df92, isClone=false, visibal=true, focusable=true, 
+changed=true
+  11-30 20:35:11.512 D/Launcher_UnlockAnimationStateMachine( 2248): onStop = IDLE
+> 11-30 20:35:11.514 W/InputManager-JNI( 1633): Input channel object 'dfefc65 Splash Screen 
+com.streakify.streakify (client)' was disposed without first being removed with the input manager!
+  11-30 20:35:11.522 D/DecorView[](15067): onWindowFocusChanged hasWindowFocus true
+  11-30 20:35:11.522 W/ProcessStats( 1633): Tracking association SourceState{5ffaa3c system/1000 
+BTopFgs #6530397} whose proc state 2 is better than process ProcessState{b1a3ce7 
+com.miui.powerkeeper/1000 pkg=com.miui.powerkeeper} proc state 3 (231 skipped)
+> 11-30 20:35:11.523 D/CoreBackPreview( 1633): Window{dfefc65 u0 Splash Screen 
+com.streakify.streakify EXITING}: Setting back callback null
+  11-30 20:35:11.526 I/HandWritingStubImpl(15067): refreshLastKeyboardType: 1
+  11-30 20:35:11.526 I/HandWritingStubImpl(15067): getCurrentKeyboardType: 1
+  11-30 20:35:11.530 I/MiuiNetworkPolicy( 1633): updateUidState uid = 10090, uidState = 5
+  11-30 20:35:11.530 I/MiuiNetworkPolicy( 1633): updateUidState uid = 6101, uidState = 5
+> 11-30 20:35:11.536 I/ActivityTaskManager( 1633): Displayed 
+com.streakify.streakify/.MainActivity: +4s518ms
+> 11-30 20:35:11.537 I/ActivityTaskManager( 1633): Fully drawn 
+com.streakify.streakify/.MainActivity: +4s518ms
+> 11-30 20:35:11.539 D/WindowManager( 1633): Update InputWindowHandle: fb3dd63 
+com.streakify.streakify/com.streakify.streakify.MainActivity, frame=[0,0,0,0], 
+touchableRegion=SkRegion((0,0,1080,2400)), scaleFactor=1.0, transform=null, 
+windowToken=android.os.BinderProxy@132df92, isClone=false, visibal=true, focusable=true, 
+changed=true
+  11-30 20:35:11.541 I/booi    (12292): onStop
+  11-30 20:35:11.551 I/GoogleInputMethodService( 4350): 
+GoogleInputMethodService.onFinishInput():2097 
+  11-30 20:35:11.552 I/Module  ( 4350): 
+DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, 
+locked = false
+> 11-30 20:35:11.553 I/GoogleInputMethodService( 4350): 
+GoogleInputMethodService.onStartInput():1347 
+onStartInput(EditorInfo{EditorInfo{packageName=com.streakify.streakify, inputType=0, 
+inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, 
+imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, 
+initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, 
+extras=Bundle[mParcelledData.dataSize=72], hintText=null, hintLocales=[]}}, false)
+  11-30 20:35:11.554 I/Module  ( 4350): 
+DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, 
+locked = false
+  11-30 20:35:11.557 I/HandWritingStubImpl(15067): getCurrentKeyboardType: 1
+  11-30 20:35:11.641 E/FileUtils(15067): err write to mi_exception_log
+  11-30 20:35:11.648 E/Situation(  874): processEvent, handle:72, flush_action:0
+> 11-30 20:35:11.679 D/WindowManager( 1633): setParent old=ActivityRecord{5572f93 u0 
+com.streakify.streakify/.MainActivity} t4559},new=null,this window=Window{dfefc65 u0 Splash 
+Screen com.streakify.streakify},callers=com.android.server.wm.WindowContainer.removeChild:820 
+com.android.server.wm.ActivityRecord.removeChild:4731 
+com.android.server.wm.ActivityRecord.removeChild:424 
+com.android.server.wm.WindowContainer.removeImmediately:881 
+com.android.server.wm.WindowState.removeImmediately:2660 
+com.android.server.wm.WindowState.destroySurface:3840 
+> 11-30 20:35:11.696 I/BufferQueueDebug(  953): [Splash Screen 
+com.streakify.streakify#416767](this:0xb400007a4ebf48a8,id:-1,api:0,p:-1,c:953) onDestructor()
+  11-30 20:35:11.762 I/hwcomposer(  869): [HWC] (0)fire a callback of refresh to SF[4]  
+  11-30 20:35:11.782 I/WifiHAL (26250): Get link layer stats
+  11-30 20:35:12.133 I/surfaceflinger(  953): surfaceflinger setAffinity mode=1
+  11-30 20:35:12.133 I/surfaceflinger(  953): surfaceflinger setreAffinity reTid=1010
+> 11-30 20:35:12.162 I/flutter (15067): Ô£ô Widgets actualizados: Todas las tareas completadas! 
+ƒÄë, Stats: 1 dias
+  11-30 20:35:12.248 E/Situation(  874): processEvent, handle:72, flush_action:0
+  11-30 20:35:12.298 D/AAL     ( 1234): onALIChanged: 65 -> 66
+  11-30 20:35:12.464 E/msgr.msys(11609): E[S 
+task_queue_handling]MCDLightSpeedTaskExecutorNetworkCompletionCallback(1150)=>Handling send error 
+for taskId=410137245 batchSize=5 queue=contact_sharing_settings Handling send network completion 
+with error: SEND_FAILURE
+  11-30 20:35:12.464 E/msgr.msys(11609): E[N rtchannel]_rt_mqtt_publish_callback(486)=>Failed to 
+publish the request over MQTT. token:8F17D12E-B0BF-48CD-A9FD-0380501F7983, 
+category:mcd-send-data-task-category, requestId:57189, error:Error Domain=mqtt Code=2002 
+UserInfo=0x21dfbbe9c0 {MCFErrorDirectLocalizedFailureReasonKey=SEND_FAILURE, 
+MCFErrorDirectDescriptionKey=SEND_FAILURE}
+> 11-30 20:35:12.474 I/BufferQueueProducer(  953): [SurfaceView[com.streakify.streakify/com.streak
+ify.streakify.MainActivity](BLAST)#416777](this:0xb4000079f10468a8,id:-1,api:0,p:-1,c:953) 
+queueBuffer: fps=10.86 dur=1012.98 max=562.86 min=16.25
+  11-30 20:35:12.475 I/hwcomposer(  869): [HWCDisplay] [Display_0 (type:1)] 
+fps:34.576843,dur:1012.24,max:193.88,min:10.41  
+  11-30 20:35:12.477 E/gralloc4(15067): Empty SMPTE 2094-40 data
+  11-30 20:35:13.020 I/libPerfCtl(  883): xgfGetFPS pid:15067 fps:55
+  11-30 20:35:13.020 I/libPowerHal(  883): [updateFPS] pid(15067) : -1 => 60
+> 11-30 20:35:13.021 I/libPowerHal(  883): [perfNotifyAppState] pack:com.streakify.streakify, 
+act:com.streakify.streakify.MainActivity, state:5, pid:15067, uid:10778, fps:60
+> 11-30 20:35:13.022 I/UxUtility(  883): notifyForegroundApp pack:com.streakify.streakify, 
+uid:10778
+  11-30 20:35:13.022 I/TouchUtility(  883): notifyAppState error = NULL
+  11-30 20:35:13.023 I/libPerfCtl(  883): xgfGetFPS pid:30185 fps:-1
+  11-30 20:35:14.020 I/libPerfCtl(  883): xgfGetFPS pid:15067 fps:-1
+  11-30 20:35:14.020 I/libPowerHal(  883): [updateFPS] pid(15067) : 60 => -1
+> 11-30 20:35:14.021 I/libPowerHal(  883): [perfNotifyAppState] pack:com.streakify.streakify, 
+act:com.streakify.streakify.MainActivity, state:5, pid:15067, uid:10778, fps:-1
+> 11-30 20:35:14.022 I/UxUtility(  883): notifyForegroundApp pack:com.streakify.streakify, 
+uid:10778
+  11-30 20:35:14.022 I/TouchUtility(  883): notifyAppState error = NULL
+  11-30 20:35:14.022 I/libPerfCtl(  883): xgfGetFPS pid:30185 fps:-1
+  11-30 20:35:14.326 I/WifiHAL (26250): wifi_get_link_stats: result=-1
+  11-30 20:35:14.327 E/WifiVendorHal( 1633): getWifiLinkLayerStats_1_5_Internal(l.1176) failed 
+{.code = ERROR_UNKNOWN, .description = unknown}
+> 11-30 20:35:14.354 D/ProfileInstaller(15067): Installing profile for com.streakify.streakify
+  11-30 20:35:14.448 E/Situation(  874): processEvent, handle:72, flush_action:0
+  11-30 20:35:14.469 W/Binder  (14164): Caught a RuntimeException from the binder stub 
+implementation.
+  11-30 20:35:32.520 E/msgr.msys(11609): E[S 
+task_queue_handling]MCDLightSpeedTaskExecutorNetworkCompletionCallback(1150)=>Handling send error 
+for taskId=410137222 batchSize=1 queue=acs_sync_LS_Translation Handling send network completion 
+with error: SEND_FAILURE
+  11-30 20:35:32.538 W/Finsky  ( 6051): [2] STU: Failed to get storage stats for package 
+'com.google.android.scheduling' (1601: Error getting stats: 
+android.content.pm.PackageManager.NameNotFoundException)
+> 11-30 20:35:32.570 I/akify.streakify(15067): Background concurrent copying GC freed 11MB 
+AllocSpace bytes, 47(1208KB) LOS objects, 49% free, 4804KB/9608KB, paused 165us,92us total 
+142.254ms
+  11-30 20:35:32.578 W/Settings( 2238): Setting airplane_mode_on has moved from 
+android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+  11-30 20:35:32.580 D/MobileStatusTracker(1)(13810): onSignalStrengthsChanged 
+signalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 
+cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 miuiLevel=0 
+mOptimizedLevel=0 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 
+mTa=2147483647 miuiLevel=0 mOptimizedLevel=0 mLevel=0,mWcdma=CellSignalStrengthWcdma: 
+ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 miuiLevel=0 mOptimizedLevel=0 
+level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 
+miuiLevel=0 mOptimizedLevel=0 level=0,mLte=CellSignalStrengthLte: rssi=2147483647 rsrp=-96 
+rsrq=-12 rssnr=7 cqiTableIndex=2147483647 cqi=0 ta=0 miuiLevel=5 mOptimizedLevel=0 level=4 
+parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 
+csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 
+2147483647 miuiLevel = 0 mOptimizedLevel = 0 level = 0 parametersUseForLevel = 0 
+},primary=CellSignalStrengthLte}, phoneId=1, mMtkLevel=0, mMtkRsrpOnly=false, 
+mMtkLteRsrpThreshold=null, mMtkLteRssnrThreshold=null
+  11-30 20:37:49.049 E/Situation(  874): processEvent, handle:72, flush_action:0
+  11-30 20:37:49.050 D/CentralSurfaces(13810): updateQsExpansionEnabled - QS Expand enabled: true
+> 11-30 20:37:49.050 W/WindowManager( 1633): Changing focus from Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity} to null displayId=0 
+Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:518 
+com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6466 
+com.android.server.wm.ActivityRecord.commitVisibility:5859 
+com.android.server.wm.ActivityRecord.commitVisibility:5870 
+  11-30 20:37:49.051 D/SessionLifecycleService(15067): Activity backgrounding at 2281670598
+  11-30 20:37:49.051 D/WindowManager( 1633): Input focus has changed to null display=0 
+updateInputWindows = false
+> 11-30 20:37:49.053 I/SmartPower.com.streakify.streakify/10778(15067)( 1633): 
+visible->invisible(161973ms) R(become invisible) adj=0.
+  11-30 20:37:49.055 I/DualSensorPolicy( 1633): setSensorEnabled: unregister the assist light 
+sensor.
+> 11-30 20:37:49.055 I/SmartPower.com.streakify.streakify/10778(15067)( 1633): 
+invisible->background(2ms) R(become background) adj=0.
+  11-30 20:37:49.055 I/Situation(  874): enable: handle:72, en:0 
+  
+> 11-30 20:37:49.056 I/SmartPower( 1633): com.streakify.streakify/10778 state=foreground adj=0 
+proc size=1 move to inactive become background
+  11-30 20:37:49.056 I/MiuiNetworkPolicy( 1633): updateUidState uid = 10778, uidState = 12
+  11-30 20:37:49.056 I/MiuiNetworkPolicy( 1633): updateUidState uid = 10300, uidState = 4
+  11-30 20:37:49.057 D/AAL     ( 1234): EventTriggerSetting: [EvtTrigger] Screen off
+  11-30 20:37:49.059 D/CompatibilityChangeReporter( 1633): Compat change id reported: 197654537; 
+UID 10778; state: ENABLED
+> 11-30 20:37:49.060 I/PowerHalWrapper( 1633): amsBoostNotify 
+pid:15067,activity:com.streakify.streakify.MainActivity, package:com.streakify.streakify, 
+mProcessCreatePacknull 
+  11-30 20:37:49.060 I/PowerHalWrapper( 1633): state: 0 
+> 11-30 20:37:49.061 I/mtkpower_client( 1633): [Legacy][PowerHal_Wrap_notifyAppState] 
+com.streakify.streakify/com.streakify.streakify.MainActivity pid=15067 state:0
+> 11-30 20:37:49.061 I/game_scn( 1633): collectForegroundAppList 
+packName=com.streakify.streakify, actName=com.streakify.streakify.MainActivity, pid=15067, 
+uid=10778, state:PAUSED
+  11-30 20:37:49.061 I/PowerHalWrapper( 1633): amsBoostNotify AMS_BOOST_PROCESS_CREATE_BOOST:true 
+> 11-30 20:37:49.061 I/PowerHalWrapper( 1633): amsBoostNotify 
+pid:15067,activity:com.streakify.streakify.MainActivity, package:com.streakify.streakify, 
+mProcessCreatePacknull 
+  11-30 20:37:49.061 I/PowerHalWrapper( 1633): state: 0 
+> 11-30 20:37:49.061 I/mtkpower_client( 1633): [Legacy][PowerHal_Wrap_notifyAppState] 
+com.streakify.streakify/com.streakify.streakify.MainActivity pid=15067 state:0
+> 11-30 20:37:49.061 I/game_scn( 1633): collectForegroundAppList 
+packName=com.streakify.streakify, actName=com.streakify.streakify.MainActivity, pid=15067, 
+uid=10778, state:PAUSED
+  11-30 20:37:49.061 I/PowerHalWrapper( 1633): amsBoostNotify AMS_BOOST_PROCESS_CREATE_BOOST:true 
+  11-30 20:37:49.063 D/DisplayPowerControllerImpl( 1633): updateBrightnessChangeStatus: 
+animating: false, displayState: 1, slowChange: false, appliedDimming: false, appliedLowPower: 
+false, currentBrightness: 0.010263929, currentSdrBrightness: 0.010263929, targetBrightness: 0.0, 
+targetSdrBrightness: 0.0
+  11-30 20:37:49.063 I/DisplayPowerControllerImpl( 1633): Animating brightness rate: 0.0, 
+outRate: 0.0, reason: no_changed
+> 11-30 20:37:49.063 I/libPowerHal(  883): [perfNotifyAppState] pack:com.streakify.streakify, 
+act:com.streakify.streakify.MainActivity, state:0, pid:15067, uid:10778, fps:-1
+  11-30 20:37:49.064 I/DisplayPowerController[0]( 1633): Brightness [-1.0] reason changing to: 
+'screen_off', previous reason: 'automatic'.
+  11-30 20:37:49.064 I/DisplayPowerController[0]( 1633): BrightnessEvent: disp=0, brt=-1.0, 
+rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, thrmMax=1.0, flags=, 
+reason=screen_off
+> 11-30 20:37:49.064 I/libPowerHal(  883): [perfNotifyAppState] pack:com.streakify.streakify, 
+act:com.streakify.streakify.MainActivity, state:0, pid:15067, uid:10778, fps:-1
+  11-30 20:37:49.064 I/LocalDisplayAdapter( 1633): setDisplayState(id=0, state=OFF)
+  11-30 20:37:49.066 D/surfaceflinger(  953): updateMiFodFlag layer[ColorFade BLAST#416783] 
+ColorFade
+  11-30 20:37:49.158 D/EventBus( 2248): No subscribers registered for event class 
+com.miui.home.recents.messages.RecentTasksChangedEvent
+  11-30 20:37:49.158 D/EventBus( 2248): No subscribers registered for event class 
+org.greenrobot.eventbus.NoSubscriberEvent
+> 11-30 20:37:49.159 W/RecentsModel( 2248): getRunningTask   taskInfo=TaskInfo{userId=0 
+taskId=4559 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 
+cmp=com.streakify.streakify/.MainActivity } 
+baseActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+topActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+origActivity=null 
+realActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+numActivities=1 lastActiveTime=3266131685 supportsSplitScreenMultiWindow=true 
+supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 
+defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@55d4d42} 
+topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false 
+launchIntoPipHostTaskId=0 displayCutoutSafeInsets=Rect(0, 93 - 0, 0) 
+topActivityInfo=ActivityInfo{9503153 com.streakify.streakify.MainActivity} launchCookies=[] 
+positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isSleeping=true 
+topActivityInSizeCompat=false topActivityInMiuiSizeCompat=false 
+topActivityEligibleForLetterboxEducation= false locusId=null displayAreaFeatureId=1 
+cameraCompatControlState=hidden mIsCastMode=false}
+> 11-30 20:37:49.159 W/RecentsModel( 2248): getTaskInfoIgnoreHomeAndFreeform   
+taskInfo=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:37:49.160 I/SCTaskStackListener(12377): onTaskStackChanged! inSplit = false
+  11-30 20:37:49.162 W/Binder  (31881): Caught a RuntimeException from the binder stub 
+implementation.
+  11-30 20:37:49.160 E/ActivityManagerWrapper( 2248): get all recent tasks force including 4559
+  11-30 20:37:49.172 E/ActivityManagerWrapper( 2248): getRecentTasks: size=1
+> 11-30 20:37:49.172 E/ActivityManagerWrapper( 2248): getRecentTasks: mainTaskId=4559   userId=0  
+ baseIntent=Intent { act=null flag=268435456 
+cmp=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} }
+  11-30 20:37:49.172 D/BLASTBufferQueue(15067): [VRI[MainActivity]#0](f:0,a:1) destructor()
+  11-30 20:37:49.172 D/BufferQueueConsumer(15067): [VRI[MainActivity]#0(BLAST 
+Consumer)0](id:3adb00000000,api:0,p:-1,c:15067) disconnect
+  11-30 20:37:49.180 W/Binder  (31881): 	at 
+android.os.Binder.execTransactInternal(Binder.java:1290)
+  11-30 20:37:49.180 W/Binder  (31881): 	at android.os.Binder.execTransact(Binder.java:1249)
+> 11-30 20:37:49.181 W/RecentsModel( 2248): getRunningTask   taskInfo=TaskInfo{userId=0 
+taskId=4559 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 
+cmp=com.streakify.streakify/.MainActivity } 
+baseActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+topActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+origActivity=null 
+realActivity=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} 
+numActivities=1 lastActiveTime=3266131685 supportsSplitScreenMultiWindow=true 
+supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 
+defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@676fb8e} 
+topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false 
+launchIntoPipHostTaskId=0 displayCutoutSafeInsets=Rect(0, 93 - 0, 0) 
+topActivityInfo=ActivityInfo{f228faf com.streakify.streakify.MainActivity} launchCookies=[] 
+positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isSleeping=true 
+topActivityInSizeCompat=false topActivityInMiuiSizeCompat=false 
+topActivityEligibleForLetterboxEducation= false locusId=null displayAreaFeatureId=1 
+cameraCompatControlState=hidden mIsCastMode=false}
+> 11-30 20:37:49.181 W/RecentsModel( 2248): getTaskInfoIgnoreHomeAndFreeform   
+taskInfo=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:37:49.182 E/ActivityManagerWrapper( 2248): get all recent tasks force including 4559
+  11-30 20:37:49.184 E/ActivityManagerWrapper( 2248): getRecentTasks: size=1
+> 11-30 20:37:49.184 E/ActivityManagerWrapper( 2248): getRecentTasks: mainTaskId=4559   userId=0  
+ baseIntent=Intent { act=null flag=268435456 
+cmp=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity} }
+  11-30 20:37:49.191 D/DecorView[](15067): onWindowFocusChanged hasWindowFocus false
+  11-30 20:37:49.206 E/MiuiActivityController( 1633): MiuiLog-ActivityObserver: There was 
+something wrong : null
+  11-30 20:37:49.344 W/BpBinder( 1633): Slow Binder: BpBinder transact took 280 ms, 
+interface=android.gui.ISurfaceComposer, code=6 oneway=false
+  11-30 20:37:49.344 D/SurfaceControl( 1633): Excessive delay in setPowerMode()
+> 11-30 20:37:49.344 I/BufferQueueProducer(  953): [SurfaceView[com.streakify.streakify/com.streak
+ify.streakify.MainActivity](BLAST)#416777](this:0xb4000079f10468a8,id:-1,api:0,p:-1,c:953) 
+queueBuffer: fps=0.12 dur=156870.89 max=156552.40 min=16.44
+  11-30 20:37:49.345 I/mtkpower@impl(  883): [setMode] type:9, enabled:1
+  11-30 20:37:49.345 E/mtkpower@impl(  883): [setMode] unknown type
+> 11-30 20:37:49.347 I/BufferQueueDebug(  953): [com.streakify.streakify/com.streakify.streakify.M
+ainActivity#416772](this:0xb4000079f10268a8,id:-1,api:0,p:-1,c:953) onDestructor()
+  11-30 20:37:49.348 D/SurfaceFlinger(  953): buildWindowInfos try add DEFAULT_LAYER_STACK 
+inputInfo
+  11-30 20:37:49.349 D/DisplayFeatureHal(  887): HandleDisplayState enter state 0, last state 1
+  11-30 20:37:49.350 D/DisplayFeatureHal(  887): light sensor stop output
+  11-30 20:37:49.350 D/DisplayFeatureHal(  887): onSuspend enter
+> 11-30 20:37:49.351 D/BLASTBufferQueue(15067): 
+[SurfaceView[com.streakify.streakify/com.streakify.streakify.MainActivity]#1](f:0,a:1) 
+destructor()
+> 11-30 20:37:49.351 D/BufferQueueConsumer(15067): 
+[SurfaceView[com.streakify.streakify/com.streakify.streakify.MainActivity]#1(BLAST 
+Consumer)1](id:3adb00000001,api:0,p:-1,c:15067) disconnect
+  11-30 20:37:49.352 D/TRS     ( 1234): [PQ_SERVICE] PQService : setFunction, funcFlags(0), 
+PropFlag(0)
+  11-30 20:37:49.353 D/AAL     ( 1234): setFunction: 0x4 -> 0x0
+  11-30 20:37:49.547 D/CentralSurfaces(13810): updateQsExpansionEnabled - QS Expand enabled: false
+  11-30 20:37:49.549 D/ThermalIECHandler( 5918): IECAll48Allowed: false; IECMonitorAllowed: 
+false; IECTestState: false
+> 11-30 20:37:49.549 I/ThermalInfoCollector( 5918): collectForgroundAppsInfo: 
+com.streakify.streakify
+  11-30 20:37:49.549 W/ThermalInfoColl( 5918): type=1400 audit(0.0:43590610): avc: denied { read 
+} for name="charge_counter" dev="sysfs" ino=42410 scontext=u:r:system_app:s0 
+tcontext=u:object_r:sysfs_batteryinfo:s0 tclass=file permissive=0
+  11-30 20:37:49.550 E/ThermalInfoUtils( 5918): getCurrentCapacity 
+Exceptionjava.io.FileNotFoundException: /sys/class/power_supply/battery/charge_counter: open 
+failed: EACCES (Permission denied)
+  11-30 20:37:51.879 E/msgr.msys(11609): E[N data-request]_HandleDataResponse(1984)=>Data request 
+error for task 476DD07D-FD3F-44B7-A91A-C5AAAFBCFB91 (response type 1): (null)
+  11-30 20:37:51.881 E/msgr.msys(11609): E[S 
+task_queue_handling]MCDLightSpeedTaskExecutorNetworkCompletionCallback(1150)=>Handling send error 
+for taskId=410137269 batchSize=5 queue=http_channel_health_check.2 Handling send network 
+completion with error: No Network Response Data
+> 11-30 20:37:52.055 I/SmartPower.com.streakify.streakify/10778(15067)( 1633): 
+background->idle(3000ms) R(become background) adj=0.
+> 11-30 20:37:52.056 I/SmartPower( 1633): com.streakify.streakify/10778 state=inactive adj=0 proc 
+size=1 move to idle become background
+  11-30 20:37:52.078 I/SmartPower.com.google.android.apps.maps/10203(31881)( 1633): 
+background->idle(3001ms) R(service create com.google.android.apps.maps/com.google.android.apps.gmm
+.ugc.phototaken.PhotoTakenObserverService) adj=905.
+  11-30 20:37:52.078 I/SmartPower( 1633): com.google.android.apps.maps/10203 state=inactive 
+adj=905 proc size=4 move to idle service create 
+com.google.android.apps.maps/com.google.android.apps.gmm.ugc.phototaken.PhotoTakenObserverService
+  11-30 20:47:49.653 D/BinderManager(12377): onServiceCCCCConnected 
+{com.miui.securitycenter/com.miui.securitycenter.memory.MemoryCheckService}
+  11-30 20:47:49.658 D/Tile.MiuiCellularTile(13810): handleUpdateState: MULTI_SIM = true, 
+mSimInfoRecordList.size() = 2, mShowDataUsage = false
+> 11-30 20:47:49.668 I/RunningAppsHelper(12377): topPackageNamecom.streakify.streakify
+  11-30 20:47:49.681 D/LocalBluetoothAdapter(13810): isSupportBluetoothRestrict = 0
+  11-30 20:47:49.689 W/msgr.MqttXplatPublisher(11609): Publisher is disabled for msg to /ls_req
+  11-30 20:50:37.769 I/BatteryDataUtils(12377): getFirstHistoryData time =3194560775
+  11-30 20:50:37.769 I/PowerRankHelperHolder(12377): refreshStats begin
+> 11-30 20:50:37.769 I/PowerRankHelperHolder(12377): mDesktopPkgSet =[com.milink.service, 
+interland.aplicgwf, com.ubercab, com.google.android.apps.tasks, com.miui.player, com.chess.clock, 
+com.infigo.asesp, com.andymstone.metronome, com.emulatorpro.gba.gameboy, com.xiaomi.mipicks, 
+jigsaw.puzzle.free.games, com.miui.compass, com.tiendamia.android, com.noise.sound.meter.decibel, 
+com.miui.calculator, com.android.deskclock, com.dazn, com.mcdo.mcdonalds, uy.brou, 
+com.google.android.apps.bard, com.strava, com.xiaomi.finddevice, com.google.android.apps.photos, 
+com.yousician.yousician, com.quana.serviciosya, com.android.nfc, 
+com.google.android.apps.safetyhub, com.creamtech.footmassage, com.duokan.phone.remotecontroller, 
+com.canva.editor, com.bbva.glomo.uy, com.discord, com.mercadolibre, 
+com.openmygame.games.android.sudokumaster, com.google.android.apps.maps, 
+com.google.android.apps.tachyon, uy.com.abitab.iddigital.prod, com.miui.videoplayer, 
+us.zoom.videomeetings, com.artech.cerca.mainapp, com.wikiloc.wikilocandroid, 
+com.mfashiongallery.emag, com.language.translate.all.voice.translator, paganza.android, 
+com.google.android.apps.messaging, com.apraful.asesp, com.shazam.android, 
+com.google.android.googlequicksearchbox, com.miui.home, org.mozilla.firefox, com.ape.apps.strobe, 
+com.google.android.play.games, com.wo.voice2, org.telegram.messenger, com.JindoBlu.OfflineGames, 
+com.futuresoft.public.reading.es, com.vidangel.thechosen, com.microsoft.skydrive, 
+com.MergeCube.ObjectViewer, com.android.quicksearchbox, com.sirma.mobile.bible.android, 
+com.universal.ac.remote.control.air.conditioner, com.ovelin.guitartuna, com.miui.weather2, 
+com.JindoBlu.TwoPlayerGamesChallenge, com.niksoftware.snapseed, com.miui.miwallpaper, com.waze, 
+com.miui.fm, com.tranzmate, spider.classic.solitaire.card.pgmaker, com.android.thememanager, 
+com.disney.disneyplus, com.android.camera, com.smp.musicspeedclassic, ai.moises, 
+com.android.incallui, com.matungos.stm.mvd, com.android.settings, com.xiaomi.glgm, 
+com.activision.callofduty.shooter, com.deepseek.chat, com.brave.browser, 
+com.google.android.apps.googleassistant, com.android.soundrecorder, com.microsoft.appmanager, 
+com.smule.singandroid, uy.com.brou.token, com.anydesk.anydeskandroid, 
+com.all.social.video.downloader, com.ingsw.vamos, com.codeway.plantapp, notion.id, air.Prex, 
+epson.print, com.microsoft.emmx, com.linkedin.android, com.viatik.app, com.dev47apps.droidcam, 
+com.grability.rappi, org.coursera.android, com.mercadopago.wallet, net.chordify.chordify, 
+com.cabify.rider, com.miui.mishare.connectivity, com.google.android.apps.docs.editors.docs, 
+com.edujoy.coding, com.xiaomi.scanner, com.xiaomi.midrop, com.miui.securitycenter, 
+com.behringer.android.control.app.xair, ee.dustland.android.minesweeper, com.android.vending, 
+com.streakify.streakify, com.playstack.balatro.android, com.android.chrome, com.skyairline, 
+com.android.stk, com.azip.unrar.unzip.extractfile, com.mi.android.globalFileexplorer, 
+com.openai.chatgpt, com.google.android.apps.docs, com.miui.gallery, com.evilduck.musiciankit, 
+com.google.android.youtube, org.freecodecamp, com.google.android.apps.subscriptions.red, 
+com.miui.screenrecorder, io.anuke.mindustry, com.RedNexusGamesInc.Peglin, 
+com.alibaba.aliexpresshd, me.ideariboso.capriccio, com.datauy.dondereciclo.app, 
+com.prayer247.lectio365, ch.publisheria.bring, com.spotify.music, pe.diegoveloper.pseudocode, 
+com.cisco.webex.meetings, com.sololearn, com.teamviewer.teamviewer.market.mobile, 
+uy.com.burgerking, com.whatsapp.w4b, com.miui.notes, com.miui.miservice, 
+com.google.android.contacts, com.facebook.orca, com.whatsapp, com.duolingo, 
+tv.twitch.android.app, com.ftnd.fortify, com.google.android.apps.fitness, 
+com.mi.android.globallauncher, com.fmsys.snapdrop, com.android.providers.downloads.ui, 
+com.google.android.apps.docs.editors.sheets, com.google.android.dialer, com.disney.wdw.android, 
+com.pedidosya, com.google.android.gm, com.hellotalk, com.google.android.apps.magazines, 
+com.fitnow.loseit, com.mi.global.bbs, com.mi.globalminusscreen, 
+com.google.android.apps.authenticator2, com.stremio.one, com.google.a
+  11-30 20:50:37.836 I/tycenter.remote(12377): Background concurrent copying GC freed 11MB 
+AllocSpace bytes, 8(2744KB) LOS objects, 50% free, 19MB/38MB, paused 116us,323us total 109.417ms
+  11-30 20:50:37.915 W/com.duolingo(16740): Failed to find entry 'classes.dex': Entry not found
+  11-30 20:50:46.954 E/MediaMetadataRetrieverJNI(17334): getEmbeddedPicture: Call to 
+getEmbeddedPicture failed.
+  11-30 20:50:46.963 I/AppsFilter( 1633): interaction: PackageSetting{623ff32 com.fido.asm/10143} 
+-> PackageSetting{7cd58ba com.spotify.music/10247} BLOCKED
+> 11-30 20:50:46.963 I/AppsFilter( 1633): interaction: PackageSetting{d53a36b 
+com.streakify.streakify/10778} -> PackageSetting{7cd58ba com.spotify.music/10247} BLOCKED
+  11-30 20:50:46.965 D/MediaProvider( 3394): Open with FUSE. FilePath: 
+/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp 
+Audio/AUD-20200708-WA0062.opus. Uid: 10247. Media Capabilities Uid: 0. ShouldRedact: false. 
+ShouldTranscode: false
+  11-30 20:50:46.966 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:50:47.787 D/AppWidgetServiceImpl( 1633): Provider info from 
+ComponentInfo{com.spotify.music/com.spotify.proactiveplatforms.npvwidget.NpvWidgetProvider} won't 
+be persisted.
+  11-30 20:50:47.787 D/AppWidgetServiceImpl( 1633): Provider info from ComponentInfo{com.spotify.m
+usic/com.spotify.proactiveplatforms.npvwidget.CoverScreenWidgetProvider} won't be persisted.
+> 11-30 20:50:47.787 D/AppWidgetServiceImpl( 1633): Provider info from 
+ComponentInfo{com.streakify.streakify/com.streakify.streakify.StreakifyWidgetProvider} won't be 
+persisted.
+> 11-30 20:50:47.788 D/AppWidgetServiceImpl( 1633): Provider info from 
+ComponentInfo{com.streakify.streakify/com.streakify.streakify.StreakifyStatsWidgetProvider} won't 
+be persisted.
+> 11-30 20:50:47.788 D/AppWidgetServiceImpl( 1633): Provider info from 
+ComponentInfo{com.streakify.streakify/com.streakify.streakify.StreakifyCalendarWidgetProvider} 
+won't be persisted.
+  11-30 20:50:47.794 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:50:47.794 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.663 I/mtkpower_client( 1633): ret_hdl:878290
+  11-30 20:53:01.663 D/KeyguardViewMediator(13810): keyguardGoingAway
+> 11-30 20:53:01.663 I/PowerHalWrapper( 1633): <amsBoostResume> last:null, 
+next:com.streakify.streakify 
+  11-30 20:53:01.663 I/libPowerHal(  883): [perfLockAcq] idx:0 hdl:878290 hint:-1 pid:1633 
+duration:400 lock_user:system_server => ret_hdl:878290
+  11-30 20:53:01.663 I/libPowerHal(  883): system_server: set gpu opp level: 0
+  11-30 20:53:01.671 I/Situation(  874): enable: handle:72, en:1 
+  
+> 11-30 20:53:01.672 I/PowerHalWrapper( 1633): amsBoostNotify 
+pid:15067,activity:com.streakify.streakify.MainActivity, package:com.streakify.streakify, 
+mProcessCreatePacknull 
+  11-30 20:53:01.672 I/PowerHalWrapper( 1633): state: 1 
+  11-30 20:53:01.673 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.673 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+> 11-30 20:53:01.673 I/mtkpower_client( 1633): [Legacy][PowerHal_Wrap_notifyAppState] 
+com.streakify.streakify/com.streakify.streakify.MainActivity pid=15067 state:1
+> 11-30 20:53:01.673 I/game_scn( 1633): collectForegroundAppList 
+packName=com.streakify.streakify, actName=com.streakify.streakify.MainActivity, pid=15067, 
+uid=10778, state:RESUMED
+  11-30 20:53:01.673 I/PowerHalWrapper( 1633): amsBoostNotify AMS_BOOST_PROCESS_CREATE_BOOST:true 
+> 11-30 20:53:01.673 I/ForceDarkHelperStubImpl(15067): setViewRootImplForceDark: false for 
+com.streakify.streakify.MainActivity@537292f, reason: AppDarkModeEnable
+> 11-30 20:53:01.674 I/libPowerHal(  883): [perfNotifyAppState] pack:com.streakify.streakify, 
+act:com.streakify.streakify.MainActivity, state:1, pid:15067, uid:10778, fps:-1
+  11-30 20:53:01.679 D/CompatibilityChangeReporter( 1633): Compat change id reported: 181136395; 
+UID 10778; state: DISABLED
+  11-30 20:53:01.679 D/CompatibilityChangeReporter( 1633): Compat change id reported: 174042936; 
+UID 10778; state: DISABLED
+> 11-30 20:53:01.680 I/SmartPower.com.streakify.streakify/10778(15067)( 1633): 
+idle->invisible(909625ms) R(become foreground) adj=0.
+> 11-30 20:53:01.680 I/SmartPower( 1633): com.streakify.streakify/10778 state=idle adj=0 proc 
+size=1 move to background become foreground
+  11-30 20:53:01.681 W/WindowManager( 1633): Execute app transition: 
+mNextAppTransitionRequests=[TRANSIT_KEYGUARD_GOING_AWAY, TRANSIT_OPEN], 
+mNextAppTransitionFlags=TRANSIT_FLAG_KEYGUARD_GOING_AWAY_SUBTLE_ANIMATION, displayId: 0 
+Callers=com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2262 
+com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:1992 
+com.android.server.wm.ActivityRecord.completeResumeLocked:6633 
+com.android.server.wm.TaskFragment.resumeTopActivity:1626 
+com.android.server.wm.Task.resumeTopActivityInnerLocked:5684 
+  11-30 20:53:01.682 W/WindowManager( 1633): Execute app transition: 
+mNextAppTransitionRequests=[TRANSIT_KEYGUARD_GOING_AWAY, TRANSIT_OPEN], 
+mNextAppTransitionFlags=TRANSIT_FLAG_KEYGUARD_GOING_AWAY_SUBTLE_ANIMATION, displayId: 0 
+Callers=com.android.server.wm.Task.executeAppTransition:6846 
+com.android.server.wm.RootWindowContainer.lambda$resumeFocusedTasksTopActivities$18:2400 
+com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda17.accept:15 
+com.android.server.wm.Task.forAllRootTasks:3633 
+com.android.server.wm.WindowContainer.forAllRootTasks:2119 
+  11-30 20:53:01.746 D/TaskStackChangeListeners( 2248): onTaskDescriptionChanged =  taskId = 4559
+  11-30 20:53:01.748 E/gralloc4(13810): Empty SMPTE 2094-40 data
+> 11-30 20:53:01.750 I/SmartPower.com.streakify.streakify/10778(15067)( 1633): 
+invisible->visible(70ms) R(become visible) adj=0.
+> 11-30 20:53:01.750 I/SmartPower( 1633): com.streakify.streakify/10778 state=background adj=0 
+proc size=1 move to foreground become visible
+  11-30 20:53:01.751 I/BufferQueueProducer(  953): 
+[AOD#416793](this:0xb400007a4eb328a8,id:-1,api:0,p:-1,c:953) queueBuffer: fps=0.00 dur=912038.84 
+max=912038.84 min=912038.84
+  11-30 20:53:01.751 I/BufferQueueProducer(  953): 
+[RoundCornerTop#350362](this:0xb400007a5cd4b8a8,id:-1,api:0,p:-1,c:953) queueBuffer: fps=0.00 
+dur=912071.84 max=912071.84 min=912071.84
+  11-30 20:53:01.756 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.756 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+> 11-30 20:53:01.758 D/RecentsImpl( 2248): mActivityStateObserver 
+com.streakify.streakify.MainActivity
+> 11-30 20:53:01.758 I/BufferQueueDebug(  953): [com.streakify.streakify/com.streakify.streakify.M
+ainActivity#416799](this:0xb4000079f10ae8a8,id:-1,api:0,p:-1,c:-1) BufferQueue 
+core=(953:/system/bin/surfaceflinger)
+> 11-30 20:53:01.759 W/RecentsImpl( 2248): onResumed 
+className=com.streakify.streakify.MainActivity   mIsInAnotherPro=false   isKeyguardLocked=true   
+mSecuritySpaceGuideShown=false
+  11-30 20:53:01.760 D/SurfaceControl( 1633): nativeSetScreenProjection ===> setScreenProjection
+  11-30 20:53:01.760 V/AutoDensityController(13810): on display changed 0 context dpi:439 origin 
+dpi:440 target dpi:439
+  11-30 20:53:01.760 D/MiuiFaceManager(13810): inernational:true supportR:[ALL] nowR:UY
+  11-30 20:53:01.762 D/KeyguardUpdateMonitor(13810): fingerprintRunningState: 0
+> 11-30 20:53:01.764 I/WindowManager( 1633): Relayout Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}: oldVis=4 newVis=0 focusMayChange = 
+true requestedWidth = 1080 requestedHeight = 2400 outFrames = 
+ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][0,0] 
+parentClippedByDisplayCutout=false} outSurfaceControl = 
+Surface(name=com.streakify.streakify/com.streakify.streakify.MainActivity)/@0x9e2a072
+  11-30 20:53:01.766 E/gralloc4(13810): Empty SMPTE 2094-40 data
+  11-30 20:53:01.767 D/BufferQueueConsumer(15067): [](id:3adb00000002,api:0,p:-1,c:15067) 
+connect: controlledByApp=false
+  11-30 20:53:01.786 I/NotificationController( 2733): getSortedKey: size 1
+  11-30 20:53:01.786 I/NotificationController( 2733): getSortedKey: -1|android|26|null|1000__
+> 11-30 20:53:01.786 I/BufferQueueDebug(  953): [SurfaceView[com.streakify.streakify/com.streakify
+.streakify.MainActivity](BLAST)#416802](this:0xb4000079f10f08a8,id:-1,api:0,p:-1,c:-1) 
+BufferQueue core=(953:/system/bin/surfaceflinger)
+  11-30 20:53:01.782 D/MiuiFaceManager(13810): inernational:true supportR:[ALL] nowR:UY
+  11-30 20:53:01.787 D/MiuiFaceManager(13810): inernational:true supportR:[ALL] nowR:UY
+  11-30 20:53:01.809 I/KeyguardSensorInjector(13810): unregister pickup sensor
+  11-30 20:53:01.809 D/KeyguardViewMediator(13810): adjustStatusBarLocked: mShowing=false 
+mOccluded=false isSecure=true force=false --> flags=0x0 mUserId=0
+> 11-30 20:53:01.810 D/SurfaceView(15067): UPDATE Surface(name=SurfaceView[com.streakify.streakify
+/com.streakify.streakify.MainActivity])/@0x1f77430, mIsProjectionMode = false
+  11-30 20:53:01.810 D/SurfaceControl(15067): nativeSetScreenProjection ===> setScreenProjection
+  11-30 20:53:01.810 D/SurfaceControl(15067): nativeSetScreenProjection ===> setScreenProjection
+  11-30 20:53:01.823 D/KeyguardService(13810): onScreenTurnedOn
+  11-30 20:53:01.823 I/MiuiWallpaper-KeyguardAnimImageWallpaperRenderer(12560): bitmapWidth = 
+720.0, bitmapHeight = 1600.0, surfaceWidth = 1080.0, surfaceHeight = 2400.0, matrix = [1.0, 0.0, 
+0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+> 11-30 20:53:01.825 D/BufferStateLayer(  953): 
+com.streakify.streakify/com.streakify.streakify.MainActivity#416799 setBuffer frameId=1, 
+bufferId=64712272248837 fenceId=730, w= 1080, h=2400
+  11-30 20:53:01.825 I/Situation(  874): batch: handle:26, flag:0,samplingPeriodNs:66667000 
+maxBatchReportLatencyNs:0
+  
+  11-30 20:53:01.842 I/SmartPower( 1633): tv.twitch.android.app/10378 state=hibernation adj=0 
+proc size=1 move to background service create tv.twitch.android.app/com.google.android.datatranspo
+rt.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+  11-30 20:53:01.842 I/SmartPower( 1633): tv.twitch.android.app/10378 state=background adj=0 proc 
+size=1 move to inactive service create tv.twitch.android.app/com.google.android.datatransport.runt
+ime.scheduling.jobscheduling.JobInfoSchedulerService
+> 11-30 20:53:01.842 I/BufferQueueDebug(  953): [SurfaceView[com.streakify.streakify/com.streakify
+.streakify.MainActivity](BLAST)#416777](this:0xb4000079f10468a8,id:-1,api:0,p:-1,c:953) 
+onDestructor()
+  11-30 20:53:01.842 I/MiuiNetworkPolicy( 1633): updateUidState uid = 10183, uidState = 8
+  11-30 20:53:01.842 I/MessageMonitor(18065): Load libmiui_runtime
+  11-30 20:53:01.845 E/gralloc4(15067): Empty SMPTE 2094-40 data
+> 11-30 20:53:01.845 E/BLASTBufferQueue(15067): 
+[SurfaceView[com.streakify.streakify/com.streakify.streakify.MainActivity]#3](f:0,a:0) rejecting 
+buffer:active_size=1080x2400, requested_size=1080x2400 buffer{size=1080x2270 transform=0}
+  11-30 20:53:01.846 V/[GF_HAL][gf_hal_milan]( 1303): [hal_milan_invoke_command] 
+operation[0]=OPERATION_HOME_KEY, operation[0]=9
+  11-30 20:53:01.846 V/[GF_HAL][gf_hal_milan]( 1303): [hal_milan_invoke_command] exit
+  11-30 20:53:01.848 E/FileUtils(12560): err open mi_exception_log errno=2
+  11-30 20:53:01.848 E/FileUtils(12560): err write to mi_exception_log
+> 11-30 20:53:01.848 D/WindowManager( 1633): finishDrawingLocked: mDrawState=COMMIT_DRAW_PENDING 
+Window{fb3dd63 u0 com.streakify.streakify/com.streakify.streakify.MainActivity} in 
+Surface(name=com.streakify.streakify/com.streakify.streakify.MainActivity)/@0xa0cbb7a
+> 11-30 20:53:01.848 D/MiuiFreeFormGesturePointerEventListener( 1633): finishDrawingWindow: 
+topFullScreenWindow= Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:53:01.849 V/[GF_HAL][gf_hal_dump]( 1303): [gf_hal_common_dump_invoke_command] enter
+  11-30 20:53:01.852 D/AAL     ( 1234): 11-30 08:53:01.836 BL= 856,ESS= 256, 
+  11-30 20:53:01.854 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.854 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+> 11-30 20:53:01.854 I/WindowManager( 1633): showSurfaceRobustly mWin:Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:53:01.856 D/CompatibilityChangeReporter( 1633): Compat change id reported: 168419799; 
+UID 10378; state: DISABLED
+  11-30 20:53:01.859 I/BufferQueueProducer(  953): [Wallpaper BBQ 
+wrapper#410913](this:0xb4000079f10698a8,id:-1,api:0,p:-1,c:953) queueBuffer: fps=0.00 
+dur=912951.64 max=912951.64 min=912951.64
+  11-30 20:53:01.861 I/SmartPower.com.disney.wdw.android/10773(18065)( 1633): 
+died->background(1313645ms) R(process start ) adj=-10000.
+  11-30 20:53:01.861 I/SmartPower( 1633): com.disney.wdw.android/10773 state=died adj=925 proc 
+size=1 move to background process start 
+> 11-30 20:53:01.862 W/WindowManager( 1633): Changing focus from Window{54647a1 u0 
+NotificationShade} to Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity} displayId=0 
+Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:518 
+com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6466 
+com.android.server.wm.WindowManagerService.relayoutWindow:2785 
+com.android.server.wm.Session.relayout:277 
+  11-30 20:53:01.862 E/FileUtils( 1633): err open mi_exception_log errno=2
+  11-30 20:53:01.862 E/FileUtils( 1633): err write to mi_exception_log
+> 11-30 20:53:01.864 D/WindowManager( 1633): Input focus has changed to Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity} display=0 updateInputWindows = true
+  11-30 20:53:01.865 E/FileUtils(13810): err write to mi_exception_log
+  11-30 20:53:01.866 E/gralloc4(12560): Empty SMPTE 2094-40 data
+  11-30 20:53:01.869 V/[GF_HAL][gf_hal]( 1303): [gf_hal_irq] exit
+  11-30 20:53:01.869 D/[GF_HAL][gf_hal_device]( 1303): [gf_handle_thread] ignore screen on msg.
+> 11-30 20:53:01.870 I/SurfaceFlinger(  953): setTransactionState focusRequest 
+transactionId:7013684664977 frontWin:fb3dd63 
+com.streakify.streakify/com.streakify.streakify.MainActivity
+  11-30 20:53:01.865 W/fingerprint@2.1( 1303): type=1400 audit(0.0:43590784): avc: denied { read 
+} for name="u:object_r:default_prop:s0" dev="tmpfs" ino=12378 
+scontext=u:r:hal_fingerprint_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file 
+permissive=0
+  11-30 20:53:01.865 W/fingerprint@2.1( 1303): type=1400 audit(0.0:43590785): avc: denied { read 
+} for name="u:object_r:default_prop:s0" dev="tmpfs" ino=12378 
+scontext=u:r:hal_fingerprint_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file 
+permissive=0
+  11-30 20:53:01.887 E/gralloc4(15067): Empty SMPTE 2094-40 data
+  11-30 20:53:01.887 E/gralloc4(12560): Empty SMPTE 2094-40 data
+> 11-30 20:53:01.891 D/MiuiFreeFormGesturePointerEventListener( 1633): finishDrawingWindow: 
+topFullScreenWindow= Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:53:01.892 I/com.miui.aod( 2733): Explicit concurrent copying GC freed 2588KB 
+AllocSpace bytes, 9(456KB) LOS objects, 49% free, 3489KB/6978KB, paused 1.960ms,62us total 
+74.931ms
+  11-30 20:53:01.892 W/com.miui.aod( 2733): Reducing the number of considered missed Gc histogram 
+windows from 348 to 100
+  11-30 20:53:01.915 D/WakeLock( 2733): longWakeLock : release 
+after:MiuiDozeScreenBrightnessController#transitionTo hold:false
+  11-30 20:53:01.916 D/AALLightSensor( 1234): Notify lux = 12
+> 11-30 20:53:01.917 D/MiuiFreeFormGesturePointerEventListener( 1633): finishDrawingWindow: 
+topFullScreenWindow= Window{fb3dd63 u0 
+com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:53:01.917 D/DisplayPowerControllerImpl( 1633): updateBrightnessChangeStatus: 
+animating: true, displayState: 2, slowChange: false, appliedDimming: false, appliedLowPower: 
+false, currentBrightness: 0.4180991, currentSdrBrightness: 0.4180991, targetBrightness: 
+0.26610935, targetSdrBrightness: 0.26610935
+  11-30 20:53:01.917 I/DisplayPowerControllerImpl( 1633): Animating brightness rate: 0.7058823, 
+outRate: 0.7058823, reason: no_changed
+  11-30 20:53:01.937 E/FileUtils(13810): err open mi_exception_log errno=2
+  11-30 20:53:01.937 E/FileUtils(13810): err write to mi_exception_log
+> 11-30 20:53:01.937 I/GoogleInputMethodService( 4350): 
+GoogleInputMethodService.onStartInput():1347 
+onStartInput(EditorInfo{EditorInfo{packageName=com.streakify.streakify, inputType=0, 
+inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, 
+imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, 
+initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, 
+extras=Bundle[mParcelledData.dataSize=72], hintText=null, hintLocales=[]}}, false)
+  11-30 20:53:01.937 I/libPowerHal(  883): [perfLockRel] hdl:878291, idx:1
+  11-30 20:53:01.937 I/libPowerHal(  883): [PD] MTKPOWER_HINT_PACK_SWITCH update cmd:1408300 
+param:0
+  11-30 20:53:01.972 E/android.hardware.lights-service.mediatek(  880): Lights color=0x30a, 
+FlashMode=0,0,0
+  11-30 20:53:01.973 D/android.hardware.lights-service.mediatek(  880): write 778 to 
+/sys/class/leds/lcd-backlight/brightness, result: 0
+> 11-30 20:53:01.972 W/RecentsImpl( 2248): getTopActivity from observer.   
+cn=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity}
+> 11-30 20:53:01.973 W/RecentsImpl( 2248): adaptToTopActivity   
+cn=ComponentInfo{com.streakify.streakify/com.streakify.streakify.MainActivity}
+  11-30 20:53:01.973 D/miui.face.FaceService( 3638): lock screen passed
+  11-30 20:53:01.974 I/id.partnersetup(18082): Using CollectorTypeCC GC.
+  11-30 20:53:01.974 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.975 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+> 11-30 20:53:01.975 W/RecentsImpl( 2248): onResumed 
+className=com.streakify.streakify.MainActivity   mIsInAnotherPro=false   isKeyguardLocked=false   
+mSecuritySpaceGuideShown=false
+  11-30 20:53:01.977 E/id.partnersetup(18082): Not starting debugger since process cannot load 
+the jdwp agent.
+  11-30 20:53:01.979 D/PowerKeeper.AppStandby( 5918): disable standby chain
+  11-30 20:53:01.996 W/BroadcastQueue( 1633): Background execution not allowed: receiving Intent 
+{ act=android.intent.action.USER_PRESENT flg=0x24200010 } to 
+com.facebook.services/com.facebook.oxygen.services.fbns.RegisteredMqttSystemBroadcastReceiver
+  11-30 20:53:01.997 I/NotificationHelper(12377): checkAndSendGeneralNotification: alreadyHas 
+false
+> 11-30 20:53:01.997 I/GameBoosterService(12377): restartGameMode: com.streakify.streakify
+  11-30 20:53:01.998 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:01.998 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:02.107 E/gralloc4(12560): Empty SMPTE 2094-40 data
+  11-30 20:53:02.108 E/gralloc4(13810): Empty SMPTE 2094-40 data
+> 11-30 20:53:02.109 D/WindowManager( 1633): setParent old=ActivityRecord{5572f93 u0 
+com.streakify.streakify/.MainActivity} t4559},new=null,this window=Window{c18f50c u0 
+SnapshotStartingWindow for 
+taskId=4559},callers=com.android.server.wm.WindowContainer.removeChild:820 
+com.android.server.wm.ActivityRecord.removeChild:4731 
+com.android.server.wm.ActivityRecord.removeChild:424 
+com.android.server.wm.WindowContainer.removeImmediately:881 
+com.android.server.wm.WindowState.removeImmediately:2660 
+com.android.server.wm.WindowState.destroySurface:3840 
+  11-30 20:53:02.110 D/BoundBrokerSvc(24682): onBind: Intent { 
+act=com.google.android.gms.pay.service.BIND dat=chimera-action:/... 
+cmp=com.google.android.gms/.chimera.GmsApiService }
+  11-30 20:53:02.110 D/BoundBrokerSvc(24682): Loading bound service for intent: Intent { 
+act=com.google.android.gms.pay.service.BIND dat=chimera-action:/... 
+cmp=com.google.android.gms/.chimera.GmsApiService }
+  11-30 20:53:03.334 D/AAL     ( 1234): onBacklightChanged: 545/1023 -> 546/1023(phy:1092/4095)
+  11-30 20:53:03.334 D/AAL     ( 1234): LABC: LABC after setTarget isSmoothBacklight=1 
+> 11-30 20:53:03.340 D/nativeloader(18065): Load /data/app/~~5Zp5TLB5DpRFknmjG0sAog==/com.disney.w
+dw.android-G-jTA5JYWEHKcNYAvFvZBw==/split_config.arm64_v8a.apk!/lib/arm64-v8a/libflutter.so using 
+class loader ns clns-5 (caller=/data/app/~~5Zp5TLB5DpRFknmjG0sAog==/com.disney.wdw.android-G-jTA5J
+YWEHKcNYAvFvZBw==/base.apk!classes25.dex): ok
+  11-30 20:53:03.340 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:03.340 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+  11-30 20:53:03.440 D/MIUIInput( 1633): [MotionEvent] publisher action=0x4, 2282584988, channel 
+'dcd9dc0 NavigationBar0 (server)'
+  11-30 20:53:03.440 I/libPowerHal(  883): [PE] MTKPOWER_HINT_APP_TOUCH update cmd:1000000, 
+param:0
+> 11-30 20:53:03.440 D/MIUIInput( 1633): [MotionEvent] publisher action=0x0, 2282584988, channel 
+'fb3dd63 com.streakify.streakify/com.streakify.streakify.MainActivity (server)'
+  11-30 20:53:03.440 D/MIUIInput( 1633): [MotionEvent] publisher action=0x0, 2282584988, channel 
+'[Gesture Monitor] miui-gesture (server)'
+  11-30 20:53:03.440 I/libPowerHal(  883): [PE] MTKPOWER_HINT_APP_TOUCH update cmd:410000, param:1
+  11-30 20:53:03.540 D/CompatibilityChangeReporter( 1633): Compat change id reported: 161145287; 
+UID 10056; state: DISABLED
+  11-30 20:53:03.541 I/mtkpower@impl(  883): [mtkPowerHint] hint:25, hold:80, ext:0, ext_hold:0
+> 11-30 20:53:03.541 D/MIUIInput( 1633): [MotionEvent] publisher action=0x1, 2282585090, channel 
+'fb3dd63 com.streakify.streakify/com.streakify.streakify.MainActivity (server)'
+  11-30 20:53:03.541 D/MIUIInput( 1633): [MotionEvent] publisher action=0x1, 2282585090, channel 
+'[Gesture Monitor] miui-gesture (server)'
+  11-30 20:53:03.541 I/libPowerHal(  883): [perfLockAcq] idx:1 hdl:878293 hint:25 pid:883 
+duration:80 lock_user:mtkpower@1.0-se => ret_hdl:878293
+  11-30 20:53:04.296 E/android.hardware.lights-service.mediatek(  880): Lights color=0x250, 
+FlashMode=0,0,0
+  11-30 20:53:04.296 D/android.hardware.lights-service.mediatek(  880): write 592 to 
+/sys/class/leds/lcd-backlight/brightness, result: 0
+> 11-30 20:53:04.298 I/BufferQueueProducer(  953): [SurfaceView[com.streakify.streakify/com.streak
+ify.streakify.MainActivity](BLAST)#416802](this:0xb4000079f10f08a8,id:-1,api:0,p:-1,c:953) 
+queueBuffer: fps=0.44 dur=2290.69 max=2290.69 min=2290.69
+  11-30 20:53:04.300 I/hwcomposer(  869): [HWCDisplay] [Display_0 (type:1)] 
+fps:0.629047,dur:1589.71,max:1589.71,min:1589.71  
+  11-30 20:53:04.301 I/system_server( 1633): user found in check list, getPackageName  
+android.view.OrientationEventListener
+
+

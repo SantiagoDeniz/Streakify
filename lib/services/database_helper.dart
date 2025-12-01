@@ -1033,4 +1033,165 @@ class DatabaseHelper {
     await db.close();
     _database = null;
   }
+
+  // ============================================
+  // FUNCIONES DE DESARROLLO - SOLO PARA TESTING
+  // ============================================
+
+  /// Inyectar datos de prueba para TC-ACT-012 y TC-ACT-013
+  /// ADVERTENCIA: Esto modifica directamente la base de datos
+  Future<void> injectTestData() async {
+    final db = await database;
+
+    print('🧪 [TEST] Inyectando datos de prueba...');
+
+    // Buscar la actividad "Test Ejercicio"
+    final activities = await db.query(
+      'activities',
+      where: 'name = ?',
+      whereArgs: ['Test Ejercicio'],
+      limit: 1,
+    );
+
+    if (activities.isEmpty) {
+      print('❌ [TEST] No se encontró la actividad "Test Ejercicio"');
+      return;
+    }
+
+    final activityId = activities.first['id'] as String;
+    final now = DateTime.now();
+
+    // TC-ACT-012: Actividad completada ayer con racha = 5
+    final yesterday = now.subtract(const Duration(days: 1));
+
+    print('📝 [TEST] Configurando TC-ACT-012: racha=5, completada ayer');
+    await db.update(
+      'activities',
+      {
+        'streak': 5,
+        'lastCompleted': yesterday.toIso8601String(),
+        'updatedAt': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [activityId],
+    );
+
+    // Insertar historial de completaciones para los últimos 5 días
+    for (int i = 0; i < 5; i++) {
+      final completionDate = yesterday.subtract(Duration(days: i));
+      await db.insert(
+        'completion_history',
+        {
+          'id': 'test_completion_${i}_${DateTime.now().millisecondsSinceEpoch}',
+          'activityId': activityId,
+          'completedAt': completionDate.toIso8601String(),
+          'notes': 'Datos de prueba TC-ACT-012',
+          'protectorUsed': 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    print('✅ [TEST] Datos inyectados exitosamente');
+    print('   - Actividad: Test Ejercicio');
+    print('   - Racha actual: 5');
+    print('   - Última completación: ${yesterday.toString().substring(0, 10)}');
+    print('   - Historial: 5 completaciones consecutivas');
+    print('');
+    print('🎯 [TEST] Ahora puedes ejecutar TC-ACT-012:');
+    print('   1. Completa "Test Ejercicio" HOY');
+    print('   2. Verifica que la racha incrementa de 5 a 6');
+  }
+
+  /// Preparar datos para TC-ACT-013 (completar después de saltar un día)
+  Future<void> injectTestDataTC013() async {
+    final db = await database;
+
+    print('🧪 [TEST] Inyectando datos para TC-ACT-013...');
+
+    // Buscar o crear actividad "Test Salto"
+    var activities = await db.query(
+      'activities',
+      where: 'name = ?',
+      whereArgs: ['Test Salto'],
+      limit: 1,
+    );
+
+    String activityId;
+    if (activities.isEmpty) {
+      // Crear nueva actividad
+      activityId = 'test_salto_${DateTime.now().millisecondsSinceEpoch}';
+      await db.insert(
+        'activities',
+        {
+          'id': activityId,
+          'name': 'Test Salto',
+          'streak': 3,
+          'active': 1,
+          'protectorUsed': 0,
+          'notificationsEnabled': 0,
+          'notificationHour': 20,
+          'notificationMinute': 0,
+          'displayOrder': 999,
+          'recurrenceType': 'daily',
+          'recurrenceInterval': 1,
+          'allowedFailures': 0,
+          'weeklyFailureCount': 0,
+          'weeklyCompletionCount': 0,
+          'dailyCompletionCount': 0,
+          'dailyGoal': 1,
+          'isFrozen': 0,
+          'streakPoints': 0,
+          'monthlyProtectorUses': 0,
+          'createdAt': DateTime.now().toIso8601String(),
+          'updatedAt': DateTime.now().toIso8601String(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('📝 [TEST] Actividad "Test Salto" creada');
+    } else {
+      activityId = activities.first['id'] as String;
+    }
+
+    final now = DateTime.now();
+    final threeDaysAgo = now.subtract(const Duration(days: 3));
+
+    print('📝 [TEST] Configurando TC-ACT-013: racha=3, completada hace 3 días');
+    await db.update(
+      'activities',
+      {
+        'streak': 3,
+        'lastCompleted': threeDaysAgo.toIso8601String(),
+        'updatedAt': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [activityId],
+    );
+
+    // Insertar historial (completada hace 3 días)
+    await db.insert(
+      'completion_history',
+      {
+        'id': 'test_salto_completion_${DateTime.now().millisecondsSinceEpoch}',
+        'activityId': activityId,
+        'completedAt': threeDaysAgo.toIso8601String(),
+        'notes': 'Datos de prueba TC-ACT-013 - 3 días atrás',
+        'protectorUsed': 0,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    print('✅ [TEST] Datos inyectados exitosamente');
+    print('   - Actividad: Test Salto');
+    print('   - Racha actual: 3');
+    print(
+        '   - Última completación: ${threeDaysAgo.toString().substring(0, 10)}');
+    print('   - Días sin completar: 2 días (ayer y anteayer)');
+    print('');
+    print('🎯 [TEST] Ahora puedes ejecutar TC-ACT-013:');
+    print('   1. Completa "Test Salto" HOY');
+    print(
+        '   2. NO debería aparecer opción de protector (más de 1 día saltado)');
+    print('   3. Verifica que la racha se REINICIA a 1 directamente');
+  }
 }

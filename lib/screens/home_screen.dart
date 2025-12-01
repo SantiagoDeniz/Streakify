@@ -700,9 +700,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     bool usedProtector = false;
 
-    // Verificar si se rompió la racha (pasó más de 1 día desde la última vez)
-    if (last != null && nowDay.difference(last).inDays > 1) {
-      // Se rompió la racha - verificar protector
+    // Verificar si se rompió la racha
+    final daysDifference = last != null ? nowDay.difference(last).inDays : 0;
+
+    if (daysDifference == 2) {
+      // Faltó EXACTAMENTE 1 día (ayer) - ofrecer protector
       if (!act.protectorUsed &&
           (act.nextProtectorAvailable == null ||
               DateTime.now().isAfter(act.nextProtectorAvailable!))) {
@@ -715,7 +717,12 @@ class _HomeScreenState extends State<HomeScreen> {
         act.lastCompleted = nowDay;
         act.weeklyCompletionCount = 0; // Reset weekly counter
       }
-    } else if (last != null && nowDay.difference(last).inDays == 1) {
+    } else if (daysDifference > 2) {
+      // Faltaron 2 o más días - reiniciar directamente SIN opción de protector
+      act.streak = 1;
+      act.lastCompleted = nowDay;
+      act.weeklyCompletionCount = 0; // Reset weekly counter
+    } else if (daysDifference == 1) {
       // Racha continua (completó ayer)
       act.streak += 1;
       act.lastCompleted = nowDay;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'screens/home_screen.dart';
 import 'themes/app_themes.dart';
 import 'services/accessibility_service.dart';
@@ -7,27 +9,45 @@ import 'services/personalization_service.dart';
 import 'services/theme_service.dart';
 import 'services/firebase_service.dart';
 import 'services/feature_flags_service.dart';
+import 'services/database_helper.dart';
+import 'models/activity.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Initialize locale data for date formatting
+  await initializeDateFormatting('es', null);
+
   // Initialize Firebase services
   final firebaseService = FirebaseService();
   await firebaseService.initialize();
-  
+
   // Initialize Feature Flags
   final featureFlagsService = FeatureFlagsService();
   await featureFlagsService.initialize();
-  
+
   final accessibilityService = AccessibilityService();
   await accessibilityService.init();
-  
+
   final personalizationService = PersonalizationService();
   await personalizationService.init();
-  
+
   final themeService = ThemeService();
   await themeService.init();
-  
+
+  // MODO TESTING: Auto-inyectar datos si existen actividades de prueba
+  if (kDebugMode) {
+    try {
+      final db = DatabaseHelper();
+
+      // FORZAR inyección de TC-013 siempre (para testing)
+      print('🧪 FORZANDO INYECCIÓN: TC-ACT-013');
+      await db.injectTestDataTC013();
+    } catch (e) {
+      print('⚠️ Error en auto-inyección: $e');
+    }
+  }
+
   runApp(StreakifyApp(
     accessibilityService: accessibilityService,
     personalizationService: personalizationService,
@@ -39,9 +59,9 @@ class StreakifyApp extends StatefulWidget {
   final AccessibilityService accessibilityService;
   final PersonalizationService personalizationService;
   final ThemeService themeService;
-  
+
   const StreakifyApp({
-    super.key, 
+    super.key,
     required this.accessibilityService,
     required this.personalizationService,
     required this.themeService,
@@ -61,7 +81,7 @@ class _StreakifyAppState extends State<StreakifyApp> {
     widget.accessibilityService.addListener(_onAccessibilityChanged);
     widget.personalizationService.addListener(_onPersonalizationChanged);
     widget.themeService.addListener(_onThemeServiceChanged);
-    
+
     // Check if auto-theme is enabled and apply it
     if (widget.themeService.autoSwitchEnabled) {
       _themeMode = widget.themeService.getAutoTheme();
@@ -116,13 +136,13 @@ class _StreakifyAppState extends State<StreakifyApp> {
   @override
   Widget build(BuildContext context) {
     // Combine text scale from both accessibility and personalization
-    final combinedTextScale = widget.accessibilityService.textScaleFactor * 
-                              widget.personalizationService.textSizeMultiplier;
-    
+    final combinedTextScale = widget.accessibilityService.textScaleFactor *
+        widget.personalizationService.textSizeMultiplier;
+
     return AnimatedTheme(
       data: AppThemes.getTheme(_themeMode),
-      duration: widget.accessibilityService.reduceMotion 
-          ? Duration.zero 
+      duration: widget.accessibilityService.reduceMotion
+          ? Duration.zero
           : const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       child: MediaQuery(
@@ -134,8 +154,8 @@ class _StreakifyAppState extends State<StreakifyApp> {
           debugShowCheckedModeBanner: false,
           theme: AppThemes.getTheme(_themeMode).copyWith(
             textTheme: AppThemes.getTheme(_themeMode).textTheme.apply(
-              fontFamily: widget.personalizationService.fontFamily,
-            ),
+                  fontFamily: widget.personalizationService.fontFamily,
+                ),
           ),
           locale: widget.personalizationService.locale,
           home: HomeScreen(
@@ -157,4 +177,3 @@ class _StreakifyAppState extends State<StreakifyApp> {
     );
   }
 }
-
